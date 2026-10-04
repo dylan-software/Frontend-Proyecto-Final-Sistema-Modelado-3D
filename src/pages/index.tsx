@@ -1,0 +1,167 @@
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { RenderScene } from "../render/RenderScene";
+import { RoomEditor } from "../components/RoomEditor";
+import { ObjectForm } from "../components/ObjectForm";
+import { ChatPanel } from "../components/ChatPanel";
+import { api, type Point2D, type FurnitureInput } from "../lib/api";
+
+const DEMO_PROJECT_ID = "demo-project";
+
+interface SpaceState {
+  vertices: Point2D[];
+  heightM: number;
+  areaM2: number;
+}
+
+interface PlacedItemState {
+  x: number;
+  y: number;
+  rotation: number;
+  item: FurnitureInput;
+}
+
+const DEFAULT_LIGHTING = { position: { x: 0, y: 3, z: 0 }, intensity: 0.8, color: "#ffffff" };
+
+export default function Home() {
+  const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
+  const [catalog, setCatalog] = useState<FurnitureInput[]>([]);
+  const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
+  const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function loadSpace() {
+    try {
+      const res = await api.getSpace(DEMO_PROJECT_ID);
+      setSpace(res);
+    } catch {
+      setSpace("none");
+    }
+  }
+
+  async function loadCatalog() {
+    try {
+      const res = await api.listFurniture();
+      setCatalog(res.items);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
+  useEffect(() => {
+    loadSpace();
+    loadCatalog();
+  }, []);
+
+  async function handleVertexMoved(index: number, point: Point2D) {
+    const res = await api.updateVertex(DEMO_PROJECT_ID, index, point);
+    setSpace((prev) => (prev && prev !== "loading" && prev !== "none" ? { ...prev, vertices: res.vertices, areaM2: res.areaM2 } : prev));
+  }
+
+  async function handleGenerateLayout() {
+    if (!space || space === "loading" || space === "none" || catalog.length === 0) return;
+    setGenerating(true);
+    setError(null);
+    try {
+      const result = await api.generateLayout({
+        projectId: DEMO_PROJECT_ID,
+        room: { vertices: space.vertices, heightM: space.heightM },
+        items: catalog,
+        constraints: { minDistanceBetweenItemsCm: 15, minClearPathCm: 60 },
+      });
+
+      if (!result.readyToRender) {
+        setError(
+          result.layout.warnings.join(" ") ||
+            result.errors.join(" ") ||
+            "The layout did not end up ready to render — try with fewer or smaller items."
+        );
+        return;
+      }
+
+      setPlacedItems(
+        result.layout.positions.map((pos) => ({
+          x: pos.x,
+          y: pos.y,
+          rotation: pos.rotation,
+          item: catalog.find((c) => c.id === pos.itemId)!,
+        }))
+      );
+      setLighting(result.lighting);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  return (
+    <div className="dashboard">
+      {/* Left panel: AI organization assistant (phase 3). */}
+      <aside className="chat-panel">
+        <ChatPanel projectId={DEMO_PROJECT_ID} />
+      </aside>
+
+      <main className="main-panel">
+        <h1>3D Space Decoration System</h1>
+
+        {space === "loading" && <p>Loading…</p>}
+
+        {space === "none" && (
+          <div>
+            <p>No space scanned yet.</p>
+            <Link href="/scan">
+              <button>Scan a space</button>
+            </Link>
+          </div>
+        )}
+
+        {space && space !== "loading" && space !== "none" && (
+          <>
+            <section>
+              <h2>Room shape ({space.areaM2} m²)</h2>
+              <RoomEditor vertices={space.vertices} areaM2={space.areaM2} onVertexMoved={handleVertexMoved} />
+              <Link href="/scan">
+                <button className="link-button">Re-scan from scratch</button>
+              </Link>
+            </section>
+
+            <section>
+              <h2>Layout</h2>
+              <button onClick={handleGenerateLayout} disabled={generating || catalog.length === 0}>
+                {generating ? "Generating…" : "Generate layout"}
+              </button>
+              {catalog.length === 0 && <p className="hint">Add at least one object below first.</p>}
+
+              {placedItems.length > 0 && (
+                <div className="canvas-wrapper">
+                  <RenderScene
+                    vertices={space.vertices}
+                    heightM={space.heightM}
+                    placedItems={placedItems}
+                    lighting={lighting}
+                  />
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {error && <p className="warning">{error}</p>}
+
+        <section>
+          <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
+          <h3>Catalog ({catalog.length})</h3>
+          <ul>
+            {catalog.map((c) => (
+              <li key={c.id}>
+                {c.name} — {c.widthCm}×{c.heightCm}×{c.depthCm}cm
+              </li>
+            ))}
+          </ul>
+        </section>
+      </main>
+    </div>
+  );
+}
