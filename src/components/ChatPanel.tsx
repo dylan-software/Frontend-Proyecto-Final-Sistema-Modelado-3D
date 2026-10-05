@@ -73,18 +73,24 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
 
       {error && <p className="warning">{error}</p>}
 
-      <div className="chat-input-row">
+      <form
+        className="chat-input-row"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSend();
+        }}
+      >
         <input
+          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
           placeholder="e.g. How should I arrange my furniture?"
           disabled={sending}
         />
-        <button onClick={handleSend} disabled={sending || !input.trim()}>
+        <button type="submit" disabled={sending || !input.trim()}>
           Send
         </button>
-      </div>
+      </form>
     </div>
   );
 }
