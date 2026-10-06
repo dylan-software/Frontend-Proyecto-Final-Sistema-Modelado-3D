@@ -16,3 +16,13 @@ export interface Dimensions3D {
   height: number;
   depth: number;
 }
+
+/** A piece of furniture placed in the room, as validated by the backend. */
+export interface FurnitureObject {
+  id: string;
+  name: string;
+  position: Vector3D;
+  /** Rotation around the vertical axis, in degrees. */
+  rotation: number;
+  dimensions?: Dimensions3D;
+}
