@@ -132,12 +132,21 @@ select {
 }
 
 .canvas-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  height: 480px;
+  height: min(480px, 60vh);
   border-radius: 8px;
   overflow: hidden;
   background: #cfd8dc;
-  margin-top: 12px;
+  margin: 12px auto 0;
+}
+
+/* The R3F canvas is inline by default, which leaves a gap under it. */
+.canvas-wrapper canvas {
+  display: block;
 }
 
 .room-editor svg {
