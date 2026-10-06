@@ -28,6 +28,8 @@ export default function Home() {
   const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
   const [catalog, setCatalog] = useState<FurnitureInput[]>([]);
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
+  // Furniture whose coordinates were validated by the backend's Octree.
+  const [placedFurniture, setPlacedFurniture] = useState<FurnitureObject[]>([]);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
