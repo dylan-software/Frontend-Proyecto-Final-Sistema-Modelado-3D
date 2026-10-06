@@ -27,9 +27,17 @@ export interface FurnitureObject {
   dimensions?: Dimensions3D;
 }
 
-/** Response of POST /api/v1/spaces/analyze on the FastAPI backend. */
-export interface SpaceAnalysisResponse {
+/**
+ * Envelope shared by every JSON response of the FastAPI backend.
+ * `detail` is what FastAPI returns on validation or HTTP errors.
+ */
+export interface ApiResponseInterface {
   success: boolean;
+  detail?: string;
+}
+
+/** Response of POST /api/v1/spaces/analyze on the FastAPI backend. */
+export interface SpaceAnalysisResponse extends ApiResponseInterface {
   recommendations: string;
   suggested_coordinates: Vector3D;
 }
