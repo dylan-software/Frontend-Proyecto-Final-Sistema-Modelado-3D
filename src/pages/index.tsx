@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { RenderScene } from "../render/RenderScene";
+import dynamic from "next/dynamic";
 import { RoomEditor } from "../components/RoomEditor";
 import { ObjectForm } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import CameraCapture from "../components/CameraCapture";
-import Scene3D from "../components/Scene3D";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
 import type { FurnitureObject, SpaceAnalysisResponse } from "../types/spatial";
+
+// three.js can't be evaluated during server prerendering, so the 3D
+// viewers are only loaded in the browser.
+const RenderScene = dynamic(() => import("../render/RenderScene").then((m) => m.RenderScene), { ssr: false });
+const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
 const DEMO_PROJECT_ID = "demo-project";
 
