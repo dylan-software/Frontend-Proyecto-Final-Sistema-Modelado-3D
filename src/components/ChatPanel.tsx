@@ -80,7 +80,11 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         {sending && <div className="chat-bubble chat-bubble-assistant">Thinking…</div>}
       </div>
 
-      {error && <p className="warning">{error}</p>}
+      {error && (
+        <p className="warning connection-alert" role="alert">
+          {error}
+        </p>
+      )}
 
       <form
         className="chat-input-row"
