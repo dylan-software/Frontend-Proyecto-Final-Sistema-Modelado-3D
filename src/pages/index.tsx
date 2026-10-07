@@ -81,6 +81,11 @@ export default function Home() {
     ]);
   }
 
+  function handleResetSpace() {
+    setPlacedFurniture([]);
+    setPlacedItems([]);
+  }
+
   async function handleGenerateLayout() {
     if (!space || space === "loading" || space === "none" || catalog.length === 0) return;
     setGenerating(true);
@@ -123,6 +128,13 @@ export default function Home() {
       {/* Left panel: AI organization assistant (phase 3). */}
       <aside className="chat-panel">
         <ChatPanel projectId={DEMO_PROJECT_ID} />
+        <button
+          className="reset-button"
+          onClick={handleResetSpace}
+          disabled={placedFurniture.length === 0 && placedItems.length === 0}
+        >
+          Clear all furniture
+        </button>
       </aside>
 
       <main className="main-panel">
