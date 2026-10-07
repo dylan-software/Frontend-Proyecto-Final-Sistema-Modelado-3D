@@ -1,6 +1,35 @@
-# Frontend — Vercel
+# Frontend — 3D Space Modeling System
+
+Web interface of the 3D space modeling project. It lets the user scan or draw a room, view it in an
+interactive 3D viewer, ask an AI assistant how to organize it, and send a camera snapshot to the
+backend so its AI suggests where to place furniture.
 
 Next.js app (pages router). Talks to the backend only through `NEXT_PUBLIC_API_URL`.
+
+## Stack
+- **Next.js + React + TypeScript**
+- **three.js** with **@react-three/fiber** (React renderer) and **@react-three/drei** (grid, orbit controls)
+- **FastAPI** backend (separate repository), reached over HTTP
+
+## Structure
+```
+src/
+  pages/        index.tsx (dashboard), scan.tsx (room scanning)
+  components/   Scene3D, ThreeLoader, CameraCapture, ChatPanel, RoomEditor, ObjectForm, AR tools
+  render/       RenderScene (room polygon + generated layout)
+  lib/api.ts    fetch wrapper around the backend API
+  types/        shared 3D types (Vector3D, FurnitureObject, API responses)
+```
+
+## Main flows
+- **Camera analysis** — `CameraCapture` takes a frame from the webcam and POSTs it as
+  `multipart/form-data` (key `file`) to `/api/v1/spaces/analyze`. The returned
+  `suggested_coordinates` are validated and drawn in `Scene3D`.
+- **AI chat** — `ChatPanel` sends the conversation to the backend and shows the assistant's reply.
+- **Layout generation** — the room shape and furniture catalog are sent to the backend, and the
+  validated positions are rendered by `RenderScene`.
+
+# Deployment
 
 ## Deploy on Vercel
 1. Push this folder as its own Git repository (the repo root is this folder, so no "Root Directory" change is needed).
