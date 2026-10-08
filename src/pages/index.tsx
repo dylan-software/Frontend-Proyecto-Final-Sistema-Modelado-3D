@@ -140,10 +140,6 @@ export default function Home() {
               </li>
             ))}
           </ul>
-        </section>
-
-        <section className="chat-panel">
-          <ChatPanel projectId={DEMO_PROJECT_ID} />
           <button
             className="reset-button"
             onClick={handleResetSpace}
@@ -209,6 +205,9 @@ export default function Home() {
 
         {error && <p className="warning">{error}</p>}
       </main>
+
+      {/* Floating AI organization assistant (phase 3), bottom-right corner. */}
+      <ChatPanel projectId={DEMO_PROJECT_ID} />
     </div>
   );
 }
