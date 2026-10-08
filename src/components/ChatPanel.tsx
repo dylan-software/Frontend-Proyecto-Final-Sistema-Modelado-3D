@@ -37,12 +37,14 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Whether the floating chat window is expanded; the conversation is kept while it's closed.
+  const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Keep the latest message (or the "Thinking…" bubble) in view.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, sending]);
+  }, [messages, sending, isOpen]);
 
   async function handleSend() {
     const text = input.trim();
@@ -65,46 +67,65 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
   }
 
   return (
-    <div className="chat-panel-inner">
-      <h2>AI Assistant</h2>
-      <p className="hint">
-        Gets its answers from the real data of your project (room shape + placed items) — it cannot see a photo or
-        render of the space.
-      </p>
-
-      <div className="chat-messages" ref={scrollRef} aria-busy={sending}>
-        {messages.map((m, i) => (
-          <div key={i} className={`chat-bubble chat-bubble-${m.role}`}>
-            {m.content}
+    <div className="chat-widget">
+      {isOpen && (
+        <div className="chat-panel-inner chat-window" role="dialog" aria-label="AI Assistant">
+          <div className="chat-window-header">
+            <h2>AI Assistant</h2>
+            <button type="button" className="chat-minimize" onClick={() => setIsOpen(false)} aria-label="Minimize chat">
+              –
+            </button>
           </div>
-        ))}
-        {sending && <div className="chat-bubble chat-bubble-assistant">Thinking…</div>}
-      </div>
+          <p className="hint">
+            Gets its answers from the real data of your project (room shape + placed items) — it cannot see a photo or
+            render of the space.
+          </p>
 
-      {error && (
-        <p className="warning connection-alert" role="alert">
-          {error}
-        </p>
+          <div className="chat-messages" ref={scrollRef} aria-busy={sending}>
+            {messages.map((m, i) => (
+              <div key={i} className={`chat-bubble chat-bubble-${m.role}`}>
+                {m.content}
+              </div>
+            ))}
+            {sending && <div className="chat-bubble chat-bubble-assistant">Thinking…</div>}
+          </div>
+
+          {error && (
+            <p className="warning connection-alert" role="alert">
+              {error}
+            </p>
+          )}
+
+          <form
+            className="chat-input-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="e.g. How should I arrange my furniture?"
+              disabled={sending}
+            />
+            <button type="submit" disabled={sending || !input.trim()}>
+              {sending ? "Sending…" : "Send"}
+            </button>
+          </form>
+        </div>
       )}
 
-      <form
-        className="chat-input-row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSend();
-        }}
+      <button
+        type="button"
+        className="chat-fab"
+        onClick={() => setIsOpen((open) => !open)}
+        aria-expanded={isOpen}
+        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
       >
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="e.g. How should I arrange my furniture?"
-          disabled={sending}
-        />
-        <button type="submit" disabled={sending || !input.trim()}>
-          {sending ? "Sending…" : "Send"}
-        </button>
-      </form>
+        {isOpen ? "×" : "💬"}
+      </button>
     </div>
   );
 }
