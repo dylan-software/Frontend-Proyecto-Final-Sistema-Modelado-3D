@@ -38,9 +38,17 @@ body {
 }
 
 section {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: #1c2128;
+  border: 1px solid rgba(240, 246, 252, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(1, 4, 9, 0.35);
+}
+
+section h2,
+section h3 {
+  margin-top: 0;
 }
 
 button {
@@ -141,7 +149,8 @@ select {
   height: min(480px, 60vh);
   border-radius: 8px;
   overflow: hidden;
-  background: #cfd8dc;
+  background: #161b22;
+  border: 1px solid rgba(240, 246, 252, 0.08);
   margin: 12px auto 0;
 }
 
@@ -151,8 +160,8 @@ select {
 }
 
 .room-editor svg {
-  background: #fff;
-  border: 1px solid #ccc;
+  background: #161b22;
+  border: 1px solid rgba(240, 246, 252, 0.1);
   border-radius: 8px;
 }
 
