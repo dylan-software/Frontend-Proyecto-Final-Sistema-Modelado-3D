@@ -169,7 +169,7 @@ export default function Home() {
         )}
 
         {space && space !== "loading" && space !== "none" && (
-          <>
+          <div className="viewport-grid">
             <section>
               <h2>Room shape ({space.areaM2} m²)</h2>
               <RoomEditor vertices={space.vertices} areaM2={space.areaM2} onVertexMoved={handleVertexMoved} />
@@ -196,7 +196,7 @@ export default function Home() {
                 </div>
               )}
             </section>
-          </>
+          </div>
         )}
 
         <section>
