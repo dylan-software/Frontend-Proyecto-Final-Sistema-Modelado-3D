@@ -152,7 +152,10 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
 
       {showCustomCategory && (
         <div className="custom-category">
-          <label>New category name *</label>
+          <label>
+            New category name *
+            <input type="text" className="custom-category-input" placeholder="e.g. desk, rug, plant" autoFocus />
+          </label>
         </div>
       )}
 
