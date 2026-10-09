@@ -61,13 +61,16 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
       return;
     }
 
+    // With "Others" selected, the typed name is stored as the category itself.
+    const resolvedCategory = showCustomCategory ? customCategoryName.trim() : category;
+
     const item: FurnitureInput = {
       id: crypto.randomUUID(),
       name: name.trim(),
       widthCm: w,
       heightCm: h,
       depthCm: d,
-      category,
+      category: resolvedCategory,
       material: material || "unspecified",
       price: Number(price) || 0,
       style: style || "unspecified",
@@ -85,6 +88,7 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
       setMaterial("");
       setPrice("");
       setStyle("");
+      setCustomCategoryName("");
     } catch (err) {
       setError((err as Error).message);
     } finally {
