@@ -155,7 +155,14 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
         <div className="custom-category">
           <label>
             New category name *
-            <input type="text" className="custom-category-input" placeholder="e.g. desk, rug, plant" autoFocus />
+            <input
+              type="text"
+              className="custom-category-input"
+              value={customCategoryName}
+              onChange={(e) => setCustomCategoryName(e.target.value)}
+              placeholder="e.g. desk, rug, plant"
+              autoFocus
+            />
           </label>
         </div>
       )}
