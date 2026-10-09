@@ -11,6 +11,11 @@ const OTHERS_CATEGORY = "Others";
 
 const CATEGORIES = ["sofa", "table", "chair", "bed", "shelf", "lamp", OTHERS_CATEGORY];
 
+/** True for categories the user typed in via "Others" (legacy "other" counts as predefined). */
+export function isCustomCategory(category: string): boolean {
+  return category !== "other" && !CATEGORIES.includes(category);
+}
+
 /**
  * Manual object creation. The object's NAME is required — the form
  * will not submit without it. Width/height/depth can be typed directly

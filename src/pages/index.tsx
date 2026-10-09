@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { RoomEditor } from "../components/RoomEditor";
-import { ObjectForm } from "../components/ObjectForm";
+import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import CameraCapture from "../components/CameraCapture";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
@@ -136,7 +136,13 @@ export default function Home() {
           <ul className="catalog-list">
             {catalog.map((c) => (
               <li key={c.id}>
-                {c.name} — {c.widthCm}×{c.heightCm}×{c.depthCm}cm
+                <span className="catalog-item-name">{c.name}</span>
+                <span className={`category-tag${isCustomCategory(c.category) ? " category-tag-custom" : ""}`}>
+                  {c.category}
+                </span>
+                <span className="catalog-item-size">
+                  {c.widthCm}×{c.heightCm}×{c.depthCm}cm
+                </span>
               </li>
             ))}
           </ul>
