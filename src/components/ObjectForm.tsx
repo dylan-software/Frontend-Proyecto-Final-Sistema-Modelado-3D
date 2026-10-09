@@ -150,6 +150,12 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
         </select>
       </label>
 
+      {showCustomCategory && (
+        <div className="custom-category">
+          <label>New category name *</label>
+        </div>
+      )}
+
       <label>
         Material
         <input value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="e.g. wood" />
