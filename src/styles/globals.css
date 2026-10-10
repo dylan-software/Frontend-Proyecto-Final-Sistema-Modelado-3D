@@ -552,3 +552,23 @@ select:disabled {
   font-size: 14px;
   color: #8b949e;
 }
+
+.auth-submit {
+  margin-top: 16px;
+  padding: 12px 18px;
+  font-size: 15px;
+  color: #fff;
+  background: linear-gradient(135deg, #0070f3, #00a3ff);
+  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35);
+  transition: background 200ms ease, box-shadow 200ms ease, transform 150ms ease;
+}
+
+.auth-submit:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1a82ff, #33c2ff);
+  box-shadow: 0 0 22px rgba(0, 112, 243, 0.65);
+  transform: translateY(-1px);
+}
+
+.auth-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
