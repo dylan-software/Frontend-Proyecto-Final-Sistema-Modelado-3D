@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { LaserMeasure } from "./LaserMeasure";
 import { api, type FurnitureInput } from "../lib/api";
 
@@ -20,6 +20,8 @@ export function isCustomCategory(category: string): boolean {
  * Manual object creation. The object's NAME is required — the form
  * will not submit without it. Width/height/depth can be typed directly
  * or filled from the laser measurement tool (tap-to-measure in AR).
+ * Choosing "Others" as the category reveals a text field whose value is
+ * sent to the backend as the category name.
  */
 export function ObjectForm({ onCreated }: ObjectFormProps) {
   const [name, setName] = useState("");
@@ -46,13 +48,13 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
 
   const customCategoryMissing = showCustomCategory && !customCategoryName.trim();
 
-  function handleCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleCategoryChange(e: ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value;
     setCategory(value);
     setShowCustomCategory(value === OTHERS_CATEGORY);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
 
