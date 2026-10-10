@@ -572,3 +572,15 @@ select:disabled {
 .auth-submit:active:not(:disabled) {
   transform: translateY(1px);
 }
+
+.auth-switch {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: #8b949e;
+}
+
+.auth-switch .link-button {
+  margin: 0;
+  font-size: 14px;
+}
