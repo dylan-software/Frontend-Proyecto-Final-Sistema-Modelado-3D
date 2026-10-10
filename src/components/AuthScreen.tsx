@@ -12,6 +12,9 @@ interface AuthScreenProps {
 export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   // true → "Iniciar sesión" form, false → "Registrarse" form.
   const [isLoginView, setIsLoginView] = useState(true);
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <div className="auth-screen">
@@ -28,13 +31,27 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           {!isLoginView && (
             <label>
               Nombre de usuario
-              <input type="text" name="username" autoComplete="username" placeholder="ej. dylan3d" />
+              <input
+                type="text"
+                name="username"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="ej. dylan3d"
+              />
             </label>
           )}
 
           <label>
             Correo electrónico
-            <input type="email" name="email" autoComplete="email" placeholder="tu@correo.com" />
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@correo.com"
+            />
           </label>
 
           <label>
@@ -43,6 +60,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               type="password"
               name="password"
               autoComplete={isLoginView ? "current-password" : "new-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Mínimo 6 caracteres"
             />
           </label>
