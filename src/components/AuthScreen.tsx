@@ -13,5 +13,11 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   // true → "Iniciar sesión" form, false → "Registrarse" form.
   const [isLoginView, setIsLoginView] = useState(true);
 
-  return <div className="auth-screen" />;
+  return (
+    <div className="auth-screen">
+      <div className="auth-card">
+        <form className="auth-form"></form>
+      </div>
+    </div>
+  );
 }
