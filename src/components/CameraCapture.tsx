@@ -110,6 +110,14 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     }
   }
 
+  /**
+   * Opens the system file picker: the file explorer on desktop, or the
+   * native gallery / photo camera chooser on phones (accept="image/*").
+   */
+  function triggerFileInput() {
+    fileInputRef.current?.click();
+  }
+
   // Release the camera hardware when the component unmounts.
   useEffect(() => {
     return () => streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -123,7 +131,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
-      <button type="button" className="upload-button">
+      <button type="button" className="upload-button" onClick={triggerFileInput}>
         <span aria-hidden="true">📎</span> Upload Photo
       </button>
       {recommendations && <p className="hint">{recommendations}</p>}
