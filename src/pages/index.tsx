@@ -100,6 +100,15 @@ export default function Home() {
     ]);
   }
 
+  function handleLogout() {
+    try {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+    } catch {
+      // Storage blocked: there is no stored token to remove anyway.
+    }
+    setIsAuthenticated(false);
+  }
+
   function handleResetSpace() {
     setPlacedFurniture([]);
     setPlacedItems([]);
@@ -153,6 +162,13 @@ export default function Home() {
     <div className="dashboard">
       {/* Left column: control sidebar. */}
       <aside className="sidebar">
+        <div className="sidebar-header">
+          <span className="session-status">Sesión activa</span>
+          <button type="button" className="logout-button" onClick={handleLogout}>
+            Cerrar Sesión
+          </button>
+        </div>
+
         <section>
           <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
         </section>
