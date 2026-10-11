@@ -48,6 +48,8 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
   const [cameraOn, setCameraOn] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [recommendations, setRecommendations] = useState<string | null>(null);
+  // Photo picked from the device, kept until it is analyzed or discarded.
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   /**
    * Requests camera access through `navigator.mediaDevices.getUserMedia`,
