@@ -2,6 +2,9 @@ import { useState, type FormEvent } from "react";
 
 const MIN_PASSWORD_LENGTH = 6;
 
+/** localStorage key holding the session token. */
+export const AUTH_TOKEN_KEY = "auth_token";
+
 /** Stand-in for a real auth endpoint: waits like a network round trip would. */
 function simulateAuthRequest(): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, 600));
@@ -50,6 +53,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     setSubmitting(true);
     try {
       await simulateAuthRequest();
+      // Simulated session: a random placeholder token, not one issued by a server.
+      localStorage.setItem(AUTH_TOKEN_KEY, `demo-${crypto.randomUUID()}`);
       onAuthenticated();
     } catch (err) {
       setError((err as Error).message);
