@@ -1,4 +1,11 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+
+const MIN_PASSWORD_LENGTH = 6;
+
+/** Stand-in for a real auth endpoint: waits like a network round trip would. */
+function simulateAuthRequest(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 600));
+}
 
 interface AuthScreenProps {
   /** Called once the user has logged in or registered successfully. */
@@ -16,9 +23,39 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   function toggleView() {
     setIsLoginView((login) => !login);
+    setError(null);
+  }
+
+  /** Returns an error message for the current form, or null when it's valid. */
+  function validate(): string | null {
+    if (!isLoginView && !username.trim()) return "El nombre de usuario es obligatorio.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Introduce un correo electrónico válido.";
+    if (password.length < MIN_PASSWORD_LENGTH)
+      return `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`;
+    if (!isLoginView && password !== confirmPassword) return "Las contraseñas no coinciden.";
+    return null;
+  }
+
+  async function handleSubmitAuth(e: FormEvent) {
+    e.preventDefault();
+    const validationError = validate();
+    setError(validationError);
+    if (validationError) return;
+
+    setSubmitting(true);
+    try {
+      await simulateAuthRequest();
+      onAuthenticated();
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -32,7 +69,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           <p className="auth-subtitle">{isLoginView ? "Inicia sesión para continuar" : "Crea tu cuenta"}</p>
         </header>
 
-        <form className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmitAuth} noValidate>
           {!isLoginView && (
             <label>
               Nombre de usuario
@@ -85,8 +122,14 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             </label>
           )}
 
-          <button type="submit" className="auth-submit">
-            {isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
+          {error && (
+            <p className="warning connection-alert" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button type="submit" className="auth-submit" disabled={submitting}>
+            {submitting ? "Verificando…" : isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
           </button>
         </form>
 
