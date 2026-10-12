@@ -52,6 +52,8 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   // Temporary blob: URL used by the <img> preview of `selectedFile`.
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  // True while the picked photo is being analyzed by the backend.
+  const [uploading, setUploading] = useState(false);
 
   /**
    * Requests camera access through `navigator.mediaDevices.getUserMedia`,
@@ -142,9 +144,11 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
    * multipart/form-data under the `file` key (FastAPI's UploadFile).
    */
   async function uploadSelectedFileToBackend() {
-    if (!selectedFile) return;
+    if (!selectedFile || uploading) return;
     const form = new FormData();
     form.append("file", selectedFile, selectedFile.name);
+    setUploading(true);
+    onAnalyzingChange?.(true);
     setError(null);
 
     try {
@@ -159,6 +163,9 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo analizar la foto.");
+    } finally {
+      setUploading(false);
+      onAnalyzingChange?.(false);
     }
   }
 
@@ -179,19 +186,24 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
       <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} />
       <button onClick={startCamera}>Iniciar cámara</button>
-      <button onClick={analyzeSpace} disabled={!cameraOn || analyzing}>
+      <button onClick={analyzeSpace} disabled={!cameraOn || analyzing || uploading}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
-      <button type="button" className="upload-button" onClick={triggerFileInput}>
+      <button type="button" className="upload-button" onClick={triggerFileInput} disabled={uploading}>
         <span aria-hidden="true">📎</span> Upload Photo
       </button>
       {filePreviewUrl && (
         <figure className="photo-preview">
           <img src={filePreviewUrl} alt="Foto seleccionada para analizar" />
           <figcaption className="hint">{selectedFile?.name}</figcaption>
-          <button type="button" onClick={uploadSelectedFileToBackend}>
-            Analizar foto
+          <button type="button" onClick={uploadSelectedFileToBackend} disabled={uploading || analyzing}>
+            {uploading ? "Procesando foto con IA..." : "Analizar foto"}
           </button>
+          {uploading && (
+            <p className="hint" role="status">
+              Procesando foto con IA...
+            </p>
+          )}
         </figure>
       )}
       {recommendations && <p className="hint">{recommendations}</p>}
