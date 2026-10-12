@@ -174,6 +174,12 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     }
   }
 
+  /** Discards the picked photo; the effect below frees its preview URL. */
+  function clearSelectedFile() {
+    setSelectedFile(null);
+    setFilePreviewUrl(null);
+  }
+
   // Free each preview URL once it is replaced or the component unmounts.
   useEffect(() => {
     return () => {
@@ -199,6 +205,15 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       </button>
       {filePreviewUrl && (
         <figure className="photo-preview">
+          <button
+            type="button"
+            className="photo-preview-remove"
+            onClick={clearSelectedFile}
+            disabled={uploading}
+            aria-label="Descartar foto"
+          >
+            ×
+          </button>
           <img src={filePreviewUrl} alt="Foto seleccionada para analizar" />
           <figcaption className="hint">{selectedFile?.name}</figcaption>
           <button type="button" onClick={uploadSelectedFileToBackend} disabled={uploading || analyzing}>
