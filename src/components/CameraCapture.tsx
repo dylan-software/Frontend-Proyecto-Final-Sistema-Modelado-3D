@@ -161,6 +161,11 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       if (!isValidVector3D(result.suggested_coordinates)) {
         throw new Error("El backend devolvió coordenadas inválidas.");
       }
+
+      // Same path as a live-camera analysis: the parent places the suggested
+      // {x, y, z} in the 3D viewer.
+      setRecommendations(result.recommendations);
+      onAnalyzed?.(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo analizar la foto.");
     } finally {
