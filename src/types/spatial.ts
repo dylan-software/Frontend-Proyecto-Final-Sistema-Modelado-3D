@@ -30,6 +30,8 @@ export interface FurnitureObject {
    * or a custom name typed by the user after choosing "Others".
    */
   category?: string;
+  /** True while the user has this piece picked in the 3D viewer. */
+  selected?: boolean;
 }
 
 /**
