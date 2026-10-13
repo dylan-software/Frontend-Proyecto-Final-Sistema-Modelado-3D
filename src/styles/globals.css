@@ -1093,8 +1093,9 @@ select:disabled {
 
 .accordion-chevron {
   margin-left: auto;
+  font-size: 10px;
   color: var(--color-text-muted);
-  transition: transform 220ms ease, color 150ms ease;
+  transition: color 150ms ease;
 }
 
 .accordion-group {
@@ -1107,7 +1108,6 @@ select:disabled {
 
 .accordion-group-open .accordion-chevron {
   color: var(--color-accent);
-  transform: rotate(180deg);
 }
 
 /* Slide down: animating grid rows from 0fr to 1fr lets the panel grow to
