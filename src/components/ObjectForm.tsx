@@ -24,6 +24,7 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
   const [category, setCategory] = useState(CATEGORIES[0]!);
   // True while "Others" is selected, so the custom category field is shown.
   const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState("");
   const [material, setMaterial] = useState("");
   const [price, setPrice] = useState("");
   const [style, setStyle] = useState("");
