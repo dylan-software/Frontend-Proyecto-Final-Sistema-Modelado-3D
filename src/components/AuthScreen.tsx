@@ -10,5 +10,8 @@ interface AuthScreenProps {
  * workspace and offers the login and registration forms.
  */
 export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
+  // true → "Iniciar sesión" form, false → "Registrarse" form.
+  const [isLoginView, setIsLoginView] = useState(true);
+
   return <div className="auth-screen" />;
 }
