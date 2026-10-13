@@ -31,13 +31,41 @@ function captureFrame(video: HTMLVideoElement): Promise<Blob> {
 }
 
 /**
+ * Uploads an image to the backend's space analysis as multipart/form-data
+ * under the `file` key (FastAPI's UploadFile) and validates the answer.
+ *
+ * @param image - A camera frame or a photo picked from the device.
+ * @param filename - Name sent along with the file part.
+ * @throws Error with a user-facing message when the request or its result fails.
+ */
+async function requestSpaceAnalysis(image: Blob, filename: string): Promise<SpaceAnalysisResponse> {
+  const form = new FormData();
+  form.append("file", image, filename);
+
+  // No Content-Type header: the browser sets the multipart boundary itself.
+  const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
+  if (!res.ok) throw new Error(`El análisis falló con estado ${res.status}`);
+
+  const result: SpaceAnalysisResponse = await res.json();
+  if (!result.success) throw new Error("El backend no pudo analizar el espacio.");
+  if (!isValidVector3D(result.suggested_coordinates)) {
+    throw new Error("El backend devolvió coordenadas inválidas.");
+  }
+  return result;
+}
+
+/**
  * Captures the user's webcam stream so frames can be sent to the
  * backend's space-fitting AI.
  *
- * Flow: `startCamera` asks the browser for camera access and plays the
- * stream in the <video>; `analyzeSpace` takes a snapshot of it, uploads
- * it as multipart/form-data under the `file` key (FastAPI's UploadFile),
- * validates the returned coordinates and hands them to `onAnalyzed`.
+ * Two ways to get an image to analyze:
+ * - Live camera: `startCamera` asks the browser for camera access and plays
+ *   the stream in the <video>; `analyzeSpace` takes a snapshot of it.
+ * - Local photo: "Upload Photo" opens the file picker (gallery or photo
+ *   camera on phones); the photo is previewed and sent with
+ *   `uploadSelectedFileToBackend`.
+ * Both go through `requestSpaceAnalysis` and hand the validated result to
+ * `onAnalyzed`, which places the suggested coordinates in the 3D viewer.
  */
 export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -93,19 +121,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     setError(null);
     try {
       const blob = await captureFrame(videoRef.current);
-      const form = new FormData();
-      form.append("file", blob, "capture.jpg");
-
-      // No Content-Type header: the browser sets the multipart boundary itself.
-      const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
-      if (!res.ok) throw new Error(`El análisis falló con estado ${res.status}`);
-
-      const result: SpaceAnalysisResponse = await res.json();
-      if (!result.success) throw new Error("El backend no pudo analizar el espacio.");
-      if (!isValidVector3D(result.suggested_coordinates)) {
-        throw new Error("El backend devolvió coordenadas inválidas.");
-      }
-
+      const result = await requestSpaceAnalysis(blob, "capture.jpg");
       setRecommendations(result.recommendations);
       onAnalyzed?.(result);
     } catch (err) {
@@ -140,28 +156,17 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
   }
 
   /**
-   * Sends the picked photo to the backend's space analysis, packaged as
-   * multipart/form-data under the `file` key (FastAPI's UploadFile).
+   * Sends the picked photo to the backend's space analysis. Errors are
+   * shown in the UI instead of being thrown.
    */
   async function uploadSelectedFileToBackend() {
     if (!selectedFile || uploading) return;
-    const form = new FormData();
-    form.append("file", selectedFile, selectedFile.name);
     setUploading(true);
     onAnalyzingChange?.(true);
     setError(null);
 
     try {
-      // No Content-Type header: the browser sets the multipart boundary itself.
-      const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
-      if (!res.ok) throw new Error(`El análisis de la foto falló con estado ${res.status}`);
-
-      const result: SpaceAnalysisResponse = await res.json();
-      if (!result.success) throw new Error("El backend no pudo analizar la foto.");
-      if (!isValidVector3D(result.suggested_coordinates)) {
-        throw new Error("El backend devolvió coordenadas inválidas.");
-      }
-
+      const result = await requestSpaceAnalysis(selectedFile, selectedFile.name);
       // Same path as a live-camera analysis: the parent places the suggested
       // {x, y, z} in the 3D viewer.
       setRecommendations(result.recommendations);
@@ -217,7 +222,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
           <img src={filePreviewUrl} alt="Foto seleccionada para analizar" />
           <figcaption className="hint">{selectedFile?.name}</figcaption>
           <button type="button" onClick={uploadSelectedFileToBackend} disabled={uploading || analyzing}>
-            {uploading ? "Procesando foto con IA..." : "Analizar foto"}
+            {uploading ? "Analizando…" : "Analizar foto"}
           </button>
           {uploading && (
             <p className="hint" role="status">
