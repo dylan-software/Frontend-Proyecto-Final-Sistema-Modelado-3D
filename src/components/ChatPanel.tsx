@@ -7,6 +7,15 @@ export interface MessageInterface extends ChatTurn {
   content: string;
 }
 
+/**
+ * POSTs the whole conversation to the backend and resolves with the
+ * assistant's reply as a new chat message.
+ */
+async function sendPromptToBackend(projectId: string, history: MessageInterface[]): Promise<MessageInterface> {
+  const reply = await api.chat(projectId, history);
+  return { role: "assistant", content: reply.content };
+}
+
 interface ChatPanelProps {
   projectId: string;
 }
@@ -45,7 +54,7 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
     setError(null);
 
     try {
-      const reply = await api.chat(projectId, nextMessages);
+      const reply = await sendPromptToBackend(projectId, nextMessages);
       setMessages([...nextMessages, reply]);
     } catch (err) {
       setError((err as Error).message);
