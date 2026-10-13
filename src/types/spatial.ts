@@ -25,6 +25,11 @@ export interface FurnitureObject {
   /** Rotation around the vertical axis, in degrees. */
   rotation: number;
   dimensions?: Dimensions3D;
+  /**
+   * Furniture category: one of the predefined ones ("sofa", "table", …)
+   * or a custom name typed by the user after choosing "Others".
+   */
+  category?: string;
 }
 
 /**
