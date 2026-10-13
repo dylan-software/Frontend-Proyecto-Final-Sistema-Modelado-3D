@@ -13,6 +13,21 @@ interface SpatialAnalyticsProps {
  * the placed furniture and how much is still free.
  */
 export function SpatialAnalytics({ roomAreaM2, items }: SpatialAnalyticsProps) {
+  // Each piece's footprint is approximated by its bounding box (width × depth),
+  // ignoring rotation and overlaps.
+  const totals = useMemo(() => {
+    let footprintM2 = 0;
+    let volumeM3 = 0;
+    for (const { width, height, depth } of items) {
+      footprintM2 += width * depth;
+      volumeM3 += width * height * depth;
+    }
+    return { footprintM2, volumeM3 };
+  }, [items]);
+
+  const occupiedPercent =
+    roomAreaM2 && roomAreaM2 > 0 ? Math.min(100, (totals.footprintM2 / roomAreaM2) * 100) : null;
+
   return (
     <section className="spatial-analytics">
       <h3>Ocupación del espacio</h3>
