@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from "react";
 
-const MIN_PASSWORD_LENGTH = 6;
+import { api } from "../lib/api";
+
+// The backend rejects registrations with shorter passwords.
+const MIN_PASSWORD_LENGTH = 8;
 
 /** localStorage key holding the session token. */
 export const AUTH_TOKEN_KEY = "auth_token";
-
-/** Stand-in for a real auth endpoint: waits like a network round trip would. */
-function simulateAuthRequest(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, 600));
-}
+/** localStorage key holding the id of the logged-in account. */
+export const AUTH_USER_ID_KEY = "auth_user_id";
 
 interface AuthScreenProps {
   /** Called once the user has logged in or registered successfully. */
@@ -52,9 +52,12 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
     setSubmitting(true);
     try {
-      await simulateAuthRequest();
-      // Simulated session: a random placeholder token, not one issued by a server.
-      localStorage.setItem(AUTH_TOKEN_KEY, `demo-${crypto.randomUUID()}`);
+      const credentials = { email: email.trim(), password };
+      // Registering doesn't open a session, so a new account logs in right after.
+      if (!isLoginView) await api.register({ nombre: username.trim(), ...credentials });
+      const session = await api.login(credentials);
+      localStorage.setItem(AUTH_TOKEN_KEY, session.access_token);
+      localStorage.setItem(AUTH_USER_ID_KEY, String(session.usuario.id));
       onAuthenticated();
     } catch (err) {
       setError((err as Error).message);
@@ -109,7 +112,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               autoComplete={isLoginView ? "current-password" : "new-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
             />
           </label>
 
