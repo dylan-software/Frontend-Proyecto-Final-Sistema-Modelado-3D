@@ -4,8 +4,10 @@ import { RenderScene } from "../render/RenderScene";
 import { RoomEditor } from "../components/RoomEditor";
 import { ObjectForm } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
+import CameraCapture from "../components/CameraCapture";
+import Scene3D from "../components/Scene3D";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
-import type { FurnitureObject } from "../types/spatial";
+import type { FurnitureObject, SpaceAnalysisResponse } from "../types/spatial";
 
 const DEMO_PROJECT_ID = "demo-project";
 
@@ -60,6 +62,18 @@ export default function Home() {
   async function handleVertexMoved(index: number, point: Point2D) {
     const res = await api.updateVertex(DEMO_PROJECT_ID, index, point);
     setSpace((prev) => (prev && prev !== "loading" && prev !== "none" ? { ...prev, vertices: res.vertices, areaM2: res.areaM2 } : prev));
+  }
+
+  function handleSpaceAnalyzed(result: SpaceAnalysisResponse) {
+    setPlacedFurniture((prev) => [
+      ...prev,
+      {
+        id: `ai-${Date.now()}`,
+        name: "Sugerencia IA",
+        position: result.suggested_coordinates,
+        rotation: 0,
+      },
+    ]);
   }
 
   async function handleGenerateLayout() {
@@ -150,6 +164,14 @@ export default function Home() {
             </section>
           </>
         )}
+
+        <section>
+          <h2>Análisis con cámara</h2>
+          <CameraCapture onAnalyzed={handleSpaceAnalyzed} />
+          <div className="canvas-wrapper">
+            <Scene3D furniture={placedFurniture} />
+          </div>
+        </section>
 
         {error && <p className="warning">{error}</p>}
 
