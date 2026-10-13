@@ -109,6 +109,11 @@ export default function Home() {
     setIsAuthenticated(false);
   }
 
+  /** Marks the piece with `id` as inspected (and unmarks the rest); null clears it. */
+  function handleSelectFurniture(id: string | null) {
+    setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
+  }
+
   function handleResetSpace() {
     setPlacedFurniture([]);
     setPlacedItems([]);
@@ -247,7 +252,7 @@ export default function Home() {
           <h2>Análisis con cámara</h2>
           <CameraCapture onAnalyzed={handleSpaceAnalyzed} onAnalyzingChange={setAnalyzingSpace} />
           <div className="canvas-wrapper">
-            <Scene3D furniture={placedFurniture} loading={analyzingSpace} />
+            <Scene3D furniture={placedFurniture} loading={analyzingSpace} onSelect={handleSelectFurniture} />
           </div>
         </section>
 
