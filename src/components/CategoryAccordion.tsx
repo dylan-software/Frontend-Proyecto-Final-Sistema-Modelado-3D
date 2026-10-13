@@ -19,12 +19,12 @@ function categoryLabel(category: string): string {
   return CATEGORY_LABELS[category] ?? category;
 }
 
-/** Furniture catalog listing, grouped into collapsible categories (one open at a time). */
+/** Furniture catalog listing, grouped into collapsible categories. */
 export function CategoryAccordion({ items, onDelete, deletingId = null }: AccordionProps) {
   // Text typed in the catalog search box.
   const [searchQuery, setSearchQuery] = useState("");
-  // Category whose block is expanded; null when all are collapsed.
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  // Categories whose block is expanded; empty when all are collapsed.
+  const [openCategories, setOpenCategories] = useState<ReadonlySet<string>>(() => new Set());
   const idPrefix = useId();
   const query = searchQuery.trim().toLowerCase();
 
@@ -43,8 +43,18 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
 
   const groups = useMemo(() => groupByCategory(filteredItems), [filteredItems]);
 
+  /**
+   * Opening a category collapses the others (classic accordion); closing one
+   * leaves the rest as they are, so a fully expanded catalog can be folded
+   * back one block at a time.
+   */
   function toggleCategory(category: string) {
-    setActiveCategory((prev) => (prev === category ? null : category));
+    setOpenCategories((prev) => {
+      if (!prev.has(category)) return new Set([category]);
+      const next = new Set(prev);
+      next.delete(category);
+      return next;
+    });
   }
 
   return (
@@ -60,7 +70,7 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
 
       {groups.map(({ category, items: groupItems }, index) => {
         // While searching, every category with matches is expanded.
-        const open = query !== "" || activeCategory === category;
+        const open = query !== "" || openCategories.has(category);
         // Custom category names may contain spaces, so the id uses the index.
         const panelId = `${idPrefix}-panel-${index}`;
         return (
