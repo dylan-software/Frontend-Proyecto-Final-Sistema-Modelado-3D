@@ -10,7 +10,7 @@ import { ObjectForm } from "../components/ObjectForm";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
-import { api, type FurnitureInput, type Point2D } from "../lib/api";
+import { api, ApiError, type FurnitureInput, type Point2D } from "../lib/api";
 import {
   DEFAULT_DIMENSIONS,
   type Dimensions3D,
@@ -63,6 +63,8 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   // Catalog entry whose DELETE request is in flight.
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  // True while "Clear all furniture" is deleting the catalog on the server.
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function loadSpace() {
@@ -169,9 +171,42 @@ export default function Home() {
     }
   }
 
-  function handleResetSpace() {
+  async function handleResetSpace() {
+    const targets = catalog;
+    if (
+      targets.length > 0 &&
+      !window.confirm(`Se eliminarán del servidor los ${targets.length} muebles del catálogo. ¿Continuar?`)
+    ) {
+      return;
+    }
+    setClearing(true);
+    setError(null);
+    // The scene itself is local state and is always emptied.
     setPlacedFurniture([]);
     setPlacedItems([]);
+    try {
+      // allSettled: one failed DELETE must not hide the outcome of the others.
+      const results = await Promise.allSettled(targets.map((c) => api.deleteFurniture(c.id)));
+      const removed = new Set<string>();
+      const failures: string[] = [];
+      results.forEach((result, i) => {
+        const id = targets[i]!.id;
+        // 404: the server no longer has it, so it is dropped locally as well.
+        if (result.status === "fulfilled" || (result.reason instanceof ApiError && result.reason.status === 404)) {
+          removed.add(id);
+        } else {
+          failures.push((result.reason as Error).message);
+        }
+      });
+      setCatalog((prev) => prev.filter((c) => !removed.has(c.id)));
+      if (failures.length > 0) {
+        setError(`No se pudieron eliminar ${failures.length} muebles: ${[...new Set(failures)].join(" · ")}`);
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setClearing(false);
+    }
   }
 
   async function handleGenerateLayout() {
@@ -243,9 +278,9 @@ export default function Home() {
           <button
             className="reset-button"
             onClick={handleResetSpace}
-            disabled={placedFurniture.length === 0 && placedItems.length === 0}
+            disabled={clearing || (catalog.length === 0 && placedFurniture.length === 0 && placedItems.length === 0)}
           >
-            Clear all furniture
+            {clearing ? "Clearing…" : "Clear all furniture"}
           </button>
         </section>
       </aside>
