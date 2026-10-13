@@ -5,6 +5,7 @@ import { RoomEditor } from "../components/RoomEditor";
 import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import CameraCapture from "../components/CameraCapture";
+import { AUTH_TOKEN_KEY } from "../components/AuthScreen";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
 import type { FurnitureObject, SpaceAnalysisResponse } from "../types/spatial";
 
@@ -30,7 +31,19 @@ interface PlacedItemState {
 
 const DEFAULT_LIGHTING = { position: { x: 0, y: 3, z: 0 }, intensity: 0.8, color: "#ffffff" };
 
+/** True when a session token is stored; false if there is none or storage is blocked. */
+function hasStoredSession(): boolean {
+  try {
+    return localStorage.getItem(AUTH_TOKEN_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export default function Home() {
+  // null until the browser has been checked — localStorage doesn't exist
+  // during server prerendering, so it's read after mounting.
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
   const [catalog, setCatalog] = useState<FurnitureInput[]>([]);
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
@@ -58,6 +71,10 @@ export default function Home() {
       setError((err as Error).message);
     }
   }
+
+  useEffect(() => {
+    setIsAuthenticated(hasStoredSession());
+  }, []);
 
   useEffect(() => {
     loadSpace();
