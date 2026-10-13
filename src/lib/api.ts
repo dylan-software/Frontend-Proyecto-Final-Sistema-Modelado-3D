@@ -89,6 +89,32 @@ export interface AuthUser {
   email: string;
 }
 
+/** Catalog entry as stored by the FastAPI backend (sizes in the same cm the form sends). */
+export interface CatalogItemOut {
+  id: number;
+  nombre: string;
+  categoria_id: number;
+  categoria: string;
+  ancho: number;
+  alto: number;
+  profundidad: number;
+}
+
+/** Converts a backend catalog row into the shape the UI works with. */
+export function toFurnitureInput(item: CatalogItemOut): FurnitureInput {
+  return {
+    id: String(item.id),
+    name: item.nombre,
+    widthCm: item.ancho,
+    heightCm: item.alto,
+    depthCm: item.profundidad,
+    category: item.categoria,
+    material: "unspecified",
+    price: 0,
+    style: "unspecified",
+  };
+}
+
 export const api = {
   register: (body: { nombre: string; email: string; password: string }) =>
     v1Request<AuthUser>("/auth/register", { method: "POST", body: JSON.stringify(body) }),
@@ -125,6 +151,11 @@ export const api = {
   listSpaceItems: (projectId: string) =>
     request<{ items: { id: number; furnitureId: string; name: string; x: number; y: number; rotation: number }[] }>(
       `/api/spaces/${projectId}/items`
+    ),
+
+  listUserSpaces: (userId: string) =>
+    v1Request<{ user_id: string; habitaciones: unknown[]; catalogo: CatalogItemOut[] }>(
+      `/spaces?user_id=${encodeURIComponent(userId)}`
     ),
 
   listFurniture: (category?: string) =>

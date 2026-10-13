@@ -10,7 +10,7 @@ import { ObjectForm } from "../components/ObjectForm";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
-import { api, ApiError, type FurnitureInput, type Point2D } from "../lib/api";
+import { api, ApiError, toFurnitureInput, type FurnitureInput, type Point2D } from "../lib/api";
 import {
   DEFAULT_DIMENSIONS,
   type Dimensions3D,
@@ -81,10 +81,10 @@ export default function Home() {
     }
   }
 
-  async function loadCatalog() {
+  async function loadCatalog(accountId: string) {
     try {
-      const res = await api.listFurniture();
-      setCatalog(res.items);
+      const res = await api.listUserSpaces(accountId);
+      setCatalog(res.catalogo.map(toFurnitureInput));
     } catch (err) {
       setError((err as Error).message);
     }
@@ -104,10 +104,10 @@ export default function Home() {
 
   // The workspace data is only fetched once there is a session.
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!userId) return;
     loadSpace();
-    loadCatalog();
-  }, [isAuthenticated]);
+    loadCatalog(userId);
+  }, [userId]);
 
   async function handleVertexMoved(index: number, point: Point2D) {
     const res = await api.updateVertex(DEMO_PROJECT_ID, index, point);
