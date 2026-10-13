@@ -65,6 +65,10 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               placeholder="Mínimo 6 caracteres"
             />
           </label>
+
+          <button type="submit" className="auth-submit">
+            {isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
+          </button>
         </form>
       </div>
     </div>
