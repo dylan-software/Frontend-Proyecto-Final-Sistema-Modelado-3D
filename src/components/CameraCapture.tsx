@@ -133,8 +133,16 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       return;
     }
     setSelectedFile(file);
+    setFilePreviewUrl(URL.createObjectURL(file));
     setError(null);
   }
+
+  // Free each preview URL once it is replaced or the component unmounts.
+  useEffect(() => {
+    return () => {
+      if (filePreviewUrl) URL.revokeObjectURL(filePreviewUrl);
+    };
+  }, [filePreviewUrl]);
 
   // Release the camera hardware when the component unmounts.
   useEffect(() => {
