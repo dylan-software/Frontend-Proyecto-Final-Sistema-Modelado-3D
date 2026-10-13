@@ -16,25 +16,50 @@ body {
   padding: 24px;
 }
 
+/* Dashboard layout: control sidebar (35%) + visualization area (65%). */
 .dashboard {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 35fr) minmax(0, 65fr);
+  gap: 24px;
+  align-items: start;
   min-height: 100vh;
+  padding: 24px;
+}
+
+.sidebar {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-panel {
-  width: 320px;
-  flex-shrink: 0;
-  background: #1f2a24;
   color: #f0f0f0;
-  padding: 20px;
   display: flex;
   flex-direction: column;
 }
 
 .main-panel {
-  flex: 1;
-  padding: 24px;
-  max-width: 900px;
+  min-width: 0;
+}
+
+.main-panel > h1 {
+  margin: 0 0 20px;
+}
+
+@media (max-width: 960px) {
+  .dashboard {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 section {

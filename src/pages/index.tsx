@@ -125,16 +125,18 @@ export default function Home() {
 
   return (
     <div className="dashboard">
-      {/* Left panel: AI organization assistant (phase 3). */}
-      <aside className="chat-panel">
-        <ChatPanel projectId={DEMO_PROJECT_ID} />
-        <button
-          className="reset-button"
-          onClick={handleResetSpace}
-          disabled={placedFurniture.length === 0 && placedItems.length === 0}
-        >
-          Clear all furniture
-        </button>
+      {/* Left column: control sidebar. */}
+      <aside className="sidebar">
+        <section className="chat-panel">
+          <ChatPanel projectId={DEMO_PROJECT_ID} />
+          <button
+            className="reset-button"
+            onClick={handleResetSpace}
+            disabled={placedFurniture.length === 0 && placedItems.length === 0}
+          >
+            Clear all furniture
+          </button>
+        </section>
       </aside>
 
       <main className="main-panel">
