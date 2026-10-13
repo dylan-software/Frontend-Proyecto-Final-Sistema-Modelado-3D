@@ -39,9 +39,10 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Keep the latest message (or the "Thinking…" bubble) in view.
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [messages]);
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, sending]);
 
   async function handleSend() {
     const text = input.trim();
