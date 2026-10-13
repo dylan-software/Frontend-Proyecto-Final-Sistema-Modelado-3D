@@ -700,6 +700,30 @@ select:disabled {
   box-shadow: 0 0 12px var(--color-accent-soft);
 }
 
+/* Secondary action that turns the webcam off and frees the device. */
+.camera-off-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.camera-off-button:hover:not(:disabled) {
+  color: #f2b8b5;
+  background: rgba(248, 81, 73, 0.12);
+  border-color: #f85149;
+  box-shadow: 0 0 12px rgba(248, 81, 73, 0.35);
+}
+
+.camera-off-button:disabled {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
 /* Card previewing the photo picked from the device before it is analyzed. */
 .photo-preview {
   position: relative;
