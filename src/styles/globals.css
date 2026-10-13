@@ -218,6 +218,38 @@ select:disabled {
   max-width: none;
 }
 
+/* Extra field shown when the "Others" category is selected. */
+.custom-category {
+  margin: 4px 0 8px;
+  padding: 4px 12px 8px;
+  border-left: 3px solid #00e5ff;
+  border-radius: 0 8px 8px 0;
+  background: rgba(0, 229, 255, 0.06);
+  animation: custom-category-in 180ms ease-out;
+}
+
+.custom-category-input {
+  background: #161b22;
+  border-color: rgba(0, 229, 255, 0.35);
+}
+
+@keyframes custom-category-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .custom-category {
+    animation: none;
+  }
+}
+
 .catalog-list {
   margin: 0;
   padding-left: 18px;
