@@ -62,8 +62,6 @@ export default function Home() {
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Text typed in the catalog search box.
-  const [searchQuery, setSearchQuery] = useState("");
 
   async function loadSpace() {
     try {
@@ -124,20 +122,6 @@ export default function Home() {
    * Marks the piece with `id` as inspected (and unmarks the rest); null clears it.
    * O(n): one pass that produces a new array, as React state must not be mutated.
    */
-  /**
-   * Catalog entries whose name contains the search query (case-insensitive).
-   *
-   * Complexity: O(n · m) per recompute — n catalog items, m = name length
-   * for the substring check. `useMemo` recomputes only when the catalog or
-   * the query change, so unrelated re-renders (3D selection, chat, …) cost
-   * O(1). An empty query short-circuits and returns the same array.
-   */
-  const filteredCatalog = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) return catalog;
-    return catalog.filter((c) => c.name.toLowerCase().includes(query));
-  }, [catalog, searchQuery]);
-
   /** The piece inspected in the 3D viewer, if any. O(n) linear scan over the placed furniture. */
   const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
 
@@ -236,19 +220,8 @@ export default function Home() {
         <section className="catalog">
           <div className="catalog-header">
             <h3>Catalog ({catalog.length})</h3>
-            <input
-              type="text"
-              className="catalog-search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Buscar mueble…"
-              aria-label="Buscar en el catálogo"
-            />
           </div>
-          <CategoryAccordion items={filteredCatalog} />
-          {catalog.length > 0 && filteredCatalog.length === 0 && (
-            <p className="hint">Ningún mueble coincide con “{searchQuery.trim()}”.</p>
-          )}
+          <CategoryAccordion items={catalog} />
           <button
             className="reset-button"
             onClick={handleResetSpace}

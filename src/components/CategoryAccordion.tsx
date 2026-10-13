@@ -44,10 +44,27 @@ export function groupByCategory(items: FurnitureInput[]): CategoryGroup[] {
 
 /** Furniture catalog listing, grouped into collapsible categories (one open at a time). */
 export function CategoryAccordion({ items }: CategoryAccordionProps) {
-  const groups = useMemo(() => groupByCategory(items), [items]);
+  // Text typed in the catalog search box.
+  const [searchQuery, setSearchQuery] = useState("");
   // Category whose block is expanded; null when all are collapsed.
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const idPrefix = useId();
+  const query = searchQuery.trim().toLowerCase();
+
+  /**
+   * Catalog entries whose name contains the search query (case-insensitive).
+   *
+   * Complexity: O(n · m) per recompute — n catalog items, m = name length
+   * for the substring check. `useMemo` recomputes only when the catalog or
+   * the query change, so unrelated re-renders (3D selection, chat, …) cost
+   * O(1). An empty query short-circuits and returns the same array.
+   */
+  const filteredItems = useMemo(() => {
+    if (!query) return items;
+    return items.filter((c) => c.name.toLowerCase().includes(query));
+  }, [items, query]);
+
+  const groups = useMemo(() => groupByCategory(filteredItems), [filteredItems]);
 
   function toggleCategory(category: string) {
     setActiveCategory((prev) => (prev === category ? null : category));
@@ -55,8 +72,18 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
 
   return (
     <div className="category-accordion">
+      <input
+        type="text"
+        className="catalog-search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="🔍 Buscar mueble…"
+        aria-label="Buscar en el catálogo"
+      />
+
       {groups.map(({ category, items: groupItems }, index) => {
-        const open = activeCategory === category;
+        // While searching, every category with matches is expanded.
+        const open = query !== "" || activeCategory === category;
         // Custom category names may contain spaces, so the id uses the index.
         const panelId = `${idPrefix}-panel-${index}`;
         return (
@@ -93,6 +120,10 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
           </div>
         );
       })}
+
+      {items.length > 0 && filteredItems.length === 0 && (
+        <p className="hint">Ningún mueble coincide con “{searchQuery.trim()}”.</p>
+      )}
     </div>
   );
 }
