@@ -1,10 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
 import ThreeLoader from "./ThreeLoader";
-import type { Dimensions3D, FurnitureObject } from "../types/spatial";
-
-/** Fallback size (meters) when the backend only reports a position. */
-const DEFAULT_DIMENSIONS: Dimensions3D = { width: 0.5, height: 0.5, depth: 0.5 };
+import { DEFAULT_DIMENSIONS, type FurnitureObject } from "../types/spatial";
 
 interface Scene3DProps {
   furniture: FurnitureObject[];
