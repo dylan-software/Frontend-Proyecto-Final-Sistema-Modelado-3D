@@ -5,6 +5,7 @@ const ANALYZE_URL = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000
 
 interface CameraCaptureProps {
   onAnalyzed?: (result: SpaceAnalysisResponse) => void;
+  onAnalyzingChange?: (analyzing: boolean) => void;
 }
 
 /** Grabs the current video frame as a JPEG blob. */
@@ -22,7 +23,7 @@ function captureFrame(video: HTMLVideoElement): Promise<Blob> {
  * Captures the user's webcam stream so frames can be sent to the
  * backend's space-fitting AI.
  */
-export default function CameraCapture({ onAnalyzed }: CameraCaptureProps) {
+export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,6 +55,7 @@ export default function CameraCapture({ onAnalyzed }: CameraCaptureProps) {
   async function analyzeSpace() {
     if (!videoRef.current || analyzing) return;
     setAnalyzing(true);
+    onAnalyzingChange?.(true);
     setError(null);
     try {
       const blob = await captureFrame(videoRef.current);
@@ -76,6 +78,7 @@ export default function CameraCapture({ onAnalyzed }: CameraCaptureProps) {
       setError(err instanceof Error ? err.message : "No se pudo analizar el espacio.");
     } finally {
       setAnalyzing(false);
+      onAnalyzingChange?.(false);
     }
   }
 

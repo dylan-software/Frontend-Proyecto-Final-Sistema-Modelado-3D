@@ -36,6 +36,7 @@ export default function Home() {
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
   // Furniture whose coordinates were validated by the backend's Octree.
   const [placedFurniture, setPlacedFurniture] = useState<FurnitureObject[]>([]);
+  const [analyzingSpace, setAnalyzingSpace] = useState(false);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -171,9 +172,9 @@ export default function Home() {
 
         <section>
           <h2>Análisis con cámara</h2>
-          <CameraCapture onAnalyzed={handleSpaceAnalyzed} />
+          <CameraCapture onAnalyzed={handleSpaceAnalyzed} onAnalyzingChange={setAnalyzingSpace} />
           <div className="canvas-wrapper">
-            <Scene3D furniture={placedFurniture} />
+            <Scene3D furniture={placedFurniture} loading={analyzingSpace} />
           </div>
         </section>
 

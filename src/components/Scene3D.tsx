@@ -1,5 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
+import ThreeLoader from "./ThreeLoader";
 import type { Dimensions3D, FurnitureObject } from "../types/spatial";
 
 /** Fallback size (meters) when the backend only reports a position. */
@@ -7,12 +8,14 @@ const DEFAULT_DIMENSIONS: Dimensions3D = { width: 0.5, height: 0.5, depth: 0.5 }
 
 interface Scene3DProps {
   furniture: FurnitureObject[];
+  /** Shows the spinning loader while the backend is analyzing. */
+  loading?: boolean;
 }
 
 /**
  * Interactive 3D viewport where the modeled room is displayed.
  */
-export default function Scene3D({ furniture }: Scene3DProps) {
+export default function Scene3D({ furniture, loading = false }: Scene3DProps) {
   return (
     <div style={{ width: "100%", height: "100%" }}>
       <Canvas camera={{ position: [5, 5, 5], fov: 50 }}>
@@ -35,6 +38,8 @@ export default function Scene3D({ furniture }: Scene3DProps) {
             </mesh>
           );
         })}
+
+        {loading && <ThreeLoader />}
       </Canvas>
     </div>
   );
