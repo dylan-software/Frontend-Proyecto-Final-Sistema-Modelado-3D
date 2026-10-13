@@ -1061,6 +1061,36 @@ select:disabled {
   gap: 6px;
 }
 
+/* Compact ghost buttons: expand / collapse every category at once. */
+.accordion-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.accordion-toolbar button {
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 999px;
+}
+
+.accordion-toolbar button:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+.accordion-toolbar button:disabled {
+  background: transparent;
+  opacity: 0.45;
+}
+
 .accordion-group {
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
