@@ -49,6 +49,20 @@ body {
   margin: 0 0 20px;
 }
 
+/* Room shape map and 3D viewer sit side by side when there is room. */
+.viewport-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.viewport-grid > section {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
 @media (max-width: 960px) {
   .dashboard {
     grid-template-columns: minmax(0, 1fr);
