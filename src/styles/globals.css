@@ -668,3 +668,27 @@ select:disabled {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.photo-preview-remove {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: #e6edf3;
+  background: rgba(13, 17, 23, 0.8);
+  border: 1px solid #30363d;
+}
+
+.photo-preview-remove:hover:not(:disabled) {
+  color: #fff;
+  background: #b3261e;
+  border-color: #b3261e;
+  box-shadow: none;
+}
