@@ -6,7 +6,10 @@ interface ObjectFormProps {
   onCreated: (item: FurnitureInput) => void;
 }
 
-const CATEGORIES = ["sofa", "table", "chair", "bed", "shelf", "lamp", "other"];
+/** Selecting this option lets the user type their own category name. */
+const OTHERS_CATEGORY = "Others";
+
+const CATEGORIES = ["sofa", "table", "chair", "bed", "shelf", "lamp", OTHERS_CATEGORY];
 
 /**
  * Manual object creation. The object's NAME is required — the form
