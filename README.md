@@ -29,7 +29,41 @@ src/
 - **Layout generation** — the room shape and furniture catalog are sent to the backend, and the
   validated positions are rendered by `RenderScene`.
 
-# Deployment
+## Getting started
+
+### Requirements
+- Node.js 20 or newer and npm
+- The FastAPI backend running locally (by default on `http://localhost:8000`)
+
+### 1. Install dependencies
+```
+npm install
+```
+
+### 2. Configure the environment
+Copy the example file and adjust the backend URL if it doesn't run on port 8000:
+```
+cp .env.example .env.local
+```
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+`.env.local` is git-ignored. Restart `npm run dev` after changing it.
+
+### 3. Run the development server
+```
+npm run dev        # http://localhost:3000
+```
+The backend must allow `http://localhost:3000` in its CORS settings. If it is not running, the UI shows a
+connection alert instead of failing silently.
+
+### Other scripts
+| Command             | What it does                    |
+| ------------------- | ------------------------------- |
+| `npm run build`     | Production build                |
+| `npm start`         | Serve the production build      |
+| `npm run typecheck` | TypeScript check (no output)    |
+| `npm test`          | Unit tests with Vitest          |
 
 ## Deploy on Vercel
 1. Push this folder as its own Git repository (the repo root is this folder, so no "Root Directory" change is needed).
@@ -40,14 +74,6 @@ src/
    the browser will block every request with a CORS error.
 
 If you change `NEXT_PUBLIC_API_URL` later, redeploy: it is inlined at build time.
-
-## Run locally
-```
-cp .env.example .env.local
-npm install
-npm run dev        # http://localhost:3000  (backend expected on http://localhost:4000)
-```
-Other scripts: `npm test`, `npm run typecheck`, `npm run build`.
 
 ## Camera / AR notes
 - The AR scanning and "laser" measuring need **Chrome on Android over HTTPS** (Vercel gives you HTTPS). Safari on iOS
