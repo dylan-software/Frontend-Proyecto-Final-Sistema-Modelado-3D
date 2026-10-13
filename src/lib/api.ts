@@ -82,7 +82,23 @@ export interface ChatTurn {
   content: string;
 }
 
+/** Account returned by the FastAPI auth endpoints. */
+export interface AuthUser {
+  id: number;
+  nombre: string;
+  email: string;
+}
+
 export const api = {
+  register: (body: { nombre: string; email: string; password: string }) =>
+    v1Request<AuthUser>("/auth/register", { method: "POST", body: JSON.stringify(body) }),
+
+  login: (body: { email: string; password: string }) =>
+    v1Request<{ access_token: string; token_type: string; expires_in: number; usuario: AuthUser }>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
   health: () => request<{ ok: boolean; service: string }>("/api/health"),
 
   chat: (projectId: string, messages: ChatTurn[]) =>
