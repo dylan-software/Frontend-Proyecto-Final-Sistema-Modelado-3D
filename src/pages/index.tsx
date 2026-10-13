@@ -287,7 +287,7 @@ export default function Home() {
         <SpatialAnalytics roomAreaM2={typeof space === "object" && space ? space.areaM2 : null} items={occupyingItems} />
 
         <section>
-          <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
+          {userId && <ObjectForm userId={userId} onCreated={(item) => setCatalog((prev) => [...prev, item])} />}
         </section>
 
         <section className="catalog">

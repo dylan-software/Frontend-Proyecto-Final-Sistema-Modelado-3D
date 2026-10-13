@@ -1,8 +1,10 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { LaserMeasure } from "./LaserMeasure";
-import { api, type FurnitureInput } from "../lib/api";
+import { api, toFurnitureInput, type FurnitureInput } from "../lib/api";
 
 interface ObjectFormProps {
+  /** Account the new catalog entries are stored under. */
+  userId: string;
   onCreated: (item: FurnitureInput) => void;
 }
 
@@ -23,7 +25,7 @@ export function isCustomCategory(category: string): boolean {
  * Choosing "Others" as the category reveals a text field whose value is
  * sent to the backend as the category name.
  */
-export function ObjectForm({ onCreated }: ObjectFormProps) {
+export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
   const [name, setName] = useState("");
   const [widthCm, setWidthCm] = useState("");
   const [heightCm, setHeightCm] = useState("");
@@ -74,26 +76,26 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
       return;
     }
 
-    // With "Others" selected, the typed name is stored as the category itself.
-    const resolvedCategory = showCustomCategory ? customCategoryName.trim() : category;
-
-    const item: FurnitureInput = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      widthCm: w,
-      heightCm: h,
-      depthCm: d,
-      category: resolvedCategory,
-      material: material || "unspecified",
-      price: Number(price) || 0,
-      style: style || "unspecified",
-      createdManually: true,
-    };
-
     setSubmitting(true);
     try {
-      await api.createFurniture(item);
-      onCreated(item);
+      // With "Others" the backend creates (or reuses) the category typed in custom_category.
+      const stored = await api.createCatalogFurniture({
+        user_id: userId,
+        nombre: name.trim(),
+        categoria: showCustomCategory ? OTHERS_CATEGORY : category,
+        custom_category: showCustomCategory ? customCategoryName.trim() : undefined,
+        ancho: w,
+        alto: h,
+        profundidad: d,
+      });
+      // The server id is what DELETE /furniture/{id} expects later on.
+      onCreated({
+        ...toFurnitureInput(stored),
+        material: material || "unspecified",
+        price: Number(price) || 0,
+        style: style || "unspecified",
+        createdManually: true,
+      });
       setName("");
       setWidthCm("");
       setHeightCm("");
