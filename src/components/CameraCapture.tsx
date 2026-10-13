@@ -137,6 +137,16 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     setError(null);
   }
 
+  /**
+   * Sends the picked photo to the backend's space analysis, packaged as
+   * multipart/form-data under the `file` key (FastAPI's UploadFile).
+   */
+  async function uploadSelectedFileToBackend() {
+    if (!selectedFile) return;
+    const form = new FormData();
+    form.append("file", selectedFile, selectedFile.name);
+  }
+
   // Free each preview URL once it is replaced or the component unmounts.
   useEffect(() => {
     return () => {
