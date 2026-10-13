@@ -110,6 +110,8 @@ export default function Home() {
   }
 
   /** Marks the piece with `id` as inspected (and unmarks the rest); null clears it. */
+  const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
+
   function handleSelectFurniture(id: string | null) {
     setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
   }
@@ -253,6 +255,11 @@ export default function Home() {
           <CameraCapture onAnalyzed={handleSpaceAnalyzed} onAnalyzingChange={setAnalyzingSpace} />
           <div className="canvas-wrapper">
             <Scene3D furniture={placedFurniture} loading={analyzingSpace} onSelect={handleSelectFurniture} />
+            {selectedFurniture && (
+              <button type="button" className="delete-selected-button">
+                Delete Selected <span className="delete-selected-name">({selectedFurniture.name})</span>
+              </button>
+            )}
           </div>
         </section>
 
