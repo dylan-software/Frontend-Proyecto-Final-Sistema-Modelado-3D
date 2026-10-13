@@ -26,3 +26,10 @@ export interface FurnitureObject {
   rotation: number;
   dimensions?: Dimensions3D;
 }
+
+/** Response of POST /api/v1/spaces/analyze on the FastAPI backend. */
+export interface SpaceAnalysisResponse {
+  success: boolean;
+  recommendations: string;
+  suggested_coordinates: Vector3D;
+}
