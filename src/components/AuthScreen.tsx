@@ -15,6 +15,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   function toggleView() {
     setIsLoginView((login) => !login);
@@ -69,6 +70,20 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               placeholder="Mínimo 6 caracteres"
             />
           </label>
+
+          {!isLoginView && (
+            <label>
+              Confirmar contraseña
+              <input
+                type="password"
+                name="confirmPassword"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Repite la contraseña"
+              />
+            </label>
+          )}
 
           <button type="submit" className="auth-submit">
             {isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
