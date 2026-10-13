@@ -584,3 +584,44 @@ select:disabled {
   margin: 0;
   font-size: 14px;
 }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.session-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.session-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3fb950;
+  box-shadow: 0 0 8px rgba(63, 185, 80, 0.7);
+}
+
+.logout-button {
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #c9d1d9;
+  background: transparent;
+  border: 1px solid #30363d;
+}
+
+.logout-button:hover:not(:disabled) {
+  color: #fff;
+  background: #b3261e;
+  border-color: #b3261e;
+  box-shadow: none;
+}
