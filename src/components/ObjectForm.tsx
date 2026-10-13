@@ -22,6 +22,8 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
   const [heightCm, setHeightCm] = useState("");
   const [depthCm, setDepthCm] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]!);
+  // True while "Others" is selected, so the custom category field is shown.
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [material, setMaterial] = useState("");
   const [price, setPrice] = useState("");
   const [style, setStyle] = useState("");
