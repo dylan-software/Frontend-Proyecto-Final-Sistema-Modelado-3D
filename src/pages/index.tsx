@@ -5,7 +5,7 @@ import { RoomEditor } from "../components/RoomEditor";
 import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import CameraCapture from "../components/CameraCapture";
-import { AUTH_TOKEN_KEY } from "../components/AuthScreen";
+import { AuthScreen, AUTH_TOKEN_KEY } from "../components/AuthScreen";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
 import type { FurnitureObject, SpaceAnalysisResponse } from "../types/spatial";
 
@@ -76,10 +76,12 @@ export default function Home() {
     setIsAuthenticated(hasStoredSession());
   }, []);
 
+  // The workspace data is only fetched once there is a session.
   useEffect(() => {
+    if (!isAuthenticated) return;
     loadSpace();
     loadCatalog();
-  }, []);
+  }, [isAuthenticated]);
 
   async function handleVertexMoved(index: number, point: Point2D) {
     const res = await api.updateVertex(DEMO_PROJECT_ID, index, point);
@@ -139,6 +141,13 @@ export default function Home() {
       setGenerating(false);
     }
   }
+
+  // Still checking localStorage: render nothing rather than flash the lock screen.
+  if (isAuthenticated === null) return null;
+
+  // No session: only the lock screen is rendered, so the 3D viewers, the
+  // camera and the chat aren't even mounted.
+  if (!isAuthenticated) return <AuthScreen onAuthenticated={() => setIsAuthenticated(true)} />;
 
   return (
     <div className="dashboard">
