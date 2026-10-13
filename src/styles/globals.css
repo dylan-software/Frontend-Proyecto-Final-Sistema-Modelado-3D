@@ -39,8 +39,18 @@ body {
   min-width: 0;
 }
 
-.main-panel > h1 {
-  margin: 0 0 20px;
+/* Top bar of the visualization area: title + theme selector. */
+.app-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.app-topbar h1 {
+  margin: 0;
 }
 
 /* Room shape map and 3D viewer sit side by side when there is room. */
