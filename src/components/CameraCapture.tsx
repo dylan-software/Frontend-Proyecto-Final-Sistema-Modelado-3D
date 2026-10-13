@@ -42,6 +42,8 @@ function captureFrame(video: HTMLVideoElement): Promise<Blob> {
 export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  // Hidden <input type="file">, opened programmatically from the visible button.
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -116,7 +118,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
   return (
     <div>
       <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
-      <input type="file" accept="image/*" hidden />
+      <input ref={fileInputRef} type="file" accept="image/*" hidden />
       <button onClick={startCamera}>Iniciar cámara</button>
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
