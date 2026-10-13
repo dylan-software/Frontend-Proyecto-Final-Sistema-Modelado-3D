@@ -24,7 +24,19 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           <p className="auth-subtitle">{isLoginView ? "Inicia sesión para continuar" : "Crea tu cuenta"}</p>
         </header>
 
-        <form className="auth-form"></form>
+        <form className="auth-form">
+          {!isLoginView && (
+            <label>
+              Nombre de usuario
+              <input type="text" name="username" autoComplete="username" placeholder="ej. dylan3d" />
+            </label>
+          )}
+
+          <label>
+            Correo electrónico
+            <input type="email" name="email" autoComplete="email" placeholder="tu@correo.com" />
+          </label>
+        </form>
       </div>
     </div>
   );

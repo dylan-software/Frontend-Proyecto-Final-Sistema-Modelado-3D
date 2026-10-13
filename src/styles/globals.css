@@ -522,6 +522,10 @@ select:disabled {
   flex-direction: column;
 }
 
+.auth-form input {
+  max-width: none;
+}
+
 .auth-header {
   margin-bottom: 24px;
   text-align: center;
