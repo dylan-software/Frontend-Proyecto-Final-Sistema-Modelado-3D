@@ -1,6 +1,12 @@
 import { useRef, useState, useEffect } from "react";
 import { api, type ChatTurn } from "../lib/api";
 
+/** A single turn of the chat as shown in the panel and sent to the backend. */
+export interface MessageInterface extends ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 interface ChatPanelProps {
   projectId: string;
 }
