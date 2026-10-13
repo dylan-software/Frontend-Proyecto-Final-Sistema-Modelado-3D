@@ -161,8 +161,16 @@ select {
   gap: 8px;
 }
 
-.object-form {
-  max-width: 420px;
+.object-form input,
+.object-form select {
+  max-width: none;
+}
+
+.catalog-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 .canvas-wrapper {

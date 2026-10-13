@@ -127,6 +127,21 @@ export default function Home() {
     <div className="dashboard">
       {/* Left column: control sidebar. */}
       <aside className="sidebar">
+        <section>
+          <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
+        </section>
+
+        <section className="catalog">
+          <h3>Catalog ({catalog.length})</h3>
+          <ul className="catalog-list">
+            {catalog.map((c) => (
+              <li key={c.id}>
+                {c.name} — {c.widthCm}×{c.heightCm}×{c.depthCm}cm
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section className="chat-panel">
           <ChatPanel projectId={DEMO_PROJECT_ID} />
           <button
@@ -168,7 +183,7 @@ export default function Home() {
               <button onClick={handleGenerateLayout} disabled={generating || catalog.length === 0}>
                 {generating ? "Generating…" : "Generate layout"}
               </button>
-              {catalog.length === 0 && <p className="hint">Add at least one object below first.</p>}
+              {catalog.length === 0 && <p className="hint">Add at least one object from the sidebar first.</p>}
 
               {placedItems.length > 0 && (
                 <div className="canvas-wrapper">
@@ -193,18 +208,6 @@ export default function Home() {
         </section>
 
         {error && <p className="warning">{error}</p>}
-
-        <section>
-          <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
-          <h3>Catalog ({catalog.length})</h3>
-          <ul>
-            {catalog.map((c) => (
-              <li key={c.id}>
-                {c.name} — {c.widthCm}×{c.heightCm}×{c.depthCm}cm
-              </li>
-            ))}
-          </ul>
-        </section>
       </main>
     </div>
   );
