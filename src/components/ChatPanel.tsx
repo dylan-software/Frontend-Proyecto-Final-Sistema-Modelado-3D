@@ -19,7 +19,7 @@ interface ChatPanelProps {
  * sees that structured data, never a picture of the room.
  */
 export function ChatPanel({ projectId }: ChatPanelProps) {
-  const [messages, setMessages] = useState<ChatTurn[]>([
+  const [messages, setMessages] = useState<MessageInterface[]>([
     {
       role: "assistant",
       content: "Hi! Ask me how to organize your space — I can check its shape and what's placed in it so far.",
@@ -38,7 +38,7 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
     const text = input.trim();
     if (!text || sending) return;
 
-    const nextMessages: ChatTurn[] = [...messages, { role: "user", content: text }];
+    const nextMessages: MessageInterface[] = [...messages, { role: "user", content: text }];
     setMessages(nextMessages);
     setInput("");
     setSending(true);
