@@ -625,3 +625,21 @@ select:disabled {
   border-color: #b3261e;
   box-shadow: none;
 }
+
+/* Secondary button that opens the file picker (gallery/camera on phones). */
+.upload-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 4px;
+  color: #e6edf3;
+  background: #21262d;
+  border: 1px solid #30363d;
+}
+
+.upload-button:hover:not(:disabled) {
+  color: #00e5ff;
+  background: #262c36;
+  border-color: rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+}

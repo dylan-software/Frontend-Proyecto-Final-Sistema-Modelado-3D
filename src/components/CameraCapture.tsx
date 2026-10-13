@@ -123,6 +123,9 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
+      <button type="button" className="upload-button">
+        <span aria-hidden="true">📎</span> Upload Photo
+      </button>
       {recommendations && <p className="hint">{recommendations}</p>}
       {error && (
         <p className="warning connection-alert" role="alert">
