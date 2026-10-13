@@ -158,7 +158,7 @@ export default function Home() {
     setDeletingId(id);
     setError(null);
     try {
-      // The server request is added in the next step.
+      await api.deleteFurniture(id);
     } finally {
       setDeletingId(null);
     }
