@@ -177,15 +177,6 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  listFurniture: (category?: string) =>
-    request<{ items: FurnitureInput[] }>(`/api/furniture${category ? `?category=${category}` : ""}`),
-
-  createFurniture: (item: FurnitureInput) =>
-    request<{ ok: true; item: FurnitureInput }>("/api/furniture", {
-      method: "POST",
-      body: JSON.stringify(item),
-    }),
-
   deleteFurniture: (id: string) =>
     v1Request<{ success: boolean; message: string }>(`/spaces/furniture/${encodeURIComponent(id)}`, {
       method: "DELETE",

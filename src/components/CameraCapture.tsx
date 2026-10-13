@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
+
 import { fetchBackend } from "../lib/api";
 import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
 
