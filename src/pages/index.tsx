@@ -54,6 +54,8 @@ export default function Home() {
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Text typed in the catalog search box.
+  const [searchQuery, setSearchQuery] = useState("");
 
   async function loadSpace() {
     try {
@@ -205,7 +207,12 @@ export default function Home() {
         <section className="catalog">
           <div className="catalog-header">
             <h3>Catalog ({catalog.length})</h3>
-            <input type="text" className="catalog-search" placeholder="🔍 Buscar mueble…" aria-label="Buscar en el catálogo" />
+            <input
+              type="text"
+              className="catalog-search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="🔍 Buscar mueble…" aria-label="Buscar en el catálogo" />
           </div>
           <ul className="catalog-list">
             {catalog.map((c) => (
