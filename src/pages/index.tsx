@@ -61,6 +61,8 @@ export default function Home() {
   const [analyzingSpace, setAnalyzingSpace] = useState(false);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
+  // Catalog entry whose DELETE request is in flight.
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function loadSpace() {
@@ -151,6 +153,17 @@ export default function Home() {
     setPlacedFurniture((prev) => prev.filter((f) => !f.selected));
   }
 
+  async function deleteFurnitureById(id: string) {
+    if (deletingId) return;
+    setDeletingId(id);
+    setError(null);
+    try {
+      // The server request is added in the next step.
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function handleResetSpace() {
     setPlacedFurniture([]);
     setPlacedItems([]);
@@ -221,7 +234,7 @@ export default function Home() {
           <div className="catalog-header">
             <h3>Catalog ({catalog.length})</h3>
           </div>
-          <CategoryAccordion items={catalog} />
+          <CategoryAccordion items={catalog} onDelete={deleteFurnitureById} deletingId={deletingId} />
           <button
             className="reset-button"
             onClick={handleResetSpace}
