@@ -113,6 +113,12 @@ export default function Home() {
   }
 
   /** Marks the piece with `id` as inspected (and unmarks the rest); null clears it. */
+  const filteredCatalog = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return catalog;
+    return catalog.filter((c) => c.name.toLowerCase().includes(query));
+  }, [catalog, searchQuery]);
+
   const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
 
   // Bounding boxes in meters of everything in the room: the generated layout
@@ -212,10 +218,12 @@ export default function Home() {
               className="catalog-search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="🔍 Buscar mueble…" aria-label="Buscar en el catálogo" />
+              placeholder="🔍 Buscar mueble…"
+              aria-label="Buscar en el catálogo"
+            />
           </div>
           <ul className="catalog-list">
-            {catalog.map((c) => (
+            {filteredCatalog.map((c) => (
               <li key={c.id}>
                 <span className="catalog-item-name">{c.name}</span>
                 <span className={`category-tag${isCustomCategory(c.category) ? " category-tag-custom" : ""}`}>
@@ -227,6 +235,9 @@ export default function Home() {
               </li>
             ))}
           </ul>
+          {catalog.length > 0 && filteredCatalog.length === 0 && (
+            <p className="hint">Ningún mueble coincide con “{searchQuery.trim()}”.</p>
+          )}
           <button
             className="reset-button"
             onClick={handleResetSpace}
