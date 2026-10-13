@@ -160,7 +160,12 @@ export default function Home() {
     setDeletingId(id);
     setError(null);
     try {
-      await api.deleteFurniture(id);
+      try {
+        await api.deleteFurniture(id);
+      } catch (err) {
+        // 404: someone already deleted it on the server; still drop it locally.
+        if (!(err instanceof ApiError && err.status === 404)) throw err;
+      }
       // Drop the entry from the catalog and every copy of it placed in the generated layout.
       setCatalog((prev) => prev.filter((c) => c.id !== id));
       setPlacedItems((prev) => prev.filter((p) => p.item.id !== id));
