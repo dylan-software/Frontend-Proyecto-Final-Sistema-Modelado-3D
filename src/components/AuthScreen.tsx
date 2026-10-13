@@ -16,6 +16,10 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  function toggleView() {
+    setIsLoginView((login) => !login);
+  }
+
   return (
     <div className="auth-screen">
       <div className="auth-card">
@@ -70,6 +74,13 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             {isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
           </button>
         </form>
+
+        <p className="auth-switch">
+          {isLoginView ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+          <button type="button" className="link-button" onClick={toggleView}>
+            {isLoginView ? "Registrarse" : "Iniciar sesión"}
+          </button>
+        </p>
       </div>
     </div>
   );
