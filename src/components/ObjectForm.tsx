@@ -39,6 +39,8 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
     setActiveMeasurement(null);
   }
 
+  const customCategoryMissing = showCustomCategory && !customCategoryName.trim();
+
   function handleCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const value = e.target.value;
     setCategory(value);
@@ -51,6 +53,10 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
 
     if (!name.trim()) {
       setError("The object name is required.");
+      return;
+    }
+    if (customCategoryMissing) {
+      setError('Type a name for the new category, or pick one other than "Others".');
       return;
     }
     const w = Number(widthCm);
@@ -165,6 +171,8 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
               value={customCategoryName}
               onChange={(e) => setCustomCategoryName(e.target.value)}
               placeholder="e.g. desk, rug, plant"
+              required
+              aria-invalid={error !== null && customCategoryMissing}
               autoFocus
             />
           </label>
