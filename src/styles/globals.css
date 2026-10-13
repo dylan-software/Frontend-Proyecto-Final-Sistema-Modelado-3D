@@ -730,3 +730,63 @@ select:disabled {
     transform: translateY(0);
   }
 }
+
+/* Spatial analytics: occupied / free floor meters. */
+.meter {
+  margin: 12px 0;
+}
+
+.meter-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #c9d1d9;
+}
+
+.meter-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter-track {
+  height: 8px;
+  overflow: hidden;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 999px;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meter-fill-occupied {
+  background: linear-gradient(90deg, #0070f3, #00e5ff);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+}
+
+.meter-fill-free {
+  background: linear-gradient(90deg, #238636, #3fb950);
+}
+
+.analytics-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0 0;
+}
+
+.analytics-stats dt {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.analytics-stats dd {
+  margin: 2px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
