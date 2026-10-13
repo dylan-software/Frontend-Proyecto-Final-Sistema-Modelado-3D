@@ -116,6 +116,11 @@ export default function Home() {
     setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
   }
 
+  /** Removes the selected piece from the viewer; it only exists in local state. */
+  function deleteFurnitureItem() {
+    setPlacedFurniture((prev) => prev.filter((f) => !f.selected));
+  }
+
   function handleResetSpace() {
     setPlacedFurniture([]);
     setPlacedItems([]);
@@ -256,7 +261,7 @@ export default function Home() {
           <div className="canvas-wrapper">
             <Scene3D furniture={placedFurniture} loading={analyzingSpace} onSelect={handleSelectFurniture} />
             {selectedFurniture && (
-              <button type="button" className="delete-selected-button">
+              <button type="button" className="delete-selected-button" onClick={deleteFurnitureItem}>
                 Delete Selected <span className="delete-selected-name">({selectedFurniture.name})</span>
               </button>
             )}
