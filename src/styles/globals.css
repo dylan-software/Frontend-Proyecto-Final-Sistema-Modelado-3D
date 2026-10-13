@@ -204,3 +204,22 @@ select {
 .chat-panel .hint {
   color: #aab3ad;
 }
+
+.reset-button {
+  margin-top: 16px;
+  background: transparent;
+  color: #f2b8b5;
+  border: 1px solid #f2b8b5;
+}
+
+.reset-button:hover:not(:disabled) {
+  background: #b3261e;
+  border-color: #b3261e;
+  color: #fff;
+}
+
+.reset-button:disabled {
+  background: transparent;
+  border-color: #5c6b60;
+  color: #5c6b60;
+}
