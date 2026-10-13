@@ -643,3 +643,28 @@ select:disabled {
   border-color: rgba(0, 229, 255, 0.5);
   box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
 }
+
+/* Card previewing the photo picked from the device before it is analyzed. */
+.photo-preview {
+  position: relative;
+  margin: 12px 0 4px;
+  padding: 8px;
+  background: #161b22;
+  border: 1px solid rgba(240, 246, 252, 0.08);
+  border-radius: 10px;
+}
+
+.photo-preview img {
+  display: block;
+  width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.photo-preview figcaption {
+  margin-top: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

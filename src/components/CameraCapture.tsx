@@ -160,6 +160,12 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <button type="button" className="upload-button" onClick={triggerFileInput}>
         <span aria-hidden="true">📎</span> Upload Photo
       </button>
+      {filePreviewUrl && (
+        <figure className="photo-preview">
+          <img src={filePreviewUrl} alt="Foto seleccionada para analizar" />
+          <figcaption className="hint">{selectedFile?.name}</figcaption>
+        </figure>
+      )}
       {recommendations && <p className="hint">{recommendations}</p>}
       {error && (
         <p className="warning connection-alert" role="alert">
