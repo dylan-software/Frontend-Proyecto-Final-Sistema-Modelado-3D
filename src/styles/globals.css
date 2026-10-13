@@ -692,3 +692,41 @@ select:disabled {
   border-color: #b3261e;
   box-shadow: none;
 }
+
+/* Contextual action floating over the 3D viewer while a piece is selected. */
+.delete-selected-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: #fff;
+  background: rgba(179, 38, 30, 0.9);
+  border: 1px solid #f85149;
+  box-shadow: 0 6px 18px rgba(1, 4, 9, 0.5);
+  backdrop-filter: blur(4px);
+  animation: delete-selected-in 160ms ease-out;
+}
+
+.delete-selected-button:hover:not(:disabled) {
+  background: #da3633;
+  box-shadow: 0 0 16px rgba(248, 81, 73, 0.55);
+}
+
+.delete-selected-name {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+@keyframes delete-selected-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
