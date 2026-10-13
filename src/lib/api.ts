@@ -6,8 +6,25 @@
  */
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
+/** Thrown when the backend can't be reached at all (server down, no network, CORS). */
+export class BackendUnreachableError extends Error {
+  constructor() {
+    super(`No se pudo conectar con el servidor (${BASE_URL}). Verifica que el backend en Python esté encendido.`);
+    this.name = "BackendUnreachableError";
+  }
+}
+
+/** fetch() that turns network-level failures into a BackendUnreachableError. */
+export async function fetchBackend(input: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(input, init);
+  } catch {
+    throw new BackendUnreachableError();
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetchBackend(`${BASE_URL}${path}`, {
     ...init,
     headers: { "Content-Type": "application/json", ...init?.headers },
   });

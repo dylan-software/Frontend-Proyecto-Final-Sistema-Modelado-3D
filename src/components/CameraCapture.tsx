@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { fetchBackend } from "../lib/api";
 import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
 
 const ANALYZE_URL = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/spaces/analyze`;
@@ -63,7 +64,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       form.append("file", blob, "capture.jpg");
 
       // No Content-Type header: the browser sets the multipart boundary itself.
-      const res = await fetch(ANALYZE_URL, { method: "POST", body: form });
+      const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
       if (!res.ok) throw new Error(`El análisis falló con estado ${res.status}`);
 
       const result: SpaceAnalysisResponse = await res.json();
@@ -95,7 +96,11 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
       {recommendations && <p className="hint">{recommendations}</p>}
-      {error && <p>{error}</p>}
+      {error && (
+        <p className="warning connection-alert" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

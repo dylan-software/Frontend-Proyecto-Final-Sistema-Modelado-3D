@@ -223,3 +223,10 @@ select {
   border-color: #5c6b60;
   color: #5c6b60;
 }
+
+.connection-alert {
+  padding: 10px 12px;
+  border-left: 4px solid #b00020;
+  border-radius: 4px;
+  background: #fdecee;
+}
