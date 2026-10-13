@@ -10,17 +10,25 @@ interface Scene3DProps {
   furniture: FurnitureObject[];
   /** Shows the spinning loader while the backend is analyzing. */
   loading?: boolean;
+  /** Called with the clicked piece's id, or null when clicking empty space. */
+  onSelect?: (id: string | null) => void;
 }
 
 /**
  * Interactive 3D viewport where the modeled room is displayed.
  */
-export default function Scene3D({ furniture, loading = false }: Scene3DProps) {
+export default function Scene3D({ furniture, loading = false, onSelect }: Scene3DProps) {
   return (
     <div style={{ width: "100%", height: "100%" }}>
       {/* "demand" only redraws when something changes (orbit, new furniture),
           instead of 60 times per second, so the GPU stays idle otherwise. */}
-      <Canvas shadows frameloop="demand" camera={{ position: [5, 5, 5], fov: 50 }}>
+      <Canvas
+        shadows
+        frameloop="demand"
+        camera={{ position: [5, 5, 5], fov: 50 }}
+        // A click that hits no mesh clears the selection.
+        onPointerMissed={() => onSelect?.(null)}
+      >
         <ambientLight intensity={0.4} />
         <hemisphereLight args={["#ffffff", "#8d8d8d", 0.35]} />
         <directionalLight
@@ -50,9 +58,19 @@ export default function Scene3D({ furniture, loading = false }: Scene3DProps) {
               position={[f.position.x, f.position.y + height / 2, f.position.z]}
               rotation={[0, (f.rotation * Math.PI) / 180, 0]}
               castShadow
+              // R3F raycasts the pointer against the scene; only the nearest hit
+              // should be selected, so the event stops at this mesh.
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelect?.(f.id);
+              }}
             >
               <boxGeometry args={[width, height, depth]} />
-              <meshStandardMaterial color="#8a6f5c" />
+              <meshStandardMaterial
+                color={f.selected ? "#00e5ff" : "#8a6f5c"}
+                emissive={f.selected ? "#00e5ff" : "#000000"}
+                emissiveIntensity={f.selected ? 0.35 : 0}
+              />
             </mesh>
           );
         })}
