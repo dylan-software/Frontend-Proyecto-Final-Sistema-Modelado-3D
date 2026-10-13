@@ -203,7 +203,10 @@ export default function Home() {
         </section>
 
         <section className="catalog">
-          <h3>Catalog ({catalog.length})</h3>
+          <div className="catalog-header">
+            <h3>Catalog ({catalog.length})</h3>
+            <input type="text" className="catalog-search" placeholder="🔍 Buscar mueble…" aria-label="Buscar en el catálogo" />
+          </div>
           <ul className="catalog-list">
             {catalog.map((c) => (
               <li key={c.id}>
