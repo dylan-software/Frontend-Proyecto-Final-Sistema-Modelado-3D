@@ -4,7 +4,7 @@
  * deployment (Vercel frontend + Render/Railway/Azure/AWS backend) — it
  * is never hardcoded anywhere else in the app.
  */
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 /** Thrown when the backend can't be reached at all (server down, no network, CORS). */
 export class BackendUnreachableError extends Error {

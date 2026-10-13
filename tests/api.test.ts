@@ -19,14 +19,14 @@ beforeEach(() => {
  * accidentally hardcodes "localhost" somewhere in lib/api.ts.
  */
 describe("api client — base URL resolution", () => {
-  it("defaults to localhost:4000 when NEXT_PUBLIC_API_URL is not set (local dev)", async () => {
+  it("defaults to localhost:8000 when NEXT_PUBLIC_API_URL is not set (local dev)", async () => {
     delete process.env.NEXT_PUBLIC_API_URL;
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true }) }));
 
     const { api } = await import("../src/lib/api");
     await api.health();
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:4000/api/health", expect.anything());
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8000/api/health", expect.anything());
   });
 
   it("targets the deployed backend URL when NEXT_PUBLIC_API_URL is set (production)", async () => {
