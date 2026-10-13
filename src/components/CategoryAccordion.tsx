@@ -105,6 +105,9 @@ export function CategoryAccordion({ items }: AccordionProps) {
                     <span className="catalog-item-size">
                       {c.widthCm}×{c.heightCm}×{c.depthCm}cm
                     </span>
+                    <button type="button" className="catalog-item-delete" aria-label={`Eliminar ${c.name}`} title="Eliminar">
+                      <span aria-hidden="true">🗑️</span>
+                    </button>
                   </li>
                 ))}
               </ul>

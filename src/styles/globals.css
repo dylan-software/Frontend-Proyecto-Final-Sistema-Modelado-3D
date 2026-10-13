@@ -342,6 +342,38 @@ select:disabled {
   font-variant-numeric: tabular-nums;
 }
 
+/* Per-item delete control; stays faint until the row is hovered or focused. */
+.catalog-item-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  opacity: 0.55;
+}
+
+.catalog-list li:hover .catalog-item-delete,
+.catalog-item-delete:focus-visible {
+  opacity: 1;
+}
+
+.catalog-item-delete:hover:not(:disabled) {
+  background: rgba(248, 81, 73, 0.15);
+  border-color: #f85149;
+  box-shadow: none;
+}
+
+.catalog-item-delete:disabled {
+  cursor: progress;
+  opacity: 0.3;
+}
+
 .category-tag {
   padding: 2px 8px;
   border-radius: 999px;
