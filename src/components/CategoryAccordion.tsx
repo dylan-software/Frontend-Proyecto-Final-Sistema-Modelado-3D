@@ -109,7 +109,6 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
       )}
 
       {groups.map(({ category, items: groupItems }, index) => {
-        // While searching, every category with matches is expanded.
         const open = searching || openCategories.has(category);
         // Custom category names may contain spaces, so the id uses the index.
         const panelId = `${idPrefix}-panel-${index}`;

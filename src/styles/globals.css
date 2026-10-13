@@ -1135,6 +1135,7 @@ select:disabled {
   border: 1px solid var(--color-border-soft);
   border-radius: 8px;
   overflow: hidden;
+  transition: border-color 200ms ease;
 }
 
 .accordion-header {
@@ -1166,10 +1167,6 @@ select:disabled {
   font-size: 10px;
   color: var(--color-text-muted);
   transition: color 150ms ease;
-}
-
-.accordion-group {
-  transition: border-color 200ms ease;
 }
 
 .accordion-group-open {
