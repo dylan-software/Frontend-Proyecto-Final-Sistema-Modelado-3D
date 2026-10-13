@@ -1052,6 +1052,12 @@ select:disabled {
   color: var(--color-text-muted);
 }
 
+.theme-option-check {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--color-accent);
+}
+
 @keyframes theme-menu-in {
   from {
     opacity: 0;
