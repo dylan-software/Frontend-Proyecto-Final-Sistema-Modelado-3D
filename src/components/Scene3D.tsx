@@ -17,8 +17,10 @@ interface Scene3DProps {
  * Interactive 3D viewport where the modeled room is displayed.
  */
 export default function Scene3D({ furniture, loading = false, onSelect }: Scene3DProps) {
-  // The selected piece glows with the active theme's accent color.
-  const { accent } = useTheme().theme.colors;
+  // The selected piece glows with the active theme's accent color, and the
+  // floor grid uses the theme's border tones so it stays visible on both
+  // the dark and the light backgrounds.
+  const { accent, border, textMuted } = useTheme().theme.colors;
 
   return (
     <div style={{ width: "100%", height: "100%" }}>
@@ -48,7 +50,15 @@ export default function Scene3D({ furniture, loading = false, onSelect }: Scene3
           <planeGeometry args={[20, 20]} />
           <shadowMaterial opacity={0.25} />
         </mesh>
-        <Grid args={[20, 20]} cellSize={0.5} sectionSize={1} infiniteGrid fadeDistance={30} />
+        <Grid
+          args={[20, 20]}
+          cellSize={0.5}
+          sectionSize={1}
+          cellColor={border}
+          sectionColor={textMuted}
+          infiniteGrid
+          fadeDistance={30}
+        />
         <OrbitControls makeDefault />
 
         {furniture.map((f) => {
