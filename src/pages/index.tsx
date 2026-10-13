@@ -4,8 +4,9 @@ import Link from "next/link";
 
 import { AuthScreen, AUTH_TOKEN_KEY } from "../components/AuthScreen";
 import CameraCapture from "../components/CameraCapture";
+import { CategoryAccordion } from "../components/CategoryAccordion";
 import { ChatPanel } from "../components/ChatPanel";
-import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
+import { ObjectForm } from "../components/ObjectForm";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
@@ -244,19 +245,7 @@ export default function Home() {
               aria-label="Buscar en el catálogo"
             />
           </div>
-          <ul className="catalog-list">
-            {filteredCatalog.map((c) => (
-              <li key={c.id}>
-                <span className="catalog-item-name">{c.name}</span>
-                <span className={`category-tag${isCustomCategory(c.category) ? " category-tag-custom" : ""}`}>
-                  {c.category}
-                </span>
-                <span className="catalog-item-size">
-                  {c.widthCm}×{c.heightCm}×{c.depthCm}cm
-                </span>
-              </li>
-            ))}
-          </ul>
+          <CategoryAccordion items={filteredCatalog} />
           {catalog.length > 0 && filteredCatalog.length === 0 && (
             <p className="hint">Ningún mueble coincide con “{searchQuery.trim()}”.</p>
           )}
