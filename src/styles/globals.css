@@ -496,3 +496,28 @@ select:disabled {
   border-radius: 4px;
   background: rgba(248, 81, 73, 0.12);
 }
+
+/* Authentication lock screen: a centered card over the dark background. */
+.auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  background: radial-gradient(circle at 50% 0%, rgba(0, 112, 243, 0.12), transparent 60%), #0d1117;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 32px 28px;
+  background: #1c2128;
+  border: 1px solid rgba(240, 246, 252, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(1, 4, 9, 0.55);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
