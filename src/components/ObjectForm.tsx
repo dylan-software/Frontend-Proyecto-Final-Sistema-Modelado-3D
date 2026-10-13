@@ -38,6 +38,12 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
     setActiveMeasurement(null);
   }
 
+  function handleCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const value = e.target.value;
+    setCategory(value);
+    setShowCustomCategory(value === OTHERS_CATEGORY);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -135,7 +141,7 @@ export function ObjectForm({ onCreated }: ObjectFormProps) {
 
       <label>
         Category
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <select value={category} onChange={handleCategoryChange}>
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>
               {c}
