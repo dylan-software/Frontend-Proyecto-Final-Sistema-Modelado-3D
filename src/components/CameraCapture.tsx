@@ -145,6 +145,21 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     if (!selectedFile) return;
     const form = new FormData();
     form.append("file", selectedFile, selectedFile.name);
+    setError(null);
+
+    try {
+      // No Content-Type header: the browser sets the multipart boundary itself.
+      const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
+      if (!res.ok) throw new Error(`El análisis de la foto falló con estado ${res.status}`);
+
+      const result: SpaceAnalysisResponse = await res.json();
+      if (!result.success) throw new Error("El backend no pudo analizar la foto.");
+      if (!isValidVector3D(result.suggested_coordinates)) {
+        throw new Error("El backend devolvió coordenadas inválidas.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo analizar la foto.");
+    }
   }
 
   // Free each preview URL once it is replaced or the component unmounts.
@@ -174,6 +189,9 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
         <figure className="photo-preview">
           <img src={filePreviewUrl} alt="Foto seleccionada para analizar" />
           <figcaption className="hint">{selectedFile?.name}</figcaption>
+          <button type="button" onClick={uploadSelectedFileToBackend}>
+            Analizar foto
+          </button>
         </figure>
       )}
       {recommendations && <p className="hint">{recommendations}</p>}
