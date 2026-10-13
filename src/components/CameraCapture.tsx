@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
  * backend's space-fitting AI.
  */
 export default function CameraCapture() {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,6 +20,9 @@ export default function CameraCapture() {
         audio: false,
       });
       streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudo acceder a la cámara.");
@@ -32,6 +36,7 @@ export default function CameraCapture() {
 
   return (
     <div>
+      <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
       <button onClick={startCamera}>Iniciar cámara</button>
       {error && <p>{error}</p>}
     </div>
