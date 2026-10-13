@@ -1,7 +1,7 @@
 import { useId, useMemo, useState } from "react";
 
-import type { FurnitureInput } from "../lib/api";
-import type { AccordionProps, CategoryGroup } from "../types/catalog";
+import { groupByCategory } from "../lib/catalog";
+import type { AccordionProps } from "../types/catalog";
 import { isCustomCategory } from "./ObjectForm";
 
 /** Display names of the predefined categories; custom ones are shown as typed. */
@@ -17,21 +17,6 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 function categoryLabel(category: string): string {
   return CATEGORY_LABELS[category] ?? category;
-}
-
-/**
- * Splits the catalog into one group per category, keeping the order in which
- * each category first appears. O(n): a single pass, with a Map giving O(1)
- * lookup of the group an item belongs to.
- */
-export function groupByCategory(items: readonly FurnitureInput[]): CategoryGroup[] {
-  const groups = new Map<string, FurnitureInput[]>();
-  for (const item of items) {
-    const group = groups.get(item.category);
-    if (group) group.push(item);
-    else groups.set(item.category, [item]);
-  }
-  return Array.from(groups, ([category, groupItems]) => ({ category, items: groupItems }));
 }
 
 /** Furniture catalog listing, grouped into collapsible categories (one open at a time). */
