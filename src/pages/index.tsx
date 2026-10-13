@@ -118,10 +118,6 @@ export default function Home() {
     setIsAuthenticated(false);
   }
 
-  /**
-   * Marks the piece with `id` as inspected (and unmarks the rest); null clears it.
-   * O(n): one pass that produces a new array, as React state must not be mutated.
-   */
   /** The piece inspected in the 3D viewer, if any. O(n) linear scan over the placed furniture. */
   const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
 
@@ -139,6 +135,10 @@ export default function Home() {
     [placedItems, placedFurniture]
   );
 
+  /**
+   * Marks the piece with `id` as inspected (and unmarks the rest); null clears it.
+   * O(n): one pass that produces a new array, as React state must not be mutated.
+   */
   function handleSelectFurniture(id: string | null) {
     setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
   }

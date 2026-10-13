@@ -1,9 +1,9 @@
 import { Grid, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 
-import ThreeLoader from "./ThreeLoader";
 import { useTheme } from "../context/ThemeContext";
 import { DEFAULT_DIMENSIONS, type FurnitureObject } from "../types/spatial";
+import ThreeLoader from "./ThreeLoader";
 
 interface Scene3DProps {
   furniture: FurnitureObject[];
