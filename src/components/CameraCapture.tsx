@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { SpaceAnalysisResponse } from "../types/spatial";
+import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
 
 const ANALYZE_URL = `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/api/v1/spaces/analyze`;
 
@@ -66,6 +66,9 @@ export default function CameraCapture({ onAnalyzed }: CameraCaptureProps) {
 
       const result: SpaceAnalysisResponse = await res.json();
       if (!result.success) throw new Error("El backend no pudo analizar el espacio.");
+      if (!isValidVector3D(result.suggested_coordinates)) {
+        throw new Error("El backend devolvió coordenadas inválidas.");
+      }
 
       setRecommendations(result.recommendations);
       onAnalyzed?.(result);

@@ -41,3 +41,10 @@ export interface SpaceAnalysisResponse extends ApiResponseInterface {
   recommendations: string;
   suggested_coordinates: Vector3D;
 }
+
+/** True when `value` is an {x, y, z} object whose three fields are finite numbers. */
+export function isValidVector3D(value: unknown): value is Vector3D {
+  if (typeof value !== "object" || value === null) return false;
+  const { x, y, z } = value as Record<string, unknown>;
+  return [x, y, z].every((n) => typeof n === "number" && Number.isFinite(n));
+}
