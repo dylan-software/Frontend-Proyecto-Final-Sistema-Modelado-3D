@@ -111,12 +111,19 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     }
   }
 
+  /**
+   * Physically releases the camera: `track.stop()` on every track of the
+   * stream turns the device (and its indicator light) off — clearing
+   * `srcObject` alone would only hide the picture. Safe to call when no
+   * stream is active. Touches refs only, so it also runs on unmount.
+   */
   function stopCameraStream() {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     if (videoRef.current) videoRef.current.srcObject = null;
   }
 
+  /** "Desactivar Cámara": frees the hardware and puts the controls back in their initial state. */
   function handleStopCamera() {
     stopCameraStream();
     setCameraOn(false);

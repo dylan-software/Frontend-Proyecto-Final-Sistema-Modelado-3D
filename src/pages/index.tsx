@@ -170,6 +170,11 @@ export default function Home() {
     setPlacedFurniture((prev) => prev.filter((f) => !f.selected));
   }
 
+  /**
+   * Deletes one catalog entry on the server (DELETE /api/v1/spaces/furniture/{id})
+   * and, once it is gone, removes it from the catalog and from the 3D layout.
+   * Only one deletion runs at a time; errors are shown instead of thrown.
+   */
   async function deleteFurnitureById(id: string) {
     if (deletingId) return;
     setDeletingId(id);
@@ -191,6 +196,11 @@ export default function Home() {
     }
   }
 
+  /**
+   * Empties the scene and deletes every catalog entry of this account on the
+   * server, after confirmation. Entries whose DELETE failed (server down,
+   * 5xx…) stay in the catalog and the error lists their HTTP status.
+   */
   async function handleResetSpace() {
     const targets = catalog;
     if (

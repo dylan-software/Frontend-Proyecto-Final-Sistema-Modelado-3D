@@ -153,6 +153,11 @@ export const api = {
       `/api/spaces/${projectId}/items`
     ),
 
+  /**
+   * Rooms and catalog of one account. Account isolation is enforced by the
+   * backend, which only returns rows stored with this exact user_id — so
+   * every request that reads or creates data must carry the session's id.
+   */
   listUserSpaces: (userId: string) =>
     v1Request<{ user_id: string; habitaciones: unknown[]; catalogo: CatalogItemOut[] }>(
       `/spaces?user_id=${encodeURIComponent(userId)}`
