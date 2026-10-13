@@ -5,6 +5,7 @@ import { RoomEditor } from "../components/RoomEditor";
 import { ObjectForm } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
+import type { FurnitureObject } from "../types/spatial";
 
 const DEMO_PROJECT_ID = "demo-project";
 
