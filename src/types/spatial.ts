@@ -17,6 +17,9 @@ export interface Dimensions3D {
   depth: number;
 }
 
+/** Fallback size (meters) when the backend only reports a position. */
+export const DEFAULT_DIMENSIONS: Dimensions3D = { width: 0.5, height: 0.5, depth: 0.5 };
+
 /** A piece of furniture placed in the room, as validated by the backend. */
 export interface FurnitureObject {
   id: string;

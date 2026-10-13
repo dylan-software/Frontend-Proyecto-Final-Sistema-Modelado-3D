@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { RoomEditor } from "../components/RoomEditor";
@@ -6,8 +6,9 @@ import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
 import { ChatPanel } from "../components/ChatPanel";
 import CameraCapture from "../components/CameraCapture";
 import { AuthScreen, AUTH_TOKEN_KEY } from "../components/AuthScreen";
+import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { api, type Point2D, type FurnitureInput } from "../lib/api";
-import type { FurnitureObject, SpaceAnalysisResponse } from "../types/spatial";
+import { DEFAULT_DIMENSIONS, type Dimensions3D, type FurnitureObject, type SpaceAnalysisResponse } from "../types/spatial";
 
 // three.js can't be evaluated during server prerendering, so the 3D
 // viewers are only loaded in the browser.
@@ -112,6 +113,20 @@ export default function Home() {
   /** Marks the piece with `id` as inspected (and unmarks the rest); null clears it. */
   const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
 
+  // Bounding boxes in meters of everything in the room: the generated layout
+  // (sizes in cm) plus the pieces suggested by the camera analysis.
+  const occupyingItems = useMemo<Dimensions3D[]>(
+    () => [
+      ...placedItems.map(({ item }) => ({
+        width: item.widthCm / 100,
+        height: item.heightCm / 100,
+        depth: item.depthCm / 100,
+      })),
+      ...placedFurniture.map((f) => f.dimensions ?? DEFAULT_DIMENSIONS),
+    ],
+    [placedItems, placedFurniture]
+  );
+
   function handleSelectFurniture(id: string | null) {
     setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
   }
@@ -180,6 +195,8 @@ export default function Home() {
             Cerrar Sesión
           </button>
         </div>
+
+        <SpatialAnalytics roomAreaM2={typeof space === "object" && space ? space.areaM2 : null} items={occupyingItems} />
 
         <section>
           <ObjectForm onCreated={(item) => setCatalog((prev) => [...prev, item])} />
