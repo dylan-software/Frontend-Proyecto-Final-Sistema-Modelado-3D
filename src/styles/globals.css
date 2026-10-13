@@ -521,3 +521,30 @@ select:disabled {
   display: flex;
   flex-direction: column;
 }
+
+.auth-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.auth-logo {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 28px;
+  color: #00e5ff;
+  text-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+}
+
+.auth-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #f0f6fc;
+}
+
+.auth-subtitle {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: #8b949e;
+}

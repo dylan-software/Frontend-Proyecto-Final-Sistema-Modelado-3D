@@ -16,6 +16,14 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   return (
     <div className="auth-screen">
       <div className="auth-card">
+        <header className="auth-header">
+          <span className="auth-logo" aria-hidden="true">
+            ◆
+          </span>
+          <h1 className="auth-title">3D Space Decoration System</h1>
+          <p className="auth-subtitle">{isLoginView ? "Inicia sesión para continuar" : "Crea tu cuenta"}</p>
+        </header>
+
         <form className="auth-form"></form>
       </div>
     </div>
