@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
 import type { FurnitureInput } from "../lib/api";
 import { isCustomCategory } from "./ObjectForm";
@@ -47,6 +47,7 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
   const groups = useMemo(() => groupByCategory(items), [items]);
   // Category whose block is expanded; null when all are collapsed.
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const idPrefix = useId();
 
   function toggleCategory(category: string) {
     setActiveCategory((prev) => (prev === category ? null : category));
@@ -54,11 +55,12 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
 
   return (
     <div className="category-accordion">
-      {groups.map(({ category, items: groupItems }) => {
+      {groups.map(({ category, items: groupItems }, index) => {
         const open = activeCategory === category;
-        const panelId = `accordion-panel-${category}`;
+        // Custom category names may contain spaces, so the id uses the index.
+        const panelId = `${idPrefix}-panel-${index}`;
         return (
-          <div key={category} className="accordion-group">
+          <div key={category} className={`accordion-group${open ? " accordion-group-open" : ""}`}>
             <button
               type="button"
               className="accordion-header"
@@ -74,8 +76,10 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
                 ▾
               </span>
             </button>
-            {open && (
-              <ul id={panelId} className="catalog-list">
+            {/* Always mounted so the height can animate; `inert` keeps the
+                collapsed items out of the tab order and the accessibility tree. */}
+            <div id={panelId} className="accordion-panel" inert={!open}>
+              <ul className="catalog-list">
                 {groupItems.map((c) => (
                   <li key={c.id}>
                     <span className="catalog-item-name">{c.name}</span>
@@ -85,7 +89,7 @@ export function CategoryAccordion({ items }: CategoryAccordionProps) {
                   </li>
                 ))}
               </ul>
-            )}
+            </div>
           </div>
         );
       })}
