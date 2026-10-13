@@ -36,6 +36,16 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             Correo electrónico
             <input type="email" name="email" autoComplete="email" placeholder="tu@correo.com" />
           </label>
+
+          <label>
+            Contraseña
+            <input
+              type="password"
+              name="password"
+              autoComplete={isLoginView ? "current-password" : "new-password"}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </label>
         </form>
       </div>
     </div>
