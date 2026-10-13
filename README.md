@@ -15,11 +15,34 @@ Next.js app (pages router). Talks to the backend only through `NEXT_PUBLIC_API_U
 ```
 src/
   pages/        index.tsx (dashboard), scan.tsx (room scanning)
-  components/   Scene3D, ThreeLoader, CameraCapture, ChatPanel, RoomEditor, ObjectForm, AR tools
+  components/   Scene3D, ThreeLoader, CameraCapture, ChatPanel, RoomEditor, ObjectForm,
+                CategoryAccordion, ThemeSelector, AR tools
+  context/      ThemeContext (global theme state + localStorage persistence)
   render/       RenderScene (room polygon + generated layout)
   lib/api.ts    fetch wrapper around the backend API
-  types/        shared 3D types (Vector3D, FurnitureObject, API responses)
+  lib/catalog.ts  pure catalog helpers (grouping by category)
+  styles/       globals.css, themes.ts (the six color palettes)
+  types/        shared 3D and catalog types (Vector3D, FurnitureObject, AccordionProps, API responses)
 ```
+
+## Themes
+The 🎨 button in the top bar switches between six palettes: **Oscuro** (professional), **Verde Neón**
+(dynamic), **Morado** (creative), **Claro** (clean), **Azul Claro** (fresh) and **Gris** (minimalist).
+
+- Each palette lives in `src/styles/themes.ts` as a set of color tokens.
+- `ThemeProvider` writes the active palette as CSS custom properties on `<html>` (`--color-bg`,
+  `--color-accent`, …) and `globals.css` only reads those variables, so a switch restyles the page
+  without re-rendering the dashboard. The 3D viewer reads the accent and grid colors from `useTheme()`.
+- The choice is saved in `localStorage` (key `theme`) and restored on the next visit.
+- Keyboard: the menu opens on the active theme; ↑/↓ move, Home/End jump, Enter picks, Esc closes.
+
+No icon or CSS library is involved: the icons are text glyphs (🎨 ▼ ▲ ✓ ✕ 🗑️) and the styles are plain CSS.
+
+## Furniture catalog
+The sidebar catalog is grouped into collapsible categories (Camas, Sillas, Mesas, …; custom categories
+keep their own name). Opening a category closes the others; **Expandir todo / Contraer todo** act on all
+of them. The search box filters by name in real time and opens every category with a match; ✕ or Esc
+clears it.
 
 ## Main flows
 - **Camera analysis** — `CameraCapture` takes a frame from the webcam and POSTs it as
