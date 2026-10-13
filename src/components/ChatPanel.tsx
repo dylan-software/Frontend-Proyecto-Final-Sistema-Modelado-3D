@@ -71,7 +71,7 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         render of the space.
       </p>
 
-      <div className="chat-messages" ref={scrollRef}>
+      <div className="chat-messages" ref={scrollRef} aria-busy={sending}>
         {messages.map((m, i) => (
           <div key={i} className={`chat-bubble chat-bubble-${m.role}`}>
             {m.content}
@@ -97,7 +97,7 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
           disabled={sending}
         />
         <button type="submit" disabled={sending || !input.trim()}>
-          Send
+          {sending ? "Sending…" : "Send"}
         </button>
       </form>
     </div>
