@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { fetchBackend } from "../lib/api";
 import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
 
@@ -120,6 +120,20 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     fileInputRef.current?.click();
   }
 
+  /** Keeps the photo the user picked, rejecting anything that isn't an image. */
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    // Reset the input so picking the same photo again still fires onChange.
+    event.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("El archivo seleccionado no es una imagen.");
+      return;
+    }
+    setSelectedFile(file);
+    setError(null);
+  }
+
   // Release the camera hardware when the component unmounts.
   useEffect(() => {
     return () => streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -128,7 +142,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
   return (
     <div>
       <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
-      <input ref={fileInputRef} type="file" accept="image/*" hidden />
+      <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} />
       <button onClick={startCamera}>Iniciar cámara</button>
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
