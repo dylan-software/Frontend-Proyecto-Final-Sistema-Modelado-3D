@@ -111,6 +111,12 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     }
   }
 
+  function stopCameraStream() {
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }
+
   /**
    * Sends the current frame to the backend and reports the result.
    * Errors (no frame, server down, invalid coordinates) are shown in the UI
