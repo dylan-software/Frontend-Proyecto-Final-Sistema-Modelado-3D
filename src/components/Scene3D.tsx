@@ -18,7 +18,9 @@ interface Scene3DProps {
 export default function Scene3D({ furniture, loading = false }: Scene3DProps) {
   return (
     <div style={{ width: "100%", height: "100%" }}>
-      <Canvas shadows camera={{ position: [5, 5, 5], fov: 50 }}>
+      {/* "demand" only redraws when something changes (orbit, new furniture),
+          instead of 60 times per second, so the GPU stays idle otherwise. */}
+      <Canvas shadows frameloop="demand" camera={{ position: [5, 5, 5], fov: 50 }}>
         <ambientLight intensity={0.4} />
         <hemisphereLight args={["#ffffff", "#8d8d8d", 0.35]} />
         <directionalLight

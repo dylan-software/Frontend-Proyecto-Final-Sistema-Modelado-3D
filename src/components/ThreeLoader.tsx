@@ -9,10 +9,12 @@ import type { Mesh } from "three";
 export default function ThreeLoader() {
   const meshRef = useRef<Mesh>(null);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!meshRef.current) return;
     meshRef.current.rotation.x += delta * 1.2;
     meshRef.current.rotation.y += delta * 1.8;
+    // The canvas uses frameloop="demand": keep requesting frames while visible.
+    state.invalidate();
   });
 
   return (
