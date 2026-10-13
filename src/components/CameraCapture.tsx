@@ -117,6 +117,12 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
     if (videoRef.current) videoRef.current.srcObject = null;
   }
 
+  function handleStopCamera() {
+    stopCameraStream();
+    setCameraOn(false);
+    setError(null);
+  }
+
   /**
    * Sends the current frame to the backend and reports the result.
    * Errors (no frame, server down, invalid coordinates) are shown in the UI
@@ -210,7 +216,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
       <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} />
       <button onClick={startCamera}>Iniciar cámara</button>
-      <button type="button" className="camera-off-button" disabled={!cameraOn}>
+      <button type="button" className="camera-off-button" onClick={handleStopCamera} disabled={!cameraOn || analyzing}>
         <span aria-hidden="true">⏻</span> Desactivar Cámara
       </button>
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing || uploading}>
