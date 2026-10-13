@@ -108,12 +108,12 @@ button:disabled {
 }
 
 .warning {
-  color: #b00020;
+  color: #ff7b72;
   font-size: 14px;
 }
 
 .hint {
-  color: #666;
+  color: #8b949e;
   font-size: 13px;
 }
 
@@ -121,6 +121,7 @@ label {
   display: block;
   margin: 8px 0;
   font-size: 14px;
+  color: #c9d1d9;
 }
 
 input,
@@ -128,10 +129,32 @@ select {
   display: block;
   width: 100%;
   max-width: 320px;
-  padding: 8px;
+  padding: 9px 10px;
   margin-top: 4px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  font: inherit;
+  font-size: 14px;
+  color: #e6edf3;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color-scheme: dark;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+input::placeholder {
+  color: #6e7681;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+}
+
+input:disabled,
+select:disabled {
+  opacity: 0.6;
 }
 
 .dimension-row {
@@ -341,9 +364,6 @@ select {
 .chat-input-row input {
   flex: 1;
   max-width: none;
-  background: #2a352e;
-  border: 1px solid #45564a;
-  color: #f0f0f0;
 }
 
 .chat-window .hint {
@@ -371,7 +391,7 @@ select {
 
 .connection-alert {
   padding: 10px 12px;
-  border-left: 4px solid #b00020;
+  border-left: 4px solid #f85149;
   border-radius: 4px;
-  background: #fdecee;
+  background: rgba(248, 81, 73, 0.12);
 }
