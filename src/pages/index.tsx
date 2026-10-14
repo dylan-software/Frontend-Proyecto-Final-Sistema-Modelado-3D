@@ -8,6 +8,7 @@ import { ChatPanel } from "../components/ChatPanel";
 import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
+import { ThemeSelector } from "../components/ThemeSelector";
 import { api, type FurnitureInput, type Point2D } from "../lib/api";
 import {
   DEFAULT_DIMENSIONS,
@@ -270,7 +271,10 @@ export default function Home() {
       </aside>
 
       <main className="main-panel">
-        <h1>3D Space Decoration System</h1>
+        <header className="app-topbar">
+          <h1>3D Space Decoration System</h1>
+          <ThemeSelector />
+        </header>
 
         {space === "loading" && <p>Loading…</p>}
 
