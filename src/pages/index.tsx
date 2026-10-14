@@ -1,14 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import dynamic from "next/dynamic";
-import { RoomEditor } from "../components/RoomEditor";
-import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
-import { ChatPanel } from "../components/ChatPanel";
-import CameraCapture from "../components/CameraCapture";
+import Link from "next/link";
+
 import { AuthScreen, AUTH_TOKEN_KEY } from "../components/AuthScreen";
+import CameraCapture from "../components/CameraCapture";
+import { ChatPanel } from "../components/ChatPanel";
+import { ObjectForm, isCustomCategory } from "../components/ObjectForm";
+import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
-import { api, type Point2D, type FurnitureInput } from "../lib/api";
-import { DEFAULT_DIMENSIONS, type Dimensions3D, type FurnitureObject, type SpaceAnalysisResponse } from "../types/spatial";
+import { api, type FurnitureInput, type Point2D } from "../lib/api";
+import {
+  DEFAULT_DIMENSIONS,
+  type Dimensions3D,
+  type FurnitureObject,
+  type SpaceAnalysisResponse,
+} from "../types/spatial";
 
 // three.js can't be evaluated during server prerendering, so the 3D
 // viewers are only loaded in the browser.

@@ -1,5 +1,6 @@
-import { Canvas } from "@react-three/fiber";
 import { Grid, OrbitControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+
 import ThreeLoader from "./ThreeLoader";
 import { DEFAULT_DIMENSIONS, type FurnitureObject } from "../types/spatial";
 
