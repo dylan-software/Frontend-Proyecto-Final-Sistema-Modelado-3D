@@ -44,6 +44,8 @@ function Meter({ label, percent, variant }: MeterProps) {
 export function SpatialAnalytics({ roomAreaM2, items }: SpatialAnalyticsProps) {
   // Each piece's footprint is approximated by its bounding box (width × depth),
   // ignoring rotation and overlaps.
+  // Complexity: O(n) single pass over the items, memoized so it only reruns
+  // when the `items` array changes (the parent memoizes it as well).
   const totals = useMemo(() => {
     let footprintM2 = 0;
     let volumeM3 = 0;
