@@ -834,3 +834,117 @@ select:disabled {
   border-radius: 999px;
   padding-left: 14px;
 }
+
+/* Theme selector: palette button that drops down the six themes. */
+.theme-selector {
+  position: relative;
+}
+
+.theme-selector-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 8px 14px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.theme-selector-toggle:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+.theme-selector-current {
+  font-size: 13px;
+}
+
+.theme-selector-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  display: grid;
+  gap: 4px;
+  width: 220px;
+  padding: 8px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--color-shadow);
+  transform-origin: top right;
+  animation: theme-menu-in 160ms ease-out;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 8px;
+  text-align: left;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.theme-option:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+  box-shadow: none;
+}
+
+.theme-option[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.theme-swatch {
+  display: inline-flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+}
+
+.theme-swatch span {
+  width: 12px;
+  height: 24px;
+}
+
+.theme-option-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-option-label {
+  font-size: 14px;
+}
+
+.theme-option-description {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+@keyframes theme-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-selector-menu {
+    animation: none;
+  }
+}
