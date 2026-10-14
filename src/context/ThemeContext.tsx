@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
-import { DEFAULT_THEME_ID, THEMES, cssVarName, type Theme, type ThemeColors, type ThemeId } from "../styles/themes";
+import { DEFAULT_THEME_ID, THEMES, cssVarName, isThemeId, type Theme, type ThemeColors, type ThemeId } from "../styles/themes";
+
+/** localStorage key holding the id of the last theme the user picked. */
+export const THEME_STORAGE_KEY = "theme";
 
 interface ThemeContextValue {
   theme: Theme;
@@ -21,11 +24,32 @@ function applyTheme(theme: Theme) {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [themeId, setThemeId] = useState<ThemeId>(DEFAULT_THEME_ID);
+  // False until the stored preference has been read, so the default theme
+  // doesn't overwrite it on the first render.
+  const [hydrated, setHydrated] = useState(false);
   const theme = THEMES[themeId];
+
+  // localStorage doesn't exist during server prerendering, so the saved
+  // theme is restored after mounting.
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      if (isThemeId(stored)) setThemeId(stored);
+    } catch {
+      // Storage blocked: keep the default theme.
+    }
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
     applyTheme(theme);
-  }, [theme]);
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme.id);
+    } catch {
+      // Storage blocked or full: the theme still applies for this visit.
+    }
+  }, [theme, hydrated]);
 
   const value = useMemo(() => ({ theme, setTheme: setThemeId }), [theme]);
 
