@@ -2,6 +2,7 @@ import { Grid, OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 
 import ThreeLoader from "./ThreeLoader";
+import { useTheme } from "../context/ThemeContext";
 import { DEFAULT_DIMENSIONS, type FurnitureObject } from "../types/spatial";
 
 interface Scene3DProps {
@@ -16,6 +17,9 @@ interface Scene3DProps {
  * Interactive 3D viewport where the modeled room is displayed.
  */
 export default function Scene3D({ furniture, loading = false, onSelect }: Scene3DProps) {
+  // The selected piece glows with the active theme's accent color.
+  const { accent } = useTheme().theme.colors;
+
   return (
     <div style={{ width: "100%", height: "100%" }}>
       {/* "demand" only redraws when something changes (orbit, new furniture),
@@ -65,8 +69,8 @@ export default function Scene3D({ furniture, loading = false, onSelect }: Scene3
             >
               <boxGeometry args={[width, height, depth]} />
               <meshStandardMaterial
-                color={f.selected ? "#00e5ff" : "#8a6f5c"}
-                emissive={f.selected ? "#00e5ff" : "#000000"}
+                color={f.selected ? accent : "#8a6f5c"}
+                emissive={f.selected ? accent : "#000000"}
                 emissiveIntensity={f.selected ? 0.35 : 0}
               />
             </mesh>
