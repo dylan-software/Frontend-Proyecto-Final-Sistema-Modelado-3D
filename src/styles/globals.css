@@ -1038,8 +1038,51 @@ select:disabled {
 .accordion-chevron {
   margin-left: auto;
   color: var(--color-text-muted);
+  transition: transform 220ms ease, color 150ms ease;
 }
 
-.accordion-group .catalog-list {
+.accordion-group {
+  transition: border-color 200ms ease;
+}
+
+.accordion-group-open {
+  border-color: var(--color-accent-glow);
+}
+
+.accordion-group-open .accordion-chevron {
+  color: var(--color-accent);
+  transform: rotate(180deg);
+}
+
+/* Slide down: animating grid rows from 0fr to 1fr lets the panel grow to
+   its content's natural height without measuring it in JavaScript. */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 260ms cubic-bezier(0.16, 1, 0.3, 1), opacity 200ms ease;
+}
+
+.accordion-group-open .accordion-panel {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.accordion-panel > .catalog-list {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 12px;
+  transition: padding 260ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accordion-group-open .accordion-panel > .catalog-list {
   padding: 4px 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accordion-panel,
+  .accordion-panel > .catalog-list,
+  .accordion-chevron {
+    transition: none;
+  }
 }
