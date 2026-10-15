@@ -997,3 +997,49 @@ select:disabled {
   background: #b3261e;
   border-color: #b3261e;
 }
+
+/* Catalog accordion: one collapsible block per furniture category. */
+.category-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.accordion-group {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 0;
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+}
+
+.accordion-header:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+  box-shadow: none;
+}
+
+.accordion-count {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.accordion-chevron {
+  margin-left: auto;
+  color: var(--color-text-muted);
+}
+
+.accordion-group .catalog-list {
+  padding: 4px 12px;
+}
