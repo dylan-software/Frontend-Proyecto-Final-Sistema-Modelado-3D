@@ -98,6 +98,8 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
         video: { facingMode: "environment" },
         audio: false,
       });
+      // Pressing "Iniciar cámara" twice must not leave the first stream running unreferenced.
+      streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
