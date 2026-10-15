@@ -3,7 +3,11 @@
  * the ONLY thing that changes between local development and a real
  * deployment (Vercel frontend + Render/Railway/Azure/AWS backend) — it
  * is never hardcoded anywhere else in the app.
+ *
+ * Every request carries the session token as `Authorization: Bearer`.
  */
+import { authHeaders, expireSession } from "./session";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 /** Thrown when the backend can't be reached at all (server down, no network, CORS). */
@@ -23,11 +27,22 @@ export async function fetchBackend(input: string, init?: RequestInit): Promise<R
   }
 }
 
+/**
+ * A 401 means the backend no longer accepts the session (missing, expired
+ * or re-keyed token): the stored session is cleared and the login screen
+ * comes back. The auth endpoints themselves answer 401 for a wrong
+ * password, which is not an expired session.
+ */
+export function handleUnauthorized(res: Response, path: string): void {
+  if (res.status === 401 && !path.startsWith("/auth/")) expireSession();
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetchBackend(`${BASE_URL}${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: { "Content-Type": "application/json", ...authHeaders(), ...init?.headers },
   });
+  handleUnauthorized(res, path);
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(json.error ?? `Request to ${path} failed with status ${res.status}`);
@@ -50,8 +65,9 @@ export class ApiError extends Error {
 async function v1Request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetchBackend(`${BASE_URL}/api/v1${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    headers: { "Content-Type": "application/json", ...authHeaders(), ...init?.headers },
   });
+  handleUnauthorized(res, path);
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new ApiError(res.status, typeof json.detail === "string" ? json.detail : "la petición falló");
