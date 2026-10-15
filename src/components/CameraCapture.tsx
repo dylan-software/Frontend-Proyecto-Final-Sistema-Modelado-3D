@@ -210,6 +210,9 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
       <video ref={videoRef} autoPlay playsInline muted style={{ width: "100%" }} />
       <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleFileChange} />
       <button onClick={startCamera}>Iniciar cámara</button>
+      <button type="button" className="camera-off-button" disabled={!cameraOn}>
+        <span aria-hidden="true">⏻</span> Desactivar Cámara
+      </button>
       <button onClick={analyzeSpace} disabled={!cameraOn || analyzing || uploading}>
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
