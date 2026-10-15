@@ -1,16 +1,8 @@
 import { useId, useMemo, useState } from "react";
 
 import type { FurnitureInput } from "../lib/api";
+import type { AccordionProps, CategoryGroup } from "../types/catalog";
 import { isCustomCategory } from "./ObjectForm";
-
-interface CategoryAccordionProps {
-  items: FurnitureInput[];
-}
-
-interface CategoryGroup {
-  category: string;
-  items: FurnitureInput[];
-}
 
 /** Display names of the predefined categories; custom ones are shown as typed. */
 const CATEGORY_LABELS: Record<string, string> = {
@@ -32,7 +24,7 @@ function categoryLabel(category: string): string {
  * each category first appears. O(n): a single pass, with a Map giving O(1)
  * lookup of the group an item belongs to.
  */
-export function groupByCategory(items: FurnitureInput[]): CategoryGroup[] {
+export function groupByCategory(items: readonly FurnitureInput[]): CategoryGroup[] {
   const groups = new Map<string, FurnitureInput[]>();
   for (const item of items) {
     const group = groups.get(item.category);
@@ -43,7 +35,7 @@ export function groupByCategory(items: FurnitureInput[]): CategoryGroup[] {
 }
 
 /** Furniture catalog listing, grouped into collapsible categories (one open at a time). */
-export function CategoryAccordion({ items }: CategoryAccordionProps) {
+export function CategoryAccordion({ items }: AccordionProps) {
   // Text typed in the catalog search box.
   const [searchQuery, setSearchQuery] = useState("");
   // Category whose block is expanded; null when all are collapsed.
