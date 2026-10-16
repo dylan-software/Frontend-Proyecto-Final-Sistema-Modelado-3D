@@ -99,7 +99,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
         audio: false,
       });
       // Pressing "Iniciar cámara" twice must not leave the first stream running unreferenced.
-      streamRef.current?.getTracks().forEach((track) => track.stop());
+      stopCameraStream();
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -208,7 +208,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
 
   // Release the camera hardware when the component unmounts.
   useEffect(() => {
-    return () => streamRef.current?.getTracks().forEach((track) => track.stop());
+    return stopCameraStream;
   }, []);
 
   return (
