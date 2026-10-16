@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-import { AuthScreen, AUTH_TOKEN_KEY } from "../components/AuthScreen";
+import { AuthScreen, AUTH_TOKEN_KEY, AUTH_USER_ID_KEY } from "../components/AuthScreen";
 import CameraCapture from "../components/CameraCapture";
 import { CategoryAccordion } from "../components/CategoryAccordion";
 import { ChatPanel } from "../components/ChatPanel";
@@ -40,12 +40,16 @@ interface PlacedItemState {
 
 const DEFAULT_LIGHTING = { position: { x: 0, y: 3, z: 0 }, intensity: 0.8, color: "#ffffff" };
 
-/** True when a session token is stored; false if there is none or storage is blocked. */
-function hasStoredSession(): boolean {
+/**
+ * Id of the logged-in account, or null when there is no complete session
+ * (no token, a token from before ids were stored, or storage blocked).
+ */
+function readSessionUserId(): string | null {
   try {
-    return localStorage.getItem(AUTH_TOKEN_KEY) !== null;
+    if (localStorage.getItem(AUTH_TOKEN_KEY) === null) return null;
+    return localStorage.getItem(AUTH_USER_ID_KEY);
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -53,6 +57,7 @@ export default function Home() {
   // null until the browser has been checked — localStorage doesn't exist
   // during server prerendering, so it's read after mounting.
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
   const [catalog, setCatalog] = useState<FurnitureInput[]>([]);
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
@@ -85,8 +90,16 @@ export default function Home() {
     }
   }
 
+  /** Reads the stored session into state; returns whether there is one. */
+  function syncSession(): boolean {
+    const id = readSessionUserId();
+    setUserId(id);
+    setIsAuthenticated(id !== null);
+    return id !== null;
+  }
+
   useEffect(() => {
-    setIsAuthenticated(hasStoredSession());
+    syncSession();
   }, []);
 
   // The workspace data is only fetched once there is a session.
@@ -116,9 +129,11 @@ export default function Home() {
   function handleLogout() {
     try {
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_ID_KEY);
     } catch {
       // Storage blocked: there is no stored token to remove anyway.
     }
+    setUserId(null);
     setIsAuthenticated(false);
   }
 
@@ -256,7 +271,7 @@ export default function Home() {
 
   // No session: only the lock screen is rendered, so the 3D viewers, the
   // camera and the chat aren't even mounted.
-  if (!isAuthenticated) return <AuthScreen onAuthenticated={() => setIsAuthenticated(true)} />;
+  if (!isAuthenticated) return <AuthScreen onAuthenticated={syncSession} />;
 
   return (
     <div className="dashboard">
