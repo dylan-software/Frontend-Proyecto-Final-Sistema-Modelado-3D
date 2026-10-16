@@ -35,7 +35,7 @@ export function groupByCategory(items: readonly FurnitureInput[]): CategoryGroup
 }
 
 /** Furniture catalog listing, grouped into collapsible categories (one open at a time). */
-export function CategoryAccordion({ items }: AccordionProps) {
+export function CategoryAccordion({ items, onDelete, deletingId = null }: AccordionProps) {
   // Text typed in the catalog search box.
   const [searchQuery, setSearchQuery] = useState("");
   // Category whose block is expanded; null when all are collapsed.
@@ -105,7 +105,14 @@ export function CategoryAccordion({ items }: AccordionProps) {
                     <span className="catalog-item-size">
                       {c.widthCm}×{c.heightCm}×{c.depthCm}cm
                     </span>
-                    <button type="button" className="catalog-item-delete" aria-label={`Eliminar ${c.name}`} title="Eliminar">
+                    <button
+                      type="button"
+                      className="catalog-item-delete"
+                      onClick={() => onDelete?.(c.id)}
+                      disabled={!onDelete || deletingId === c.id}
+                      aria-label={`Eliminar ${c.name}`}
+                      title="Eliminar"
+                    >
                       <span aria-hidden="true">🗑️</span>
                     </button>
                   </li>
