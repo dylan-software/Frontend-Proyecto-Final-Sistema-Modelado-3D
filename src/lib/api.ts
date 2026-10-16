@@ -35,6 +35,30 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return json as T;
 }
 
+/** Non-2xx answer from the FastAPI (/api/v1) endpoints, keeping the HTTP status code. */
+export class ApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, detail: string) {
+    super(`HTTP ${status}: ${detail}`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+/** Calls a FastAPI endpoint; its errors come as {"detail": "..."} (or a list on 422). */
+async function v1Request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetchBackend(`${BASE_URL}/api/v1${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", ...init?.headers },
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new ApiError(res.status, typeof json.detail === "string" ? json.detail : "la petición falló");
+  }
+  return json as T;
+}
+
 export interface Point2D {
   x: number;
   y: number;
@@ -94,6 +118,11 @@ export const api = {
     request<{ ok: true; item: FurnitureInput }>("/api/furniture", {
       method: "POST",
       body: JSON.stringify(item),
+    }),
+
+  deleteFurniture: (id: string) =>
+    v1Request<{ success: boolean; message: string }>(`/spaces/furniture/${encodeURIComponent(id)}`, {
+      method: "DELETE",
     }),
 
   generateLayout: (body: {
