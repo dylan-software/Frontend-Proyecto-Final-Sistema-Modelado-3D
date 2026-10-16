@@ -159,6 +159,11 @@ export default function Home() {
     setError(null);
     try {
       await api.deleteFurniture(id);
+      // Drop the entry from the catalog and every copy of it placed in the generated layout.
+      setCatalog((prev) => prev.filter((c) => c.id !== id));
+      setPlacedItems((prev) => prev.filter((p) => p.item.id !== id));
+    } catch (err) {
+      setError((err as Error).message);
     } finally {
       setDeletingId(null);
     }
