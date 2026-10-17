@@ -57,6 +57,18 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
     });
   }
 
+  function expandAll() {
+    setOpenCategories(new Set(groups.map((g) => g.category)));
+  }
+
+  function collapseAll() {
+    setOpenCategories(new Set());
+  }
+
+  // While searching every matching block is already forced open.
+  const searching = query !== "";
+  const allOpen = groups.length > 0 && groups.every((g) => openCategories.has(g.category));
+
   return (
     <div className="category-accordion">
       <input
@@ -68,9 +80,20 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
         aria-label="Buscar en el catálogo"
       />
 
+      {groups.length > 1 && (
+        <div className="accordion-toolbar">
+          <button type="button" onClick={expandAll} disabled={searching || allOpen}>
+            ▼ Expandir todo
+          </button>
+          <button type="button" onClick={collapseAll} disabled={searching || openCategories.size === 0}>
+            ▲ Contraer todo
+          </button>
+        </div>
+      )}
+
       {groups.map(({ category, items: groupItems }, index) => {
         // While searching, every category with matches is expanded.
-        const open = query !== "" || openCategories.has(category);
+        const open = searching || openCategories.has(category);
         // Custom category names may contain spaces, so the id uses the index.
         const panelId = `${idPrefix}-panel-${index}`;
         return (
