@@ -92,7 +92,7 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
               </span>
               <span className="accordion-count">{groupItems.length}</span>
               <span className="accordion-chevron" aria-hidden="true">
-                ▾
+                {open ? "▲" : "▼"}
               </span>
             </button>
             {/* Always mounted so the height can animate; `inert` keeps the
