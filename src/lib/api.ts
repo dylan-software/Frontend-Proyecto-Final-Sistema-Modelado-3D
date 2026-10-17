@@ -158,6 +158,20 @@ export const api = {
       `/spaces?user_id=${encodeURIComponent(userId)}`
     ),
 
+  createCatalogFurniture: (body: {
+    user_id: string;
+    nombre: string;
+    categoria: string;
+    custom_category?: string;
+    ancho: number;
+    alto: number;
+    profundidad: number;
+  }) =>
+    v1Request<CatalogItemOut & { categoria_nueva: boolean }>("/spaces/catalog", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+
   listFurniture: (category?: string) =>
     request<{ items: FurnitureInput[] }>(`/api/furniture${category ? `?category=${category}` : ""}`),
 
