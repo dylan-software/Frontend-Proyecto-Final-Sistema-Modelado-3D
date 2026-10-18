@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { mToCm } from "../lib/units";
 import { ARPointPicker, type Point2D } from "./ARPointPicker";
 
 interface LaserMeasureProps {
@@ -7,7 +8,7 @@ interface LaserMeasureProps {
 }
 
 function distanceCm(a: Point2D, b: Point2D): number {
-  return Math.round(Math.hypot(b.x - a.x, b.y - a.y) * 100);
+  return Math.round(mToCm(Math.hypot(b.x - a.x, b.y - a.y)));
 }
 
 /**

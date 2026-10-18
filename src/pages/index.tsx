@@ -12,6 +12,7 @@ import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
 import { api, ApiError, toFurnitureInput, type FurnitureInput, type Point2D } from "../lib/api";
 import { onSessionExpired } from "../lib/session";
+import { cmToM } from "../lib/units";
 import {
   DEFAULT_DIMENSIONS,
   type Dimensions3D,
@@ -151,9 +152,9 @@ export default function Home() {
   const occupyingItems = useMemo<Dimensions3D[]>(
     () => [
       ...placedItems.map(({ item }) => ({
-        width: item.widthCm / 100,
-        height: item.heightCm / 100,
-        depth: item.depthCm / 100,
+        width: cmToM(item.widthCm),
+        height: cmToM(item.heightCm),
+        depth: cmToM(item.depthCm),
       })),
       ...placedFurniture.map((f) => f.dimensions ?? DEFAULT_DIMENSIONS),
     ],

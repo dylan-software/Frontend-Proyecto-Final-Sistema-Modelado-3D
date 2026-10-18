@@ -21,6 +21,7 @@ src/
   render/       RenderScene (room polygon + generated layout)
   lib/api.ts    fetch wrapper around the backend API
   lib/catalog.ts  pure catalog helpers (grouping by category)
+  lib/units.ts  the single cm ↔ m conversion point
   styles/       globals.css, themes.ts (the six color palettes)
   types/        shared 3D and catalog types (Vector3D, FurnitureObject, AccordionProps, API responses)
 ```
@@ -43,6 +44,10 @@ The sidebar catalog is grouped into collapsible categories (Camas, Sillas, Mesas
 keep their own name). Opening a category closes the others; **Expandir todo / Contraer todo** act on all
 of them. The search box filters by name in real time and opens every category with a match; ✕ or Esc
 clears it.
+
+**Units.** Catalog sizes are in **centimeters** (what the form asks for and what the backend stores);
+rooms, vertices and placed furniture are in **meters**. Every conversion goes through
+`src/lib/units.ts` (`cmToM`, `mToCm`); no other file multiplies or divides by 100.
 
 ## Main flows
 - **Camera analysis** — `CameraCapture` takes a frame from the webcam and POSTs it as
