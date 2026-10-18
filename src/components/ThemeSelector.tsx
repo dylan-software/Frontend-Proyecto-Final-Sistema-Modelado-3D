@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 
 import { useTheme } from "../context/ThemeContext";
 import { THEMES, THEME_ORDER } from "../styles/themes";
@@ -19,6 +19,35 @@ export function ThemeSelector() {
   useEffect(() => {
     if (open) menuRef.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus();
   }, [open]);
+
+  /**
+   * Arrow keys move between the six options (wrapping around at the ends);
+   * Home and End jump to the first and last one.
+   */
+  function handleMenuKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
+    const options = Array.from(e.currentTarget.querySelectorAll<HTMLButtonElement>(".theme-option"));
+    const current = options.indexOf(document.activeElement as HTMLButtonElement);
+    let next: number;
+    switch (e.key) {
+      case "ArrowDown":
+        next = (current + 1) % options.length;
+        break;
+      case "ArrowUp":
+        next = (current - 1 + options.length) % options.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = options.length - 1;
+        break;
+      default:
+        return;
+    }
+    // Keeps the page from scrolling along with the focus.
+    e.preventDefault();
+    options[next]?.focus();
+  }
 
   // Clicking outside the menu or pressing Escape closes it.
   useEffect(() => {
@@ -56,7 +85,13 @@ export function ThemeSelector() {
       </button>
 
       {open && (
-        <div ref={menuRef} className="theme-selector-menu" role="group" aria-label="Temas de la interfaz">
+        <div
+          ref={menuRef}
+          className="theme-selector-menu"
+          role="group"
+          aria-label="Temas de la interfaz"
+          onKeyDown={handleMenuKeyDown}
+        >
           {THEME_ORDER.map((id) => {
             const option = THEMES[id];
             const { bg, surface, accent } = option.colors;
