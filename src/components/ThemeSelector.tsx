@@ -11,6 +11,14 @@ export function ThemeSelector() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Opening the menu moves focus to the active theme, so keyboard users
+  // land on the current choice instead of having to tab into the list.
+  useEffect(() => {
+    if (open) menuRef.current?.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus();
+  }, [open]);
 
   // Clicking outside the menu or pressing Escape closes it.
   useEffect(() => {
@@ -19,7 +27,10 @@ export function ThemeSelector() {
       if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
     }
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key !== "Escape") return;
+      setOpen(false);
+      // Focus would otherwise fall back to <body> with the menu unmounted.
+      toggleRef.current?.focus();
     }
     document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
@@ -32,6 +43,7 @@ export function ThemeSelector() {
   return (
     <div className="theme-selector" ref={containerRef}>
       <button
+        ref={toggleRef}
         type="button"
         className="theme-selector-toggle"
         onClick={() => setOpen((prev) => !prev)}
@@ -44,7 +56,7 @@ export function ThemeSelector() {
       </button>
 
       {open && (
-        <div className="theme-selector-menu" role="group" aria-label="Temas de la interfaz">
+        <div ref={menuRef} className="theme-selector-menu" role="group" aria-label="Temas de la interfaz">
           {THEME_ORDER.map((id) => {
             const option = THEMES[id];
             const { bg, surface, accent } = option.colors;
@@ -57,6 +69,7 @@ export function ThemeSelector() {
                 onClick={() => {
                   setTheme(id);
                   setOpen(false);
+                  toggleRef.current?.focus();
                 }}
               >
                 <span className="theme-swatch" aria-hidden="true">
