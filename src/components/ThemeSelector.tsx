@@ -116,6 +116,11 @@ export function ThemeSelector() {
                   <span className="theme-option-label">{option.label}</span>
                   <span className="theme-option-description">{option.description}</span>
                 </span>
+                {id === theme.id && (
+                  <span className="theme-option-check" aria-hidden="true">
+                    ✓
+                  </span>
+                )}
               </button>
             );
           })}
