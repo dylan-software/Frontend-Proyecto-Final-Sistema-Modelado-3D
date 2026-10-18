@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
-import { fetchBackend } from "../lib/api";
+import { fetchBackend, handleUnauthorized } from "../lib/api";
+import { authHeaders } from "../lib/session";
 import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
 
 /** FastAPI endpoint that receives a room photo and suggests where to place furniture. */
@@ -44,7 +45,8 @@ async function requestSpaceAnalysis(image: Blob, filename: string): Promise<Spac
   form.append("file", image, filename);
 
   // No Content-Type header: the browser sets the multipart boundary itself.
-  const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form });
+  const res = await fetchBackend(ANALYZE_URL, { method: "POST", body: form, headers: authHeaders() });
+  handleUnauthorized(res, "/spaces/analyze");
   if (!res.ok) throw new Error(`El análisis falló con estado ${res.status}`);
 
   const result: SpaceAnalysisResponse = await res.json();

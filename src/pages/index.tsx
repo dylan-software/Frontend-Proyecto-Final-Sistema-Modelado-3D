@@ -11,6 +11,7 @@ import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
 import { api, ApiError, toFurnitureInput, type FurnitureInput, type Point2D } from "../lib/api";
+import { onSessionExpired } from "../lib/session";
 import {
   DEFAULT_DIMENSIONS,
   type Dimensions3D,
@@ -100,6 +101,11 @@ export default function Home() {
 
   useEffect(() => {
     syncSession();
+    // A 401 from the backend has already cleared the stored session; go back to the login screen.
+    return onSessionExpired(() => {
+      setUserId(null);
+      setIsAuthenticated(false);
+    });
   }, []);
 
   // The workspace data is only fetched once there is a session.

@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from "react";
 
 import { api } from "../lib/api";
+import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY } from "../lib/session";
+
+// Re-exported so existing imports from this component keep working.
+export { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY };
 
 // The backend rejects registrations with shorter passwords.
 const MIN_PASSWORD_LENGTH = 8;
-
-/** localStorage key holding the session token. */
-export const AUTH_TOKEN_KEY = "auth_token";
-/** localStorage key holding the id of the logged-in account. */
-export const AUTH_USER_ID_KEY = "auth_user_id";
 
 interface AuthScreenProps {
   /** Called once the user has logged in or registered successfully. */
