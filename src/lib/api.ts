@@ -50,14 +50,68 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return json as T;
 }
 
+export const AI_UNAVAILABLE_MESSAGE = "El asistente de IA no está disponible ahora.";
+
+/**
+ * Seconds to wait from a Retry-After header (delta-seconds or an HTTP
+ * date), or null when it is missing or unreadable. Cross-origin, the
+ * browser only shows the header if the backend lists it in CORS
+ * expose_headers.
+ */
+export function parseRetryAfter(value: string | null | undefined, now: number = Date.now()): number | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (/^\d+$/.test(trimmed)) return Number(trimmed);
+  const date = Date.parse(trimmed);
+  if (Number.isNaN(date)) return null;
+  return Math.max(0, Math.ceil((date - now) / 1000));
+}
+
+/**
+ * The Spanish message shown to the user for a failed /api/v1 call. The
+ * backend's own `detail` (already in Spanish) is kept when it explains
+ * the problem better than a generic text.
+ */
+export function describeApiError(status: number, detail: string | null, path: string, retryAfterSeconds: number | null): string {
+  switch (status) {
+    case 401:
+      // On /auth/* a 401 is a wrong password, not an expired session.
+      return path.startsWith("/auth/") && detail ? detail : "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+    case 413:
+      return "La foto es demasiado grande: el máximo es 5 MB.";
+    case 415:
+      return "Formato de foto no admitido: usa una imagen JPEG o PNG.";
+    case 422:
+      return detail ?? "Los datos enviados no son válidos.";
+    case 429: {
+      const base = detail ?? "Has hecho demasiadas peticiones.";
+      return retryAfterSeconds !== null
+        ? `${base} Podrás volver a intentarlo en ${retryAfterSeconds} segundos.`
+        : `${base} Espera un momento antes de volver a intentarlo.`;
+    }
+    case 502:
+      return AI_UNAVAILABLE_MESSAGE;
+    case 503:
+      return detail ?? "La base de datos no está disponible ahora. Inténtalo más tarde.";
+    default:
+      return detail ?? `La petición falló (HTTP ${status}).`;
+  }
+}
+
 /** Non-2xx answer from the FastAPI (/api/v1) endpoints, keeping the HTTP status code. */
 export class ApiError extends Error {
   readonly status: number;
+  /** The backend's own detail, when it sent a string. */
+  readonly detail: string | null;
+  /** From Retry-After on a 429, when the browser lets us read it. */
+  readonly retryAfterSeconds: number | null;
 
-  constructor(status: number, detail: string) {
-    super(`HTTP ${status}: ${detail}`);
+  constructor(status: number, detail: string | null, path = "", retryAfterSeconds: number | null = null) {
+    super(describeApiError(status, detail, path, retryAfterSeconds));
     this.name = "ApiError";
     this.status = status;
+    this.detail = detail;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -70,7 +124,8 @@ async function v1Request<T>(path: string, init?: RequestInit): Promise<T> {
   handleUnauthorized(res, path);
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new ApiError(res.status, typeof json.detail === "string" ? json.detail : "la petición falló");
+    const detail = typeof json.detail === "string" ? json.detail : null;
+    throw new ApiError(res.status, detail, path, parseRetryAfter(res.headers?.get("Retry-After")));
   }
   return json as T;
 }
@@ -116,6 +171,54 @@ export interface CatalogItemOut {
   profundidad: number;
 }
 
+/** A room as listed by GET /api/v1/spaces: no vertices (read them with getRoom), box in meters. */
+export interface RoomSummary {
+  id: number;
+  nombre: string;
+  ancho: number;
+  alto: number;
+  profundidad: number;
+  muebles: unknown[];
+}
+
+/** A polygonal room, in meters; a vertex's y is the 3D z axis. */
+export interface RoomDetail {
+  id: number;
+  name: string;
+  vertices: Point2D[];
+  heightM: number;
+  areaM2: number;
+}
+
+/** A piece placed in a room. x/y are the MINIMUM corner of its footprint, in meters. */
+export interface RoomItem {
+  id: number;
+  name: string;
+  x: number;
+  y: number;
+  rotation: number;
+}
+
+export interface LayoutConstraints {
+  minDistanceBetweenItemsCm: number;
+  /** Accepted by the backend but not used yet (no doors are stored). */
+  minClearPathCm: number;
+}
+
+export interface LayoutResult {
+  layout: { positions: { itemId: number; x: number; y: number; rotation: number }[]; warnings: string[] };
+  validation: { valid: boolean; collisions: { itemA: number; itemB: number; overlapCm: number }[] };
+  lighting: { position: { x: number; y: number; z: number }; intensity: number; color: string; source: string };
+  readyToRender: boolean;
+  errors: string[];
+}
+
+/** Limits of POST /api/v1/chat; the backend answers 422 beyond them. */
+export const MAX_CHAT_MESSAGES = 20;
+export const MAX_CHAT_MESSAGE_CHARS = 2000;
+
+const roomPath = (roomId: number) => `/spaces/rooms/${encodeURIComponent(roomId)}`;
+
 /** Converts a backend catalog row into the shape the UI works with. */
 export function toFurnitureInput(item: CatalogItemOut): FurnitureInput {
   return {
@@ -141,29 +244,73 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  health: () => request<{ ok: boolean; service: string }>("/api/health"),
+  /** 200 when the backend and its database are up; 503 when the database is offline. */
+  health: () => v1Request<{ status: string; database: string }>("/health"),
 
+  createRoom: (body: { name: string; vertices: Point2D[]; heightM: number }) =>
+    v1Request<RoomDetail>("/spaces/rooms", { method: "POST", body: JSON.stringify(body) }),
+
+  getRoom: (roomId: number) => v1Request<RoomDetail>(roomPath(roomId)),
+
+  /** 422 (and the room unchanged) if the move leaves an invalid polygon. */
+  moveRoomVertex: (roomId: number, index: number, point: Point2D) =>
+    v1Request<RoomDetail>(`${roomPath(roomId)}/vertices/${index}`, {
+      method: "PATCH",
+      body: JSON.stringify({ x: point.x, y: point.y }),
+    }),
+
+  insertRoomVertex: (roomId: number, afterIndex: number, point: Point2D) =>
+    v1Request<RoomDetail>(`${roomPath(roomId)}/vertices`, {
+      method: "POST",
+      body: JSON.stringify({ afterIndex, x: point.x, y: point.y }),
+    }),
+
+  /** A room keeps at least 3 vertices (422 otherwise). */
+  deleteRoomVertex: (roomId: number, index: number) =>
+    v1Request<RoomDetail>(`${roomPath(roomId)}/vertices/${index}`, { method: "DELETE" }),
+
+  listRoomItems: (roomId: number) => v1Request<{ items: RoomItem[] }>(`${roomPath(roomId)}/items`),
+
+  /**
+   * Lays out the account's catalog (or only itemIds) inside the stored
+   * room. When readyToRender is true the backend REPLACES the room's
+   * previously placed furniture.
+   */
+  generateRoomLayout: (roomId: number, body: { constraints: LayoutConstraints; itemIds?: number[] }) =>
+    v1Request<LayoutResult>(`${roomPath(roomId)}/layout`, { method: "POST", body: JSON.stringify(body) }),
+
+  chatAboutRoom: (roomId: number, messages: ChatTurn[]) =>
+    v1Request<{ role: "assistant"; content: string }>("/chat", {
+      method: "POST",
+      body: JSON.stringify({ roomId, messages }),
+    }),
+
+  /** @deprecated Legacy Node route; replaced by chatAboutRoom (4C). */
   chat: (projectId: string, messages: ChatTurn[]) =>
     request<{ role: "assistant"; content: string }>("/api/chat", {
       method: "POST",
       body: JSON.stringify({ projectId, messages }),
     }),
 
+  /** @deprecated Legacy Node route; replaced by createRoom (4B). */
   createSpace: (projectId: string, body: { userId: string; name: string; vertices: Point2D[]; heightM: number }) =>
     request<{ ok: true; areaM2: number; vertices: Point2D[] }>(`/api/spaces/${projectId}`, {
       method: "POST",
       body: JSON.stringify(body),
     }),
 
+  /** @deprecated Legacy Node route; replaced by getRoom. */
   getSpace: (projectId: string) =>
     request<{ vertices: Point2D[]; heightM: number; areaM2: number }>(`/api/spaces/${projectId}`),
 
+  /** @deprecated Legacy Node route; replaced by moveRoomVertex (4B). */
   updateVertex: (projectId: string, index: number, point: Point2D) =>
     request<{ ok: true; areaM2: number; vertices: Point2D[] }>(`/api/spaces/${projectId}/vertices/${index}`, {
       method: "PATCH",
       body: JSON.stringify(point),
     }),
 
+  /** @deprecated Legacy Node route; replaced by listRoomItems. */
   listSpaceItems: (projectId: string) =>
     request<{ items: { id: number; furnitureId: string; name: string; x: number; y: number; rotation: number }[] }>(
       `/api/spaces/${projectId}/items`
@@ -175,7 +322,7 @@ export const api = {
    * every request that reads or creates data must carry the session's id.
    */
   listUserSpaces: (userId: string) =>
-    v1Request<{ user_id: string; habitaciones: unknown[]; catalogo: CatalogItemOut[] }>(
+    v1Request<{ user_id: string; habitaciones: RoomSummary[]; catalogo: CatalogItemOut[] }>(
       `/spaces?user_id=${encodeURIComponent(userId)}`
     ),
 
@@ -198,6 +345,7 @@ export const api = {
       method: "DELETE",
     }),
 
+  /** @deprecated Legacy Node route; replaced by generateRoomLayout (4C). */
   generateLayout: (body: {
     projectId: string;
     room: { vertices: Point2D[]; heightM: number };

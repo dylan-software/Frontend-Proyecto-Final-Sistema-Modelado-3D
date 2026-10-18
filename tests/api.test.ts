@@ -26,7 +26,7 @@ describe("api client — base URL resolution", () => {
     const { api } = await import("../src/lib/api");
     await api.health();
 
-    expect(fetch).toHaveBeenCalledWith("http://localhost:8000/api/health", expect.anything());
+    expect(fetch).toHaveBeenCalledWith("http://localhost:8000/api/v1/health", expect.anything());
   });
 
   it("targets the deployed backend URL when NEXT_PUBLIC_API_URL is set (production)", async () => {
@@ -36,7 +36,7 @@ describe("api client — base URL resolution", () => {
     const { api } = await import("../src/lib/api");
     await api.health();
 
-    expect(fetch).toHaveBeenCalledWith("https://proyecto3d-backend.onrender.com/api/health", expect.anything());
+    expect(fetch).toHaveBeenCalledWith("https://proyecto3d-backend.onrender.com/api/v1/health", expect.anything());
   });
 
   it("surfaces the backend's error message instead of a generic failure", async () => {
@@ -74,7 +74,7 @@ describe("api client — per-account catalog (FastAPI /api/v1)", () => {
     const error = await api.deleteFurniture("7").catch((err: unknown) => err);
 
     expect(error).toBeInstanceOf(ApiError);
-    expect(error).toMatchObject({ status: 404, message: "HTTP 404: No existe un mueble con id 7." });
+    expect(error).toMatchObject({ status: 404, message: "No existe un mueble con id 7." });
   });
 
   it("scopes the spaces query to the logged-in account with ?user_id=", async () => {
@@ -126,7 +126,7 @@ describe("api client — session token", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true }) }));
 
     const { api } = await import("../src/lib/api");
-    await api.health();
+    await api.getSpace("p");
 
     expect(vi.mocked(fetch).mock.calls[0]![1]!.headers).toMatchObject({ Authorization: "Bearer header.payload.signature" });
   });
