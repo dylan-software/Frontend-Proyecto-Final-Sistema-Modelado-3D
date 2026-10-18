@@ -71,14 +71,31 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
 
   return (
     <div className="category-accordion">
-      <input
-        type="text"
-        className="catalog-search"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="🔍 Buscar mueble…"
-        aria-label="Buscar en el catálogo"
-      />
+      <div className="catalog-search-field">
+        <input
+          type="text"
+          className="catalog-search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          // Escape empties the box, like the clear button.
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSearchQuery("");
+          }}
+          placeholder="🔍 Buscar mueble…"
+          aria-label="Buscar en el catálogo"
+        />
+        {searchQuery !== "" && (
+          <button
+            type="button"
+            className="catalog-search-clear"
+            onClick={() => setSearchQuery("")}
+            aria-label="Limpiar búsqueda"
+            title="Limpiar búsqueda"
+          >
+            <span aria-hidden="true">✕</span>
+          </button>
+        )}
+      </div>
 
       {groups.length > 1 && (
         <div className="accordion-toolbar">
