@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -10,8 +10,22 @@ import { ObjectForm } from "../components/ObjectForm";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
-import { api, ApiError, toFurnitureInput, type FurnitureInput, type Point2D } from "../lib/api";
-import { onSessionExpired } from "../lib/session";
+import {
+  api,
+  ApiError,
+  toFurnitureInput,
+  type FurnitureInput,
+  type Point2D,
+  type RoomDetail,
+  type RoomSummary,
+} from "../lib/api";
+import {
+  chooseCurrentRoom,
+  clearStoredSession,
+  onSessionExpired,
+  readCurrentRoomId,
+  saveCurrentRoomId,
+} from "../lib/session";
 import { cmToM } from "../lib/units";
 import {
   DEFAULT_DIMENSIONS,
@@ -27,11 +41,8 @@ const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
 const DEMO_PROJECT_ID = "demo-project";
 
-interface SpaceState {
-  vertices: Point2D[];
-  heightM: number;
-  areaM2: number;
-}
+/** The current room, as GET /api/v1/spaces/rooms/{id} returns it (meters). */
+type SpaceState = RoomDetail;
 
 interface PlacedItemState {
   x: number;
@@ -61,6 +72,11 @@ export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
+  // Rooms of the account (without vertices); the current one is loaded into `space`.
+  const [rooms, setRooms] = useState<RoomSummary[]>([]);
+  const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
+  // Id of the room whose GET is the latest one asked for, so a slower earlier answer is dropped.
+  const requestedRoomId = useRef<number | null>(null);
   const [catalog, setCatalog] = useState<FurnitureInput[]>([]);
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
   // Furniture whose coordinates were validated by the backend's Octree.
@@ -74,20 +90,38 @@ export default function Home() {
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadSpace() {
+  /** Loads one room with its vertices and remembers it as the current one. */
+  async function openRoom(roomId: number) {
+    requestedRoomId.current = roomId;
+    setCurrentRoomId(roomId);
+    saveCurrentRoomId(roomId);
+    setSpace("loading");
+    setPlacedItems([]);
     try {
-      const res = await api.getSpace(DEMO_PROJECT_ID);
-      setSpace(res);
-    } catch {
+      const room = await api.getRoom(roomId);
+      if (requestedRoomId.current === roomId) setSpace(room);
+    } catch (err) {
+      if (requestedRoomId.current !== roomId) return;
       setSpace("none");
+      setError((err as Error).message);
     }
   }
 
-  async function loadCatalog(accountId: string) {
+  /**
+   * After login: the account's rooms and catalog in one request, then the
+   * remembered room (or the newest one). Without rooms, the page invites
+   * the user to trace one.
+   */
+  async function loadWorkspace(accountId: string) {
     try {
       const res = await api.listUserSpaces(accountId);
       setCatalog(res.catalogo.map(toFurnitureInput));
+      setRooms(res.habitaciones);
+      const roomId = chooseCurrentRoom(res.habitaciones, readCurrentRoomId());
+      if (roomId === null) setSpace("none");
+      else await openRoom(roomId);
     } catch (err) {
+      setSpace("none");
       setError((err as Error).message);
     }
   }
@@ -112,8 +146,7 @@ export default function Home() {
   // The workspace data is only fetched once there is a session.
   useEffect(() => {
     if (!userId) return;
-    loadSpace();
-    loadCatalog(userId);
+    loadWorkspace(userId);
   }, [userId]);
 
   async function handleVertexMoved(index: number, point: Point2D) {
@@ -134,12 +167,7 @@ export default function Home() {
   }
 
   function handleLogout() {
-    try {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_ID_KEY);
-    } catch {
-      // Storage blocked: there is no stored token to remove anyway.
-    }
+    clearStoredSession();
     setUserId(null);
     setIsAuthenticated(false);
   }
@@ -328,13 +356,30 @@ export default function Home() {
           <ThemeSelector />
         </header>
 
+        {rooms.length > 1 && (
+          <label className="room-picker">
+            Sala actual{" "}
+            <select
+              value={currentRoomId ?? ""}
+              onChange={(e) => openRoom(Number(e.target.value))}
+              disabled={space === "loading"}
+            >
+              {rooms.map((room) => (
+                <option key={room.id} value={room.id}>
+                  {room.nombre}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+
         {space === "loading" && <p>Loading…</p>}
 
         {space === "none" && (
           <div>
-            <p>No space scanned yet.</p>
+            <p>Aún no tienes ninguna sala. Traza la forma de tu habitación para empezar.</p>
             <Link href="/scan">
-              <button>Scan a space</button>
+              <button>Trazar una sala</button>
             </Link>
           </div>
         )}
@@ -342,7 +387,9 @@ export default function Home() {
         {space && space !== "loading" && space !== "none" && (
           <div className="viewport-grid">
             <section>
-              <h2>Room shape ({space.areaM2} m²)</h2>
+              <h2>
+                {space.name} ({space.areaM2} m²)
+              </h2>
               <RoomEditor vertices={space.vertices} areaM2={space.areaM2} onVertexMoved={handleVertexMoved} />
               <Link href="/scan">
                 <button className="link-button">Re-scan from scratch</button>
