@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Point2D, FurnitureInput } from "../lib/api";
+import { cmToM } from "../lib/units";
 
 interface PlacedItem {
   x: number;
@@ -66,10 +67,10 @@ export function RenderScene({ vertices, heightM, placedItems, lighting }: Render
         return (
           <mesh
             key={i}
-            position={[p.x + widthCm / 200, heightCm / 200, p.y + depthCm / 200]}
+            position={[p.x + cmToM(widthCm) / 2, cmToM(heightCm) / 2, p.y + cmToM(depthCm) / 2]}
             rotation={[0, (p.rotation * Math.PI) / 180, 0]}
           >
-            <boxGeometry args={[widthCm / 100, heightCm / 100, depthCm / 100]} />
+            <boxGeometry args={[cmToM(widthCm), cmToM(heightCm), cmToM(depthCm)]} />
             <meshStandardMaterial color="#8a6f5c" />
           </mesh>
         );
