@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { AR_UNSUPPORTED_MESSAGE, describeArError, endSessionQuietly, openHitTestSession } from "../lib/arSession";
 
 export interface Point2D {
   x: number;
@@ -58,8 +59,25 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
     const xr = (navigator as any).xr;
     if (!container || !xr) return;
 
+    let renderer: THREE.WebGLRenderer | null = null;
+    let session: XRSession | null = null;
+    let syncInterval: ReturnType<typeof setInterval> | null = null;
+    // Releases everything this scan created; safe to call more than once.
+    function teardown() {
+      if (syncInterval !== null) clearInterval(syncInterval);
+      syncInterval = null;
+      if (renderer) {
+        renderer.setAnimationLoop(null);
+        renderer.dispose();
+        renderer.domElement.remove();
+      }
+      renderer = null;
+      sessionRef.current = null;
+      setSessionActive(false);
+    }
+
     try {
-      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.xr.enabled = true;
       container.innerHTML = "";
@@ -99,16 +117,12 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
       }
       redrawMarkers(points);
 
-      const session: XRSession = await xr.requestSession("immersive-ar", {
-        requiredFeatures: ["hit-test"],
-      });
+      const opened = await openHitTestSession(xr, renderer);
+      session = opened.session;
+      const { referenceSpace, hitTestSource } = opened;
       sessionRef.current = session;
       setSessionActive(true);
-
-      await renderer.xr.setSession(session);
-      const referenceSpace = await session.requestReferenceSpace("local");
-      const viewerSpace = await session.requestReferenceSpace("viewer");
-      const hitTestSource = await session.requestHitTestSource!({ space: viewerSpace });
+      session.addEventListener("end", teardown);
 
       let lastHitPose: { x: number; y: number } | null = null;
 
@@ -120,7 +134,7 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
 
       const pointsRef = { current: points };
       // Keep the local ref in sync whenever the parent re-renders with new points.
-      const syncInterval = setInterval(() => {
+      syncInterval = setInterval(() => {
         pointsRef.current = points;
         redrawMarkers(points);
       }, 200);
@@ -143,16 +157,11 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
         }
         renderer.render(scene, camera);
       });
-
-      session.addEventListener("end", () => {
-        clearInterval(syncInterval);
-        renderer.setAnimationLoop(null);
-        setSessionActive(false);
-        sessionRef.current = null;
-      });
     } catch (err) {
-      setError((err as Error).message);
-      setSessionActive(false);
+      // openHitTestSession already ends the session when its own steps fail.
+      if (session) await endSessionQuietly(session);
+      teardown();
+      setError(describeArError(err));
     }
   }
 
@@ -167,15 +176,12 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
   }, []);
 
   if (support === "checking") {
-    return <p>Checking AR camera support…</p>;
+    return <p>Comprobando si este dispositivo admite el escaneo con la cámara…</p>;
   }
 
   if (support === "unsupported") {
     return (
-      <p className="warning">
-        AR camera scanning needs WebXR with hit-test (Chrome on Android today). This browser/device doesn't support
-        it — use the manual entry below instead.
-      </p>
+      <p className="warning">{AR_UNSUPPORTED_MESSAGE}</p>
     );
   }
 
@@ -184,11 +190,11 @@ export function ARPointPicker({ onPointAdded, points, closeLoop }: ARPointPicker
       <div ref={containerRef} className="ar-viewport" />
       {error && <p className="warning">{error}</p>}
       {!sessionActive ? (
-        <button onClick={startSession}>Start camera scan</button>
+        <button onClick={startSession}>Iniciar escaneo con la cámara</button>
       ) : (
-        <button onClick={stopSession}>Stop scanning</button>
+        <button onClick={stopSession}>Detener escaneo</button>
       )}
-      <p className="hint">Point the camera at the floor, tap the screen to drop a point on each real corner.</p>
+      <p className="hint">Apunta la cámara al suelo y toca la pantalla para marcar cada esquina real.</p>
     </div>
   );
 }
