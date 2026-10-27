@@ -46,7 +46,7 @@ describe("api client — base URL resolution", () => {
     );
 
     const { api } = await import("../src/lib/api");
-    await expect(api.getSpace("missing-project")).rejects.toThrow("Invalid space data");
+    await expect(api.chat("p", [])).rejects.toThrow("Invalid space data");
   });
 });
 
@@ -126,7 +126,7 @@ describe("api client — session token", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ ok: true }) }));
 
     const { api } = await import("../src/lib/api");
-    await api.getSpace("p");
+    await api.chat("p", []);
 
     expect(vi.mocked(fetch).mock.calls[0]![1]!.headers).toMatchObject({ Authorization: "Bearer header.payload.signature" });
   });
@@ -180,7 +180,7 @@ describe("api client — session token", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 401, json: async () => ({}) }));
 
     const { api } = await import("../src/lib/api");
-    await expect(api.getSpace("p")).rejects.toThrow();
+    await expect(api.chat("p", [])).rejects.toThrow();
 
     expect(storage.has("auth_token")).toBe(false);
   });

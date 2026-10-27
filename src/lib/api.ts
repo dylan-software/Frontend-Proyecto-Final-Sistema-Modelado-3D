@@ -292,30 +292,6 @@ export const api = {
       body: JSON.stringify({ projectId, messages }),
     }),
 
-  /** @deprecated Legacy Node route; replaced by createRoom (4B). */
-  createSpace: (projectId: string, body: { userId: string; name: string; vertices: Point2D[]; heightM: number }) =>
-    request<{ ok: true; areaM2: number; vertices: Point2D[] }>(`/api/spaces/${projectId}`, {
-      method: "POST",
-      body: JSON.stringify(body),
-    }),
-
-  /** @deprecated Legacy Node route; replaced by getRoom. */
-  getSpace: (projectId: string) =>
-    request<{ vertices: Point2D[]; heightM: number; areaM2: number }>(`/api/spaces/${projectId}`),
-
-  /** @deprecated Legacy Node route; replaced by moveRoomVertex (4B). */
-  updateVertex: (projectId: string, index: number, point: Point2D) =>
-    request<{ ok: true; areaM2: number; vertices: Point2D[] }>(`/api/spaces/${projectId}/vertices/${index}`, {
-      method: "PATCH",
-      body: JSON.stringify(point),
-    }),
-
-  /** @deprecated Legacy Node route; replaced by listRoomItems. */
-  listSpaceItems: (projectId: string) =>
-    request<{ items: { id: number; furnitureId: string; name: string; x: number; y: number; rotation: number }[] }>(
-      `/api/spaces/${projectId}/items`
-    ),
-
   /**
    * Rooms and catalog of one account. Account isolation is enforced by the
    * backend, which only returns rows stored with this exact user_id — so

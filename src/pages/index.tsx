@@ -39,6 +39,11 @@ import {
 const RenderScene = dynamic(() => import("../render/RenderScene").then((m) => m.RenderScene), { ssr: false });
 const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
+/**
+ * @deprecated Only the legacy layout (/api/layout/generate) and ChatPanel
+ * (/api/chat) still use it; no /api/v1 route does.
+ * TODO(4C): remove once layout and chat move to the room routes.
+ */
 const DEMO_PROJECT_ID = "demo-project";
 
 /** The current room, as GET /api/v1/spaces/rooms/{id} returns it (meters). */
