@@ -149,10 +149,24 @@ export default function Home() {
     loadWorkspace(userId);
   }, [userId]);
 
-  async function handleVertexMoved(index: number, point: Point2D) {
-    const res = await api.updateVertex(DEMO_PROJECT_ID, index, point);
-    setSpace((prev) => (prev && prev !== "loading" && prev !== "none" ? { ...prev, vertices: res.vertices, areaM2: res.areaM2 } : prev));
+  /**
+   * Applies one vertex change of the current room on the server and shows
+   * the room it answers with. Errors (422 for an invalid shape) reach
+   * RoomEditor, which shows them; the room on screen is left unchanged.
+   */
+  async function editCurrentRoom(change: (roomId: number) => Promise<RoomDetail>) {
+    if (!space || space === "loading" || space === "none") return;
+    const room = await change(space.id);
+    if (requestedRoomId.current === room.id) setSpace(room);
   }
+
+  const handleVertexMoved = (index: number, point: Point2D) =>
+    editCurrentRoom((roomId) => api.moveRoomVertex(roomId, index, point));
+
+  const handleVertexInserted = (afterIndex: number, point: Point2D) =>
+    editCurrentRoom((roomId) => api.insertRoomVertex(roomId, afterIndex, point));
+
+  const handleVertexDeleted = (index: number) => editCurrentRoom((roomId) => api.deleteRoomVertex(roomId, index));
 
   function handleSpaceAnalyzed(result: SpaceAnalysisResponse) {
     setPlacedFurniture((prev) => [
@@ -390,7 +404,13 @@ export default function Home() {
               <h2>
                 {space.name} ({space.areaM2} m²)
               </h2>
-              <RoomEditor vertices={space.vertices} areaM2={space.areaM2} onVertexMoved={handleVertexMoved} />
+              <RoomEditor
+                vertices={space.vertices}
+                areaM2={space.areaM2}
+                onVertexMoved={handleVertexMoved}
+                onVertexInserted={handleVertexInserted}
+                onVertexDeleted={handleVertexDeleted}
+              />
               <Link href="/scan">
                 <button className="link-button">Re-scan from scratch</button>
               </Link>
