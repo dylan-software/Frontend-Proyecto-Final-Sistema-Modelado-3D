@@ -34,6 +34,11 @@ export const es = {
     failed: (status: number) => `La petición falló (HTTP ${status}).`,
   },
   photo: {
+    scene: {
+      estimated: "Estimado",
+      estimatedHint: "Medidas aproximadas, estimadas a partir de una foto.",
+      elevation: (meters: number) => `a ${meters.toFixed(2).replace(".", ",")} m del suelo`,
+    },
     errors: {
       notFound: "Esta sala ya no existe o no es de tu cuenta. Recarga la página.",
       conflict: "Hay que confirmar que se reemplazan la forma y los muebles de la sala.",
