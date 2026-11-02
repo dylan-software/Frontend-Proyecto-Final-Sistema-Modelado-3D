@@ -6,6 +6,7 @@
  *
  * Every request carries the session token as `Authorization: Bearer`.
  */
+import { es } from "../i18n/es";
 import { authHeaders, expireSession } from "./session";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -50,7 +51,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return json as T;
 }
 
-export const AI_UNAVAILABLE_MESSAGE = "El asistente de IA no está disponible ahora.";
+export const AI_UNAVAILABLE_MESSAGE = es.errors.aiUnavailable;
 
 /**
  * Seconds to wait from a Retry-After header (delta-seconds or an HTTP
@@ -68,33 +69,37 @@ export function parseRetryAfter(value: string | null | undefined, now: number = 
 }
 
 /**
- * The Spanish message shown to the user for a failed /api/v1 call. The
- * backend's own `detail` (already in Spanish) is kept when it explains
- * the problem better than a generic text.
+ * Mensaje en español para una llamada fallida a /api/v1. Se conserva el `detail` del backend (ya en
+ * español) cuando explica el problema mejor que un texto genérico. Los textos viven en i18n/es.ts.
  */
 export function describeApiError(status: number, detail: string | null, path: string, retryAfterSeconds: number | null): string {
+  const text = es.errors;
   switch (status) {
     case 401:
-      // On /auth/* a 401 is a wrong password, not an expired session.
-      return path.startsWith("/auth/") && detail ? detail : "Tu sesión ha caducado. Vuelve a iniciar sesión.";
+      // En /auth/* un 401 es una contraseña incorrecta, no una sesión caducada.
+      return path.startsWith("/auth/") && detail ? detail : text.sessionExpired;
+    case 404:
+      return detail ?? text.notFound;
+    case 409:
+      return detail ?? text.conflict;
     case 413:
-      return "La foto es demasiado grande: el máximo es 5 MB.";
+      return text.photoTooLarge;
     case 415:
-      return "Formato de foto no admitido: usa una imagen JPEG o PNG.";
+      return text.photoType;
     case 422:
-      return detail ?? "Los datos enviados no son válidos.";
+      return detail ?? text.invalidData;
     case 429: {
-      const base = detail ?? "Has hecho demasiadas peticiones.";
-      return retryAfterSeconds !== null
-        ? `${base} Podrás volver a intentarlo en ${retryAfterSeconds} segundos.`
-        : `${base} Espera un momento antes de volver a intentarlo.`;
+      const base = detail ?? text.tooManyRequests;
+      return `${base} ${retryAfterSeconds !== null ? text.retryIn(retryAfterSeconds) : text.retrySoon}`;
     }
     case 502:
       return AI_UNAVAILABLE_MESSAGE;
     case 503:
-      return detail ?? "La base de datos no está disponible ahora. Inténtalo más tarde.";
+      return detail ?? text.databaseUnavailable;
+    case 504:
+      return detail ?? text.timeout;
     default:
-      return detail ?? `La petición falló (HTTP ${status}).`;
+      return detail ?? text.failed(status);
   }
 }
 
@@ -115,11 +120,15 @@ export class ApiError extends Error {
   }
 }
 
-/** Calls a FastAPI endpoint; its errors come as {"detail": "..."} (or a list on 422). */
+/**
+ * Llama a un endpoint de FastAPI; sus errores llegan como {"detail": "..."} (o una lista en un 422).
+ * Con un FormData no se pone Content-Type: el navegador añade él mismo el boundary del multipart.
+ */
 async function v1Request<T>(path: string, init?: RequestInit): Promise<T> {
+  const isForm = typeof FormData !== "undefined" && init?.body instanceof FormData;
   const res = await fetchBackend(`${BASE_URL}/api/v1${path}`, {
     ...init,
-    headers: { "Content-Type": "application/json", ...authHeaders(), ...init?.headers },
+    headers: { ...(isForm ? {} : { "Content-Type": "application/json" }), ...authHeaders(), ...init?.headers },
   });
   handleUnauthorized(res, path);
   const json = await res.json().catch(() => ({}));
@@ -190,14 +199,40 @@ export interface RoomDetail {
   areaM2: number;
 }
 
-/** A piece placed in a room. x/y are the MINIMUM corner of its footprint, in meters. */
+/**
+ * Un mueble colocado en una sala. x/y son la esquina MÍNIMA de su huella, en metros; widthM (eje x),
+ * depthM (eje z), heightM y elevationM (altura de la base) bastan para dibujarlo como una caja.
+ */
 export interface RoomItem {
   id: number;
   name: string;
   x: number;
   y: number;
   rotation: number;
+  widthM: number;
+  depthM: number;
+  heightM: number;
+  elevationM: number;
 }
+
+/** Objeto que la IA propuso a partir de la foto y no se guardó, con el motivo (en español). */
+export interface DiscardedObject {
+  name: string;
+  reason: string;
+}
+
+/** Respuesta 200 de POST /rooms/{id}/analyze-photo (CONTRATO-FOTO-A-3D.md). */
+export interface PhotoAnalysis {
+  room: RoomDetail;
+  /** Siempre true: las medidas son estimadas. No se guarda en el backend. */
+  estimated: boolean;
+  description: string;
+  items: RoomItem[];
+  discarded: DiscardedObject[];
+}
+
+/** Máximo de caracteres de las instrucciones opcionales de la foto (422 por encima). */
+export const MAX_PHOTO_INSTRUCTIONS_CHARS = 500;
 
 export interface LayoutConstraints {
   minDistanceBetweenItemsCm: number;
@@ -278,6 +313,20 @@ export const api = {
    */
   generateRoomLayout: (roomId: number, body: { constraints: LayoutConstraints; itemIds?: number[] }) =>
     v1Request<LayoutResult>(`${roomPath(roomId)}/layout`, { method: "POST", body: JSON.stringify(body) }),
+
+  /**
+   * Envía la foto (ya reducida) para que la IA estime la sala y hasta 10 objetos. Con
+   * confirmReplace la respuesta REEMPLAZA la forma y los muebles guardados de la sala; sin él, una
+   * sala con contenido responde 409. Las instrucciones vacías no se envían.
+   */
+  analyzeRoomPhoto: (roomId: number, photo: Blob, options: { confirmReplace: boolean; instructions?: string }) => {
+    const form = new FormData();
+    form.append("file", photo, "foto.jpg");
+    form.append("confirm_replace", options.confirmReplace ? "true" : "false");
+    const instructions = options.instructions?.trim();
+    if (instructions) form.append("instrucciones", instructions);
+    return v1Request<PhotoAnalysis>(`${roomPath(roomId)}/analyze-photo`, { method: "POST", body: form });
+  },
 
   chatAboutRoom: (roomId: number, messages: ChatTurn[]) =>
     v1Request<{ role: "assistant"; content: string }>("/chat", {
