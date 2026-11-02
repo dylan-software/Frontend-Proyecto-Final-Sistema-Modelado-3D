@@ -3,20 +3,23 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { AuthScreen, AUTH_TOKEN_KEY, AUTH_USER_ID_KEY } from "../components/AuthScreen";
-import CameraCapture from "../components/CameraCapture";
 import { CategoryAccordion } from "../components/CategoryAccordion";
 import { ChatPanel } from "../components/ChatPanel";
 import { ObjectForm } from "../components/ObjectForm";
+import { PhotoToRoom } from "../components/PhotoToRoom";
 import { RoomEditor } from "../components/RoomEditor";
 import { SpatialAnalytics } from "../components/SpatialAnalytics";
 import { ThemeSelector } from "../components/ThemeSelector";
+import { es } from "../i18n/es";
 import {
   api,
   ApiError,
   toFurnitureInput,
   type FurnitureInput,
+  type PhotoAnalysis,
   type Point2D,
   type RoomDetail,
+  type RoomItem,
   type RoomSummary,
 } from "../lib/api";
 import {
@@ -27,17 +30,11 @@ import {
   saveCurrentRoomId,
 } from "../lib/session";
 import { cmToM } from "../lib/units";
-import {
-  DEFAULT_DIMENSIONS,
-  type Dimensions3D,
-  type FurnitureObject,
-  type SpaceAnalysisResponse,
-} from "../types/spatial";
+import { DEFAULT_DIMENSIONS, type Dimensions3D, type FurnitureObject } from "../types/spatial";
 
 // three.js can't be evaluated during server prerendering, so the 3D
 // viewers are only loaded in the browser.
 const RenderScene = dynamic(() => import("../render/RenderScene").then((m) => m.RenderScene), { ssr: false });
-const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
 /**
  * @deprecated Solo lo usa el layout viejo (/api/layout/generate); ninguna ruta /api/v1 lo usa.
@@ -85,7 +82,10 @@ export default function Home() {
   const [placedItems, setPlacedItems] = useState<PlacedItemState[]>([]);
   // Furniture whose coordinates were validated by the backend's Octree.
   const [placedFurniture, setPlacedFurniture] = useState<FurnitureObject[]>([]);
-  const [analyzingSpace, setAnalyzingSpace] = useState(false);
+  // Objetos guardados en la sala abierta (GET /rooms/{id}/items o la respuesta de la foto).
+  const [roomItems, setRoomItems] = useState<RoomItem[]>([]);
+  // True mientras la sala abierta muestra lo que estimó una foto (solo en memoria; el backend no lo guarda).
+  const [estimated, setEstimated] = useState(false);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   // Catalog entry whose DELETE request is in flight.
@@ -94,16 +94,20 @@ export default function Home() {
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** Loads one room with its vertices and remembers it as the current one. */
+  /** Carga una sala con sus vértices y sus objetos guardados, y la recuerda como la actual. */
   async function openRoom(roomId: number) {
     requestedRoomId.current = roomId;
     setCurrentRoomId(roomId);
     saveCurrentRoomId(roomId);
     setSpace("loading");
     setPlacedItems([]);
+    setRoomItems([]);
+    setEstimated(false);
     try {
-      const room = await api.getRoom(roomId);
-      if (requestedRoomId.current === roomId) setSpace(room);
+      const [room, saved] = await Promise.all([api.getRoom(roomId), api.listRoomItems(roomId)]);
+      if (requestedRoomId.current !== roomId) return;
+      setSpace(room);
+      setRoomItems(saved.items);
     } catch (err) {
       if (requestedRoomId.current !== roomId) return;
       setSpace("none");
@@ -161,7 +165,10 @@ export default function Home() {
   async function editCurrentRoom(change: (roomId: number) => Promise<RoomDetail>) {
     if (!space || space === "loading" || space === "none") return;
     const room = await change(space.id);
-    if (requestedRoomId.current === room.id) setSpace(room);
+    if (requestedRoomId.current !== room.id) return;
+    setSpace(room);
+    // La forma ya no es la estimada por la foto: la editó el usuario.
+    setEstimated(false);
   }
 
   const handleVertexMoved = (index: number, point: Point2D) =>
@@ -172,16 +179,13 @@ export default function Home() {
 
   const handleVertexDeleted = (index: number) => editCurrentRoom((roomId) => api.deleteRoomVertex(roomId, index));
 
-  function handleSpaceAnalyzed(result: SpaceAnalysisResponse) {
-    setPlacedFurniture((prev) => [
-      ...prev,
-      {
-        id: `ai-${Date.now()}`,
-        name: "Sugerencia IA",
-        position: result.suggested_coordinates,
-        rotation: 0,
-      },
-    ]);
+  /** La foto ya se guardó en el backend: se muestra la sala estimada y sus objetos. */
+  function handlePhotoAnalyzed(result: PhotoAnalysis) {
+    if (requestedRoomId.current !== result.room.id) return;
+    setSpace(result.room);
+    setRoomItems(result.items);
+    setEstimated(result.estimated);
+    setPlacedItems([]);
   }
 
   function handleLogout() {
@@ -190,11 +194,8 @@ export default function Home() {
     setIsAuthenticated(false);
   }
 
-  /** The piece inspected in the 3D viewer, if any. O(n) linear scan over the placed furniture. */
-  const selectedFurniture = placedFurniture.find((f) => f.selected) ?? null;
-
-  // Bounding boxes in meters of everything in the room: the generated layout
-  // (sizes in cm) plus the pieces suggested by the camera analysis.
+  // Cajas en metros de todo lo que ocupa la sala: el layout generado (medidas en cm), los objetos
+  // guardados en la sala (p. ej. los de la foto) y las piezas sueltas del visor.
   const occupyingItems = useMemo<Dimensions3D[]>(
     () => [
       ...placedItems.map(({ item }) => ({
@@ -202,26 +203,11 @@ export default function Home() {
         height: cmToM(item.heightCm),
         depth: cmToM(item.depthCm),
       })),
+      ...roomItems.map((item) => ({ width: item.widthM, height: item.heightM, depth: item.depthM })),
       ...placedFurniture.map((f) => f.dimensions ?? DEFAULT_DIMENSIONS),
     ],
-    [placedItems, placedFurniture]
+    [placedItems, roomItems, placedFurniture]
   );
-
-  /**
-   * Marks the piece with `id` as inspected (and unmarks the rest); null clears it.
-   * O(n): one pass that produces a new array, as React state must not be mutated.
-   */
-  function handleSelectFurniture(id: string | null) {
-    setPlacedFurniture((prev) => prev.map((f) => ({ ...f, selected: f.id === id })));
-  }
-
-  /**
-   * Removes the selected piece from the viewer; it only exists in local state.
-   * O(n): a single `filter` pass over the placed furniture.
-   */
-  function deleteFurnitureItem() {
-    setPlacedFurniture((prev) => prev.filter((f) => !f.selected));
-  }
 
   /**
    * Deletes one catalog entry on the server (DELETE /api/v1/spaces/furniture/{id})
@@ -444,17 +430,22 @@ export default function Home() {
           </div>
         )}
 
+        {/* Foto a 3D: sustituye a la antigua "Análisis con cámara" (CameraCapture, que usaba un contrato muerto). */}
         <section>
-          <h2>Análisis con cámara</h2>
-          <CameraCapture onAnalyzed={handleSpaceAnalyzed} onAnalyzingChange={setAnalyzingSpace} />
-          <div className="canvas-wrapper">
-            <Scene3D furniture={placedFurniture} loading={analyzingSpace} onSelect={handleSelectFurniture} />
-            {selectedFurniture && (
-              <button type="button" className="delete-selected-button" onClick={deleteFurnitureItem}>
-                Delete Selected <span className="delete-selected-name">({selectedFurniture.name})</span>
-              </button>
-            )}
-          </div>
+          <h2>{es.photo.ui.title}</h2>
+          <PhotoToRoom roomId={openRoomId} savedItemCount={roomItems.length} onAnalyzed={handlePhotoAnalyzed} />
+          {space && space !== "loading" && space !== "none" && (
+            <div className="canvas-wrapper">
+              <RenderScene
+                vertices={space.vertices}
+                heightM={space.heightM}
+                placedItems={[]}
+                lighting={DEFAULT_LIGHTING}
+                boxes={roomItems}
+                estimated={estimated}
+              />
+            </div>
+          )}
         </section>
 
         {error && <p className="warning">{error}</p>}
