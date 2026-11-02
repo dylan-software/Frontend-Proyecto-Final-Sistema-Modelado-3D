@@ -1,64 +1,48 @@
 import { useRef, useState, useEffect } from "react";
-import { api, type ChatTurn } from "../lib/api";
+import { api, MAX_CHAT_MESSAGE_CHARS, type ChatTurn } from "../lib/api";
+import { toChatRequest } from "../lib/chat";
+import { es } from "../i18n/es";
 
-/** A single turn of the chat as shown in the panel and sent to the backend. */
-export interface MessageInterface extends ChatTurn {
-  role: "user" | "assistant";
-  content: string;
-}
-
-/**
- * POSTs the whole conversation to the backend and resolves with the
- * assistant's reply as a new chat message.
- */
-async function sendPromptToBackend(projectId: string, history: MessageInterface[]): Promise<MessageInterface> {
-  const reply = await api.chat(projectId, history);
-  return { role: "assistant", content: reply.content };
-}
+const t = es.chat;
 
 interface ChatPanelProps {
-  projectId: string;
+  /** Sala guardada sobre la que se conversa; null mientras no haya ninguna abierta. */
+  roomId: number | null;
 }
 
 /**
- * AI organization assistant. Every message goes through the backend's
- * /api/chat, which runs the OpenRouter tool-calling loop — the
- * assistant can query the real room shape and placed items (see
- * backend/src/ai/sceneAssistant.ts) before answering, but it only ever
- * sees that structured data, never a picture of the room.
+ * Asistente de IA flotante. Cada mensaje va a POST /api/v1/chat con la sala
+ * actual: el backend le pasa al modelo la forma real y los muebles colocados,
+ * nunca una imagen. Sin sala guardada, el chat queda deshabilitado.
+ * El saludo inicial es local y no se envía al backend.
  */
-export function ChatPanel({ projectId }: ChatPanelProps) {
-  const [messages, setMessages] = useState<MessageInterface[]>([
-    {
-      role: "assistant",
-      content: "Hi! Ask me how to organize your space — I can check its shape and what's placed in it so far.",
-    },
-  ]);
+export function ChatPanel({ roomId }: ChatPanelProps) {
+  const [messages, setMessages] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Whether the floating chat window is expanded; the conversation is kept while it's closed.
+  // Si la ventana está abierta; la conversación se conserva mientras está cerrada.
   const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Keep the latest message (or the "Thinking…" bubble) in view.
+  // Mantiene a la vista el último mensaje (o la burbuja de "Pensando…").
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending, isOpen]);
 
   async function handleSend() {
     const text = input.trim();
-    if (!text || sending) return;
+    if (!text || sending || roomId === null) return;
 
-    const nextMessages: MessageInterface[] = [...messages, { role: "user", content: text }];
+    const nextMessages: ChatTurn[] = [...messages, { role: "user", content: text }];
     setMessages(nextMessages);
     setInput("");
     setSending(true);
     setError(null);
 
     try {
-      const reply = await sendPromptToBackend(projectId, nextMessages);
-      setMessages([...nextMessages, reply]);
+      const reply = await api.chatAboutRoom(roomId, toChatRequest(nextMessages));
+      setMessages([...nextMessages, { role: "assistant", content: reply.content }]);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -66,30 +50,34 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
     }
   }
 
+  const disabled = roomId === null;
+
   return (
     <div className="chat-widget">
       {isOpen && (
-        <div className="chat-panel-inner chat-window" role="dialog" aria-label="AI Assistant">
+        <div className="chat-panel-inner chat-window" role="dialog" aria-label={t.title}>
           <div className="chat-window-header">
-            <h2>AI Assistant</h2>
-            <button type="button" className="chat-minimize" onClick={() => setIsOpen(false)} aria-label="Minimize chat">
+            <h2>{t.title}</h2>
+            <button type="button" className="chat-minimize" onClick={() => setIsOpen(false)} aria-label={t.minimize}>
               –
             </button>
           </div>
-          <p className="hint">
-            Gets its answers from the real data of your project (room shape + placed items) — it cannot see a photo or
-            render of the space.
+          <p className="hint">{t.dataHint}</p>
+          <p className="hint" role="note">
+            {t.privacyNotice}
           </p>
 
           <div className="chat-messages" ref={scrollRef} aria-busy={sending}>
+            <div className="chat-bubble chat-bubble-assistant">{t.greeting}</div>
             {messages.map((m, i) => (
               <div key={i} className={`chat-bubble chat-bubble-${m.role}`}>
                 {m.content}
               </div>
             ))}
-            {sending && <div className="chat-bubble chat-bubble-assistant">Thinking…</div>}
+            {sending && <div className="chat-bubble chat-bubble-assistant">{t.thinking}</div>}
           </div>
 
+          {disabled && <p className="warning">{t.noRoom}</p>}
           {error && (
             <p className="warning connection-alert" role="alert">
               {error}
@@ -107,11 +95,12 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. How should I arrange my furniture?"
-              disabled={sending}
+              placeholder={t.placeholder}
+              maxLength={MAX_CHAT_MESSAGE_CHARS}
+              disabled={sending || disabled}
             />
-            <button type="submit" disabled={sending || !input.trim()}>
-              {sending ? "Sending…" : "Send"}
+            <button type="submit" disabled={sending || disabled || !input.trim()}>
+              {sending ? t.sending : t.send}
             </button>
           </form>
         </div>
@@ -122,7 +111,7 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         className="chat-fab"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
-        aria-label={isOpen ? "Close AI Assistant" : "Open AI Assistant"}
+        aria-label={isOpen ? t.close : t.open}
       >
         {isOpen ? "×" : "💬"}
       </button>
