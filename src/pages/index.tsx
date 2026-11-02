@@ -40,9 +40,8 @@ const RenderScene = dynamic(() => import("../render/RenderScene").then((m) => m.
 const Scene3D = dynamic(() => import("../components/Scene3D"), { ssr: false });
 
 /**
- * @deprecated Only the legacy layout (/api/layout/generate) and ChatPanel
- * (/api/chat) still use it; no /api/v1 route does.
- * TODO(4C): remove once layout and chat move to the room routes.
+ * @deprecated Solo lo usa el layout viejo (/api/layout/generate); ninguna ruta /api/v1 lo usa.
+ * TODO(4C): quitarlo cuando el layout pase a las rutas de la sala (o desaparezca de la interfaz, v4 R4).
  */
 const DEMO_PROJECT_ID = "demo-project";
 
@@ -337,6 +336,9 @@ export default function Home() {
   // camera and the chat aren't even mounted.
   if (!isAuthenticated) return <AuthScreen onAuthenticated={syncSession} />;
 
+  // Sala ya cargada desde el backend (con id real), o null mientras se carga o si no hay ninguna.
+  const openRoomId = space !== null && typeof space === "object" ? space.id : null;
+
   return (
     <div className="dashboard">
       {/* Left column: control sidebar. */}
@@ -458,8 +460,8 @@ export default function Home() {
         {error && <p className="warning">{error}</p>}
       </main>
 
-      {/* Floating AI organization assistant (phase 3), bottom-right corner. */}
-      <ChatPanel projectId={DEMO_PROJECT_ID} />
+      {/* Asistente de IA flotante sobre la sala abierta; al cambiar de sala empieza una conversación nueva. */}
+      <ChatPanel key={openRoomId ?? "none"} roomId={openRoomId} />
     </div>
   );
 }
