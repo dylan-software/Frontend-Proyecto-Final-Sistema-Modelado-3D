@@ -34,6 +34,31 @@ export const es = {
     failed: (status: number) => `La petición falló (HTTP ${status}).`,
   },
   photo: {
+    ui: {
+      title: "Foto a 3D",
+      intro:
+        "Haz o sube una foto de la habitación: la IA estima sus medidas y hasta 10 objetos, y los dibuja como cajas.",
+      button: "Foto a 3D",
+      noRoom: "Abre o traza una sala para poder estimarla con una foto.",
+      analyzing: "Analizando la foto con IA… puede tardar hasta un minuto.",
+      done: (count: number) =>
+        count === 1 ? "Se dibujó 1 objeto estimado." : `Se dibujaron ${count} objetos estimados.`,
+      discardedTitle: "Objetos descartados",
+    },
+    dialog: {
+      title: "Antes de enviar la foto",
+      privacy:
+        "La imagen se envía a un servicio de IA externo para analizarla; no incluyas personas ni datos personales. La foto no se guarda.",
+      replace: (savedItems: number) => {
+        if (savedItems === 0) return "Se perderá la forma actual de la sala: se reemplazará por la que estime la foto.";
+        const items = savedItems === 1 ? "su mueble guardado" : `sus ${savedItems} muebles guardados`;
+        return `Se perderán la forma actual de la sala y ${items}: se reemplazarán por lo que estime la foto.`;
+      },
+      instructionsLabel: "Indicaciones para la IA (opcional)",
+      instructionsPlaceholder: "Por ejemplo: ignora los objetos pequeños.",
+      cancel: "Cancelar",
+      confirm: "Enviar la foto y reemplazar",
+    },
     scene: {
       estimated: "Estimado",
       estimatedHint: "Medidas aproximadas, estimadas a partir de una foto.",

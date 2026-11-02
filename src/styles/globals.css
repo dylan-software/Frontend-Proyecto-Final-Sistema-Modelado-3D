@@ -790,6 +790,75 @@ select:disabled {
   color: var(--color-text-muted);
 }
 
+/* Foto a 3D: resultado del análisis y diálogo previo al envío. */
+.photo-result {
+  margin: 10px 0 4px;
+}
+
+.photo-result ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  color: var(--color-text-muted);
+}
+
+.photo-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(1, 4, 9, 0.6);
+}
+
+.photo-dialog {
+  width: 100%;
+  max-width: 460px;
+  padding: 18px 20px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--color-shadow);
+}
+
+.photo-dialog h3 {
+  margin-top: 0;
+}
+
+.photo-dialog-privacy,
+.photo-dialog-replace {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--color-surface-alt);
+  border-left: 3px solid var(--color-accent);
+}
+
+.photo-dialog-replace {
+  border-left-color: #d29922;
+}
+
+.photo-dialog-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.photo-dialog-instructions textarea {
+  resize: vertical;
+}
+
+.photo-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
 /* Card previewing the photo picked from the device before it is analyzed. */
 .photo-preview {
   position: relative;
