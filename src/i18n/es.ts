@@ -17,6 +17,9 @@ export const es = {
     open: "Abrir el asistente de IA",
     close: "Cerrar el asistente de IA",
   },
+  scene: {
+    resetView: "Restablecer vista",
+  },
   /** Mensajes de error de las rutas /api/v1, por código HTTP (los usa describeApiError). */
   errors: {
     sessionExpired: "Tu sesión ha caducado. Vuelve a iniciar sesión.",
