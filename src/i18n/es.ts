@@ -20,6 +20,33 @@ export const es = {
   scene: {
     resetView: "Restablecer vista",
   },
+  /**
+   * Etiquetas de las categorías que guarda la base (sofa, chair…). Solo se traduce lo que se MUESTRA:
+   * los valores enviados a la API no cambian. Las categorías propias del usuario se muestran tal cual.
+   */
+  categories: {
+    /** Títulos de los grupos del catálogo (plural). */
+    groups: {
+      bed: "Camas",
+      chair: "Sillas",
+      table: "Mesas",
+      sofa: "Sofás",
+      shelf: "Estanterías",
+      lamp: "Lámparas",
+      other: "Otros",
+      Others: "Otros",
+    } as Record<string, string>,
+    /** Opciones del selector del formulario (singular). "Others" deja escribir una categoría nueva. */
+    options: {
+      sofa: "Sofá",
+      table: "Mesa",
+      chair: "Silla",
+      bed: "Cama",
+      shelf: "Estantería",
+      lamp: "Lámpara",
+      Others: "Otra (escribir…)",
+    } as Record<string, string>,
+  },
   /** Mensajes de error de las rutas /api/v1, por código HTTP (los usa describeApiError). */
   errors: {
     sessionExpired: "Tu sesión ha caducado. Vuelve a iniciar sesión.",
