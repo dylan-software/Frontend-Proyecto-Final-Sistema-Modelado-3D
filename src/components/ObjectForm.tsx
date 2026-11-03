@@ -1,38 +1,40 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 
+import { es } from "../i18n/es";
 import { api, toFurnitureInput, type FurnitureInput } from "../lib/api";
+import { categoryLabel } from "../lib/catalog";
 import { LaserMeasure } from "./LaserMeasure";
 
 interface ObjectFormProps {
-  /** Account the new catalog entries are stored under. */
+  /** Cuenta en la que se guardan los objetos nuevos del catálogo. */
   userId: string;
   onCreated: (item: FurnitureInput) => void;
 }
 
-/** Selecting this option lets the user type their own category name. */
+/** Elegir esta opción deja escribir una categoría propia. Es el valor que espera la API: no se traduce. */
 const OTHERS_CATEGORY = "Others";
 
 const CATEGORIES = ["sofa", "table", "chair", "bed", "shelf", "lamp", OTHERS_CATEGORY];
 
-/** True for categories the user typed in via "Others" (legacy "other" counts as predefined). */
+/** True para las categorías escritas por el usuario con "Others" (la antigua "other" cuenta como predefinida). */
 export function isCustomCategory(category: string): boolean {
   return category !== "other" && !CATEGORIES.includes(category);
 }
 
 /**
- * Manual object creation. The object's NAME is required — the form
- * will not submit without it. Width/height/depth can be typed directly
- * or filled from the laser measurement tool (tap-to-measure in AR).
- * Choosing "Others" as the category reveals a text field whose value is
- * sent to the backend as the category name.
+ * Creación manual de un objeto. El NOMBRE es obligatorio: el formulario no se envía sin él. Ancho,
+ * alto y fondo se escriben a mano o se rellenan con la medición láser (tocar para medir en AR).
+ * Elegir "Others" como categoría muestra un campo de texto cuyo valor se envía como nombre de la
+ * categoría. Los textos vienen de i18n/es.ts; los valores de las categorías no se traducen.
  */
 export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
+  const t = es.objectForm;
   const [name, setName] = useState("");
   const [widthCm, setWidthCm] = useState("");
   const [heightCm, setHeightCm] = useState("");
   const [depthCm, setDepthCm] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]!);
-  // True while "Others" is selected, so the custom category field is shown.
+  // True mientras "Others" está elegida, para mostrar el campo de la categoría propia.
   const [showCustomCategory, setShowCustomCategory] = useState(false);
   const [customCategoryName, setCustomCategoryName] = useState("");
   const [material, setMaterial] = useState("");
@@ -62,24 +64,24 @@ export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
     setError(null);
 
     if (!name.trim()) {
-      setError("The object name is required.");
+      setError(t.nameRequired);
       return;
     }
     if (customCategoryMissing) {
-      setError('Type a name for the new category, or pick one other than "Others".');
+      setError(t.newCategoryRequired);
       return;
     }
     const w = Number(widthCm);
     const h = Number(heightCm);
     const d = Number(depthCm);
     if (!(w > 0 && h > 0 && d > 0)) {
-      setError("Width, height and depth must all be greater than 0.");
+      setError(t.sizesRequired);
       return;
     }
 
     setSubmitting(true);
     try {
-      // With "Others" the backend creates (or reuses) the category typed in custom_category.
+      // Con "Others" el backend crea (o reutiliza) la categoría escrita en custom_category.
       const stored = await api.createCatalogFurniture({
         user_id: userId,
         nombre: name.trim(),
@@ -89,7 +91,7 @@ export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
         alto: h,
         profundidad: d,
       });
-      // The server id is what DELETE /furniture/{id} expects later on.
+      // El id del servidor es el que DELETE /furniture/{id} espera después.
       onCreated({
         ...toFurnitureInput(stored),
         material: material || "unspecified",
@@ -113,59 +115,54 @@ export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
   }
 
   if (activeMeasurement) {
-    return (
-      <LaserMeasure
-        label={`Measuring: ${activeMeasurement}`}
-        onMeasured={applyMeasurement}
-      />
-    );
+    return <LaserMeasure label={t.measuring(activeMeasurement)} onMeasured={applyMeasurement} />;
   }
 
   return (
     <form className="object-form" onSubmit={handleSubmit}>
-      <h3>Add a new object</h3>
+      <h3>{t.title}</h3>
 
       <label>
-        Name *
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. My reading chair" required />
+        {t.name}
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t.namePlaceholder} required />
       </label>
 
       <div className="dimension-row">
         <label>
-          Width (cm)
+          {t.width}
           <input type="number" value={widthCm} onChange={(e) => setWidthCm(e.target.value)} />
         </label>
         <button type="button" className="link-button" onClick={() => setActiveMeasurement("width")}>
-          Measure with camera
+          {t.measureWithCamera}
         </button>
       </div>
 
       <div className="dimension-row">
         <label>
-          Height (cm)
+          {t.height}
           <input type="number" value={heightCm} onChange={(e) => setHeightCm(e.target.value)} />
         </label>
         <button type="button" className="link-button" onClick={() => setActiveMeasurement("height")}>
-          Measure with camera
+          {t.measureWithCamera}
         </button>
       </div>
 
       <div className="dimension-row">
         <label>
-          Depth (cm)
+          {t.depth}
           <input type="number" value={depthCm} onChange={(e) => setDepthCm(e.target.value)} />
         </label>
         <button type="button" className="link-button" onClick={() => setActiveMeasurement("depth")}>
-          Measure with camera
+          {t.measureWithCamera}
         </button>
       </div>
 
       <label>
-        Category
+        {t.category}
         <select value={category} onChange={handleCategoryChange}>
           {CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {c}
+              {categoryLabel(c, es.categories.options)}
             </option>
           ))}
         </select>
@@ -174,13 +171,13 @@ export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
       {showCustomCategory && (
         <div className="custom-category">
           <label>
-            New category name *
+            {t.newCategory}
             <input
               type="text"
               className="custom-category-input"
               value={customCategoryName}
               onChange={(e) => setCustomCategoryName(e.target.value)}
-              placeholder="e.g. desk, rug, plant"
+              placeholder={t.newCategoryPlaceholder}
               required
               aria-invalid={error !== null && customCategoryMissing}
               autoFocus
@@ -190,24 +187,24 @@ export function ObjectForm({ userId, onCreated }: ObjectFormProps) {
       )}
 
       <label>
-        Material
-        <input value={material} onChange={(e) => setMaterial(e.target.value)} placeholder="e.g. wood" />
+        {t.material}
+        <input value={material} onChange={(e) => setMaterial(e.target.value)} placeholder={t.materialPlaceholder} />
       </label>
 
       <label>
-        Style
-        <input value={style} onChange={(e) => setStyle(e.target.value)} placeholder="e.g. scandinavian" />
+        {t.style}
+        <input value={style} onChange={(e) => setStyle(e.target.value)} placeholder={t.stylePlaceholder} />
       </label>
 
       <label>
-        Price
+        {t.price}
         <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
       </label>
 
       {error && <p className="warning">{error}</p>}
 
       <button type="submit" disabled={submitting}>
-        {submitting ? "Saving…" : "Save object to catalog"}
+        {submitting ? t.saving : t.save}
       </button>
     </form>
   );
