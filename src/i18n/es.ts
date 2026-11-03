@@ -20,6 +20,30 @@ export const es = {
   scene: {
     resetView: "Restablecer vista",
   },
+  objectForm: {
+    title: "Añadir un objeto nuevo",
+    name: "Nombre *",
+    namePlaceholder: "p. ej. Mi sillón de lectura",
+    width: "Ancho (cm)",
+    height: "Alto (cm)",
+    depth: "Fondo (cm)",
+    measureWithCamera: "Medir con la cámara",
+    measuring: (dimension: "width" | "height" | "depth") =>
+      `Midiendo: ${{ width: "ancho", height: "alto", depth: "fondo" }[dimension]}`,
+    category: "Categoría",
+    newCategory: "Nombre de la nueva categoría *",
+    newCategoryPlaceholder: "p. ej. escritorio, alfombra, planta",
+    material: "Material",
+    materialPlaceholder: "p. ej. madera",
+    style: "Estilo",
+    stylePlaceholder: "p. ej. escandinavo",
+    price: "Precio",
+    save: "Guardar en el catálogo",
+    saving: "Guardando…",
+    nameRequired: "El nombre del objeto es obligatorio.",
+    newCategoryRequired: "Escribe el nombre de la nueva categoría o elige otra que no sea «Otra».",
+    sizesRequired: "El ancho, el alto y el fondo deben ser mayores que 0.",
+  },
   /**
    * Etiquetas de las categorías que guarda la base (sofa, chair…). Solo se traduce lo que se MUESTRA:
    * los valores enviados a la API no cambian. Las categorías propias del usuario se muestran tal cual.
