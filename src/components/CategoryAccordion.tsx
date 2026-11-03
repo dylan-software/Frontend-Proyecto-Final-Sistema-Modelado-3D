@@ -1,40 +1,29 @@
 import { useId, useMemo, useState } from "react";
 
-import { groupByCategory } from "../lib/catalog";
+import { es } from "../i18n/es";
+import { categoryLabel, groupByCategory } from "../lib/catalog";
 import type { AccordionProps } from "../types/catalog";
 import { isCustomCategory } from "./ObjectForm";
 
-/** Display names of the predefined categories; custom ones are shown as typed. */
-const CATEGORY_LABELS: Record<string, string> = {
-  bed: "Camas",
-  chair: "Sillas",
-  table: "Mesas",
-  sofa: "Sofás",
-  shelf: "Estanterías",
-  lamp: "Lámparas",
-  other: "Otros",
-};
-
-function categoryLabel(category: string): string {
-  return CATEGORY_LABELS[category] ?? category;
-}
-
-/** Furniture catalog listing, grouped into collapsible categories. */
+/**
+ * Catálogo de muebles agrupado en categorías plegables. Los títulos de las categorías salen del mapa
+ * de i18n/es.ts (las categorías propias se muestran tal cual); el resto de textos, también de allí.
+ */
 export function CategoryAccordion({ items, onDelete, deletingId = null }: AccordionProps) {
-  // Text typed in the catalog search box.
+  const t = es.catalog;
+  // Texto escrito en el buscador del catálogo.
   const [searchQuery, setSearchQuery] = useState("");
-  // Categories whose block is expanded; empty when all are collapsed.
+  // Categorías cuyo bloque está abierto; vacío cuando todas están plegadas.
   const [openCategories, setOpenCategories] = useState<ReadonlySet<string>>(() => new Set());
   const idPrefix = useId();
   const query = searchQuery.trim().toLowerCase();
 
   /**
-   * Catalog entries whose name contains the search query (case-insensitive).
+   * Muebles del catálogo cuyo nombre contiene lo buscado (sin distinguir mayúsculas).
    *
-   * Complexity: O(n · m) per recompute — n catalog items, m = name length
-   * for the substring check. `useMemo` recomputes only when the catalog or
-   * the query change, so unrelated re-renders (3D selection, chat, …) cost
-   * O(1). An empty query short-circuits and returns the same array.
+   * Coste: O(n · m) por recálculo (n muebles, m = longitud del nombre para buscar la subcadena).
+   * `useMemo` solo recalcula cuando cambian el catálogo o la búsqueda, así que los demás repintados
+   * (selección 3D, chat…) cuestan O(1). Una búsqueda vacía devuelve el mismo array sin recorrerlo.
    */
   const filteredItems = useMemo(() => {
     if (!query) return items;
@@ -44,9 +33,8 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
   const groups = useMemo(() => groupByCategory(filteredItems), [filteredItems]);
 
   /**
-   * Opening a category collapses the others (classic accordion); closing one
-   * leaves the rest as they are, so a fully expanded catalog can be folded
-   * back one block at a time.
+   * Abrir una categoría pliega las demás (acordeón clásico); cerrar una deja el resto como está,
+   * así un catálogo todo desplegado se puede ir plegando bloque a bloque.
    */
   function toggleCategory(category: string) {
     setOpenCategories((prev) => {
@@ -65,7 +53,7 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
     setOpenCategories(new Set());
   }
 
-  // While searching every matching block is already forced open.
+  // Mientras se busca, todos los bloques con coincidencias ya se muestran abiertos.
   const searching = query !== "";
   const allOpen = groups.length > 0 && groups.every((g) => openCategories.has(g.category));
 
@@ -77,20 +65,20 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
           className="catalog-search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          // Escape empties the box, like the clear button.
+          // Escape vacía el buscador, como el botón de limpiar.
           onKeyDown={(e) => {
             if (e.key === "Escape") setSearchQuery("");
           }}
-          placeholder="🔍 Buscar mueble…"
-          aria-label="Buscar en el catálogo"
+          placeholder={t.searchPlaceholder}
+          aria-label={t.searchLabel}
         />
         {searchQuery !== "" && (
           <button
             type="button"
             className="catalog-search-clear"
             onClick={() => setSearchQuery("")}
-            aria-label="Limpiar búsqueda"
-            title="Limpiar búsqueda"
+            aria-label={t.clearSearch}
+            title={t.clearSearch}
           >
             <span aria-hidden="true">✕</span>
           </button>
@@ -100,17 +88,17 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
       {groups.length > 1 && (
         <div className="accordion-toolbar">
           <button type="button" onClick={expandAll} disabled={searching || allOpen}>
-            ▼ Expandir todo
+            {t.expandAll}
           </button>
           <button type="button" onClick={collapseAll} disabled={searching || openCategories.size === 0}>
-            ▲ Contraer todo
+            {t.collapseAll}
           </button>
         </div>
       )}
 
       {groups.map(({ category, items: groupItems }, index) => {
         const open = searching || openCategories.has(category);
-        // Custom category names may contain spaces, so the id uses the index.
+        // Las categorías propias pueden tener espacios, así que el id usa el índice.
         const panelId = `${idPrefix}-panel-${index}`;
         return (
           <div key={category} className={`accordion-group${open ? " accordion-group-open" : ""}`}>
@@ -129,8 +117,8 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
                 {open ? "▲" : "▼"}
               </span>
             </button>
-            {/* Always mounted so the height can animate; `inert` keeps the
-                collapsed items out of the tab order and the accessibility tree. */}
+            {/* Siempre montado para que la altura se anime; `inert` saca los elementos plegados
+                del orden de tabulación y del árbol de accesibilidad. */}
             <div id={panelId} className="accordion-panel" inert={!open}>
               <ul className="catalog-list">
                 {groupItems.map((c) => (
@@ -144,8 +132,8 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
                       className="catalog-item-delete"
                       onClick={() => onDelete?.(c.id)}
                       disabled={!onDelete || deletingId === c.id}
-                      aria-label={`Eliminar ${c.name}`}
-                      title="Eliminar"
+                      aria-label={t.deleteItem(c.name)}
+                      title={t.delete}
                     >
                       <span aria-hidden="true">🗑️</span>
                     </button>
@@ -158,7 +146,7 @@ export function CategoryAccordion({ items, onDelete, deletingId = null }: Accord
       })}
 
       {items.length > 0 && filteredItems.length === 0 && (
-        <p className="hint">Ningún mueble coincide con “{searchQuery.trim()}”.</p>
+        <p className="hint">{t.noMatches(searchQuery.trim())}</p>
       )}
     </div>
   );
