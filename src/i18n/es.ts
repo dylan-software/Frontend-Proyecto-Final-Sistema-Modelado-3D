@@ -44,6 +44,16 @@ export const es = {
     newCategoryRequired: "Escribe el nombre de la nueva categoría o elige otra que no sea «Otra».",
     sizesRequired: "El ancho, el alto y el fondo deben ser mayores que 0.",
   },
+  catalog: {
+    searchPlaceholder: "🔍 Buscar mueble…",
+    searchLabel: "Buscar en el catálogo",
+    clearSearch: "Limpiar búsqueda",
+    expandAll: "▼ Expandir todo",
+    collapseAll: "▲ Contraer todo",
+    delete: "Eliminar",
+    deleteItem: (name: string) => `Eliminar ${name}`,
+    noMatches: (query: string) => `Ningún mueble coincide con “${query}”.`,
+  },
   /**
    * Etiquetas de las categorías que guarda la base (sofa, chair…). Solo se traduce lo que se MUESTRA:
    * los valores enviados a la API no cambian. Las categorías propias del usuario se muestran tal cual.
