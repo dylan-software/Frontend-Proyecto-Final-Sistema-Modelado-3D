@@ -1,25 +1,27 @@
 import { useState, type FormEvent } from "react";
 
+import { es } from "../i18n/es";
 import { api } from "../lib/api";
 import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY } from "../lib/session";
 
-// Re-exported so existing imports from this component keep working.
+// Se reexportan para que los imports existentes desde este componente sigan funcionando.
 export { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY };
 
-// The backend rejects registrations with shorter passwords.
+// El backend rechaza registros con contraseñas más cortas.
 const MIN_PASSWORD_LENGTH = 8;
 
 interface AuthScreenProps {
-  /** Called once the user has logged in or registered successfully. */
+  /** Se llama cuando el usuario ha iniciado sesión o se ha registrado. */
   onAuthenticated: () => void;
 }
 
 /**
- * Lock screen shown while there is no active session: it hides the 3D
- * workspace and offers the login and registration forms.
+ * Pantalla de bloqueo mientras no hay sesión: oculta el espacio 3D y ofrece los formularios de inicio
+ * de sesión y de registro. Los textos vienen de i18n/es.ts.
  */
 export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
-  // true → "Iniciar sesión" form, false → "Registrarse" form.
+  const t = es.auth;
+  // true → formulario "Iniciar sesión", false → formulario "Registrarse".
   const [isLoginView, setIsLoginView] = useState(true);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -33,13 +35,12 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     setError(null);
   }
 
-  /** Returns an error message for the current form, or null when it's valid. */
+  /** Mensaje de error del formulario actual, o null si es válido. */
   function validate(): string | null {
-    if (!isLoginView && !username.trim()) return "El nombre de usuario es obligatorio.";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Introduce un correo electrónico válido.";
-    if (password.length < MIN_PASSWORD_LENGTH)
-      return `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`;
-    if (!isLoginView && password !== confirmPassword) return "Las contraseñas no coinciden.";
+    if (!isLoginView && !username.trim()) return t.usernameRequired;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return t.invalidEmail;
+    if (password.length < MIN_PASSWORD_LENGTH) return t.passwordTooShort(MIN_PASSWORD_LENGTH);
+    if (!isLoginView && password !== confirmPassword) return t.passwordsDiffer;
     return null;
   }
 
@@ -52,7 +53,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     setSubmitting(true);
     try {
       const credentials = { email: email.trim(), password };
-      // Registering doesn't open a session, so a new account logs in right after.
+      // Registrarse no abre sesión, así que una cuenta nueva inicia sesión justo después.
       if (!isLoginView) await api.register({ nombre: username.trim(), ...credentials });
       const session = await api.login(credentials);
       localStorage.setItem(AUTH_TOKEN_KEY, session.access_token);
@@ -72,59 +73,59 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           <span className="auth-logo" aria-hidden="true">
             ◆
           </span>
-          <h1 className="auth-title">3D Space Decoration System</h1>
-          <p className="auth-subtitle">{isLoginView ? "Inicia sesión para continuar" : "Crea tu cuenta"}</p>
+          <h1 className="auth-title">{es.app.title}</h1>
+          <p className="auth-subtitle">{isLoginView ? t.loginSubtitle : t.registerSubtitle}</p>
         </header>
 
         <form className="auth-form" onSubmit={handleSubmitAuth} noValidate>
           {!isLoginView && (
             <label>
-              Nombre de usuario
+              {t.username}
               <input
                 type="text"
                 name="username"
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="ej. dylan3d"
+                placeholder={t.usernamePlaceholder}
               />
             </label>
           )}
 
           <label>
-            Correo electrónico
+            {t.email}
             <input
               type="email"
               name="email"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@correo.com"
+              placeholder={t.emailPlaceholder}
             />
           </label>
 
           <label>
-            Contraseña
+            {t.password}
             <input
               type="password"
               name="password"
               autoComplete={isLoginView ? "current-password" : "new-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={`Mínimo ${MIN_PASSWORD_LENGTH} caracteres`}
+              placeholder={t.passwordPlaceholder(MIN_PASSWORD_LENGTH)}
             />
           </label>
 
           {!isLoginView && (
             <label>
-              Confirmar contraseña
+              {t.confirmPassword}
               <input
                 type="password"
                 name="confirmPassword"
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repite la contraseña"
+                placeholder={t.confirmPasswordPlaceholder}
               />
             </label>
           )}
@@ -136,14 +137,14 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
           )}
 
           <button type="submit" className="auth-submit" disabled={submitting}>
-            {submitting ? "Verificando…" : isLoginView ? "Iniciar Sesión" : "Crear cuenta"}
+            {submitting ? t.verifying : isLoginView ? t.loginButton : t.registerButton}
           </button>
         </form>
 
         <p className="auth-switch">
-          {isLoginView ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
+          {isLoginView ? t.noAccount : t.haveAccount}{" "}
           <button type="button" className="link-button" onClick={toggleView}>
-            {isLoginView ? "Registrarse" : "Iniciar sesión"}
+            {isLoginView ? t.switchToRegister : t.switchToLogin}
           </button>
         </p>
       </div>
