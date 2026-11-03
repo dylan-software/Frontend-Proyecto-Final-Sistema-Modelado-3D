@@ -37,6 +37,27 @@ export const es = {
     ceilingHeight: "Altura del techo (m)",
     saving: "Guardando la sala…",
   },
+  /** Trazado de la sala (oculto en la interfaz actual, se traduce igualmente). */
+  tracer: {
+    noArDrawManually: "¿Sin cámara AR? Dibuja la forma de la sala a mano",
+    gridHint: (cellM: number) =>
+      `Haz clic para colocar cada esquina de la sala, en orden y rodeando la forma; no tiene que ser un rectángulo. Cada celda mide ${cellM} m.`,
+    undoLastPoint: "Deshacer el último punto",
+    reset: "Reiniciar",
+    pointsPlaced: (count: number) => (count === 1 ? "1 punto colocado." : `${count} puntos colocados.`),
+    finish: (count: number) =>
+      `Terminar la forma (${count < 3 ? "faltan puntos: mínimo 3" : "lista"})`,
+  },
+  /** Medición láser con AR (oculta en la interfaz actual, se traduce igualmente). */
+  laser: {
+    noArEnterManually: "¿Sin cámara AR? Escribe la medida a mano",
+    distancePlaceholder: "Distancia en cm",
+    useValue: "Usar este valor",
+  },
+  /** Análisis con cámara antiguo (CameraCapture, ya sin uso; se traduce igualmente). */
+  camera: {
+    uploadPhoto: "Subir foto",
+  },
   home: {
     sessionActive: "Sesión activa",
     logout: "Cerrar Sesión",
@@ -149,6 +170,8 @@ export const es = {
     databaseUnavailable: "La base de datos no está disponible ahora. Inténtalo más tarde.",
     timeout: "El servidor tardó demasiado en responder. Inténtalo de nuevo en un momento.",
     failed: (status: number) => `La petición falló (HTTP ${status}).`,
+    /** Rutas Node viejas (/api/...), ya sin uso salvo el layout oculto. */
+    legacyFailed: (path: string, status: number) => `La petición a ${path} falló (HTTP ${status}).`,
   },
   photo: {
     ui: {

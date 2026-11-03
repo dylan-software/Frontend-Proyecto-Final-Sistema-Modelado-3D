@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { es } from "../i18n/es";
 import { mToCm } from "../lib/units";
 import { ARPointPicker, type Point2D } from "./ARPointPicker";
 
@@ -12,13 +13,12 @@ function distanceCm(a: Point2D, b: Point2D): number {
 }
 
 /**
- * "Laser" measurement: tap the start point, tap the end point, the
- * real-world distance between them (in cm) is computed from the two AR
- * hit-test points — the web equivalent of a laser tape measure bouncing
- * a beam out and back. Falls back to typing the number directly when
- * the device/browser has no WebXR support.
+ * Medición "láser": se toca el punto inicial y el final, y la distancia real entre ellos (en cm) sale
+ * de los dos puntos del hit-test AR, el equivalente web de un metro láser. Sin soporte WebXR se escribe
+ * el número a mano.
  */
 export function LaserMeasure({ label, onMeasured }: LaserMeasureProps) {
+  const t = es.laser;
   const [points, setPoints] = useState<Point2D[]>([]);
   const [manualValue, setManualValue] = useState("");
   const [useManual, setUseManual] = useState(false);
@@ -27,7 +27,7 @@ export function LaserMeasure({ label, onMeasured }: LaserMeasureProps) {
     if (all.length >= 2) {
       const cm = distanceCm(all[0]!, all[1]!);
       onMeasured(cm);
-      setPoints([]); // reset for the next measurement
+      setPoints([]); // se reinicia para la siguiente medición
     } else {
       setPoints(all);
     }
@@ -42,14 +42,14 @@ export function LaserMeasure({ label, onMeasured }: LaserMeasureProps) {
         <>
           <ARPointPicker points={points} onPointAdded={handlePointAdded} />
           <button className="link-button" onClick={() => setUseManual(true)}>
-            No AR camera available — enter the measurement manually
+            {t.noArEnterManually}
           </button>
         </>
       ) : (
         <div className="manual-entry">
           <input
             type="number"
-            placeholder="Distance in cm"
+            placeholder={t.distancePlaceholder}
             value={manualValue}
             onChange={(e) => setManualValue(e.target.value)}
           />
@@ -60,7 +60,7 @@ export function LaserMeasure({ label, onMeasured }: LaserMeasureProps) {
               setManualValue("");
             }}
           >
-            Use this value
+            {t.useValue}
           </button>
         </div>
       )}

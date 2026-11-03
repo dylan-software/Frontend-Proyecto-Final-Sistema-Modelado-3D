@@ -1,22 +1,22 @@
 import { useState } from "react";
+import { es } from "../i18n/es";
 import { ARPointPicker, type Point2D } from "./ARPointPicker";
 
 interface RoomTracerProps {
   onFinish: (vertices: Point2D[]) => void;
 }
 
-const GRID_SIZE_PX = 24; // 1 grid cell = 0.5m
+const GRID_SIZE_PX = 24; // 1 celda de la cuadrícula = 0,5 m
 const METERS_PER_CELL = 0.5;
 
 /**
- * Lets the user trace the real shape of a space — NOT assumed to be
- * rectangular. In AR mode, each tap drops a vertex at the real-world
- * hit-test position (see ARPointPicker); the user can trace an L-shape,
- * a cut corner, any irregular room. Without AR support, the manual grid
- * editor below offers the same capability: click points on a scaled
- * grid to build any polygon, not just a 4-corner rectangle.
+ * Permite trazar la forma REAL de un espacio, sin suponer que es rectangular. En modo AR cada toque
+ * pone un vértice en la posición real del hit-test (ver ARPointPicker): se puede trazar una L, una
+ * esquina cortada o cualquier sala irregular. Sin soporte AR, el editor manual de abajo ofrece lo
+ * mismo: clic en una cuadrícula a escala para construir cualquier polígono, no solo un rectángulo.
  */
 export function RoomTracer({ onFinish }: RoomTracerProps) {
+  const t = es.tracer;
   const [points, setPoints] = useState<Point2D[]>([]);
   const [useManual, setUseManual] = useState(false);
 
@@ -47,15 +47,12 @@ export function RoomTracer({ onFinish }: RoomTracerProps) {
         <>
           <ARPointPicker points={points} onPointAdded={handlePointAdded} closeLoop />
           <button className="link-button" onClick={() => setUseManual(true)}>
-            No AR camera available — draw the room shape manually
+            {t.noArDrawManually}
           </button>
         </>
       ) : (
         <div>
-          <p className="hint">
-            Click to place each corner of the room, in order, going around the shape — it does not have to be a
-            rectangle. Each grid cell is {METERS_PER_CELL}m.
-          </p>
+          <p className="hint">{t.gridHint(METERS_PER_CELL)}</p>
           <div
             className="manual-grid"
             onClick={handleGridClick}
@@ -93,18 +90,18 @@ export function RoomTracer({ onFinish }: RoomTracerProps) {
           </div>
           <div className="button-row">
             <button onClick={undoLast} disabled={points.length === 0}>
-              Undo last point
+              {t.undoLastPoint}
             </button>
             <button onClick={reset} disabled={points.length === 0}>
-              Reset
+              {t.reset}
             </button>
           </div>
         </div>
       )}
 
-      <p>{points.length} point(s) placed.</p>
+      <p>{t.pointsPlaced(points.length)}</p>
       <button disabled={points.length < 3} onClick={() => onFinish(points)}>
-        Finish room shape ({points.length < 3 ? "need at least 3 points" : "looks good"})
+        {t.finish(points.length)}
       </button>
     </div>
   );
