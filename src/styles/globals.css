@@ -415,6 +415,21 @@ select:disabled {
   height: 100%;
 }
 
+/* Los gestos táctiles sobre la escena los maneja OrbitControls, no el desplazamiento de la página. */
+.render-scene canvas {
+  touch-action: none;
+}
+
+.reset-view-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
 .estimated-badge {
   position: absolute;
   top: 10px;
