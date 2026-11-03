@@ -3,6 +3,28 @@
  * toca la lógica. Los componentes nuevos o reescritos leen sus textos de aquí.
  */
 export const es = {
+  app: {
+    title: "Sistema de decoración de espacios en 3D",
+  },
+  home: {
+    sessionActive: "Sesión activa",
+    logout: "Cerrar Sesión",
+    catalogTitle: (count: number) => `Catálogo (${count})`,
+    clearCatalog: "Vaciar el catálogo",
+    clearing: "Vaciando…",
+    confirmClear: (count: number) => `Se eliminarán del servidor los ${count} muebles del catálogo. ¿Continuar?`,
+    clearFailed: (count: number, reasons: string) => `No se pudieron eliminar ${count} muebles: ${reasons}`,
+    currentRoom: "Sala actual",
+    loading: "Cargando…",
+    noRooms: "Aún no tienes ninguna sala. Traza la forma de tu habitación para empezar.",
+    traceRoom: "Trazar una sala",
+    rescan: "Volver a escanear desde cero",
+    layoutTitle: "Distribución",
+    generateLayout: "Generar distribución",
+    generating: "Generando…",
+    layoutNeedsItems: "Primero añade al menos un objeto desde el panel lateral.",
+    layoutNotReady: "La distribución no quedó lista para mostrarse; prueba con menos muebles o más pequeños.",
+  },
   chat: {
     title: "Asistente de IA",
     greeting: "¡Hola! Pregúntame cómo organizar tu espacio: conozco su forma y los muebles que ya tiene.",

@@ -244,7 +244,7 @@ export default function Home() {
     const targets = catalog;
     if (
       targets.length > 0 &&
-      !window.confirm(`Se eliminarán del servidor los ${targets.length} muebles del catálogo. ¿Continuar?`)
+      !window.confirm(es.home.confirmClear(targets.length))
     ) {
       return;
     }
@@ -269,7 +269,7 @@ export default function Home() {
       });
       setCatalog((prev) => prev.filter((c) => !removed.has(c.id)));
       if (failures.length > 0) {
-        setError(`No se pudieron eliminar ${failures.length} muebles: ${[...new Set(failures)].join(" · ")}`);
+        setError(es.home.clearFailed(failures.length, [...new Set(failures)].join(" · ")));
       }
     } catch (err) {
       setError((err as Error).message);
@@ -294,7 +294,7 @@ export default function Home() {
         setError(
           result.layout.warnings.join(" ") ||
             result.errors.join(" ") ||
-            "The layout did not end up ready to render — try with fewer or smaller items."
+            es.home.layoutNotReady
         );
         return;
       }
@@ -330,9 +330,9 @@ export default function Home() {
       {/* Left column: control sidebar. */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <span className="session-status">Sesión activa</span>
+          <span className="session-status">{es.home.sessionActive}</span>
           <button type="button" className="logout-button" onClick={handleLogout}>
-            Cerrar Sesión
+            {es.home.logout}
           </button>
         </div>
 
@@ -344,7 +344,7 @@ export default function Home() {
 
         <section className="catalog">
           <div className="catalog-header">
-            <h3>Catalog ({catalog.length})</h3>
+            <h3>{es.home.catalogTitle(catalog.length)}</h3>
           </div>
           <CategoryAccordion items={catalog} onDelete={deleteFurnitureById} deletingId={deletingId} />
           <button
@@ -352,20 +352,20 @@ export default function Home() {
             onClick={handleResetSpace}
             disabled={clearing || (catalog.length === 0 && placedFurniture.length === 0 && placedItems.length === 0)}
           >
-            {clearing ? "Clearing…" : "Clear all furniture"}
+            {clearing ? es.home.clearing : es.home.clearCatalog}
           </button>
         </section>
       </aside>
 
       <main className="main-panel">
         <header className="app-topbar">
-          <h1>3D Space Decoration System</h1>
+          <h1>{es.app.title}</h1>
           <ThemeSelector />
         </header>
 
         {rooms.length > 1 && (
           <label className="room-picker">
-            Sala actual{" "}
+            {es.home.currentRoom}{" "}
             <select
               value={currentRoomId ?? ""}
               onChange={(e) => openRoom(Number(e.target.value))}
@@ -380,13 +380,13 @@ export default function Home() {
           </label>
         )}
 
-        {space === "loading" && <p>Loading…</p>}
+        {space === "loading" && <p>{es.home.loading}</p>}
 
         {space === "none" && (
           <div>
-            <p>Aún no tienes ninguna sala. Traza la forma de tu habitación para empezar.</p>
+            <p>{es.home.noRooms}</p>
             <Link href="/scan">
-              <button>Trazar una sala</button>
+              <button>{es.home.traceRoom}</button>
             </Link>
           </div>
         )}
@@ -405,16 +405,16 @@ export default function Home() {
                 onVertexDeleted={handleVertexDeleted}
               />
               <Link href="/scan">
-                <button className="link-button">Re-scan from scratch</button>
+                <button className="link-button">{es.home.rescan}</button>
               </Link>
             </section>
 
             <section>
-              <h2>Layout</h2>
+              <h2>{es.home.layoutTitle}</h2>
               <button onClick={handleGenerateLayout} disabled={generating || catalog.length === 0}>
-                {generating ? "Generating…" : "Generate layout"}
+                {generating ? es.home.generating : es.home.generateLayout}
               </button>
-              {catalog.length === 0 && <p className="hint">Add at least one object from the sidebar first.</p>}
+              {catalog.length === 0 && <p className="hint">{es.home.layoutNeedsItems}</p>}
 
               {placedItems.length > 0 && (
                 <div className="canvas-wrapper">
