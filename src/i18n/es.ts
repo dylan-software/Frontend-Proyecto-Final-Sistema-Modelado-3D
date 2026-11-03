@@ -29,6 +29,14 @@ export const es = {
     passwordTooShort: (min: number) => `La contraseña debe tener al menos ${min} caracteres.`,
     passwordsDiffer: "Las contraseñas no coinciden.",
   },
+  scan: {
+    title: "Escanea tu espacio",
+    intro: "Traza el contorno real de la sala; no tiene que ser un rectángulo.",
+    roomName: "Nombre de la sala",
+    defaultRoomName: "Mi sala",
+    ceilingHeight: "Altura del techo (m)",
+    saving: "Guardando la sala…",
+  },
   home: {
     sessionActive: "Sesión activa",
     logout: "Cerrar Sesión",
