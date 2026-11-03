@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
+import { es } from "../i18n/es";
 import { fetchBackend, handleUnauthorized } from "../lib/api";
 import { authHeaders } from "../lib/session";
 import { isValidVector3D, type SpaceAnalysisResponse } from "../types/spatial";
@@ -233,7 +234,7 @@ export default function CameraCapture({ onAnalyzed, onAnalyzingChange }: CameraC
         {analyzing ? "Analizando…" : "Analizar espacio"}
       </button>
       <button type="button" className="upload-button" onClick={triggerFileInput} disabled={uploading}>
-        <span aria-hidden="true">📎</span> Upload Photo
+        <span aria-hidden="true">📎</span> {es.camera.uploadPhoto}
       </button>
       {filePreviewUrl && (
         <figure className="photo-preview">

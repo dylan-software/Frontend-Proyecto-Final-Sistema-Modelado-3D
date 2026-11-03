@@ -46,7 +46,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   handleUnauthorized(res, path);
   const json = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(json.error ?? `Request to ${path} failed with status ${res.status}`);
+    throw new Error(json.error ?? es.errors.legacyFailed(path, res.status));
   }
   return json as T;
 }
