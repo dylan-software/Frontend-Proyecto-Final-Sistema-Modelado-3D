@@ -124,6 +124,138 @@
   font-weight: 700;
 }
 
+/* ---------- Zona del 3D (SceneArea) ---------- */
+
+/* Altura definida por su contenedor: el lienzo se reajusta al recoger el panel o redimensionar. */
+.scene-area {
+  position: relative;
+  height: 100%;
+  min-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 16px;
+  box-shadow: none;
+  background-color: var(--color-surface-alt);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.scene-area .render-scene {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+}
+
+.scene-area .reset-view-button {
+  top: 12px;
+  right: 12px;
+}
+
+.scene-area .estimated-badge {
+  top: 14px;
+  left: 14px;
+}
+
+.scene-area-status {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.occupancy-card {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  width: min(280px, calc(100% - 24px));
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+
+.occupancy-card .spatial-analytics {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.occupancy-card .spatial-analytics h3 {
+  margin: 0 0 4px;
+  padding-right: 32px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.occupancy-card .meter {
+  margin: 8px 0;
+}
+
+.occupancy-card .meter-label {
+  font-size: 12px;
+}
+
+.occupancy-card .analytics-stats {
+  margin-top: 8px;
+}
+
+.occupancy-card .analytics-stats dd {
+  font-size: 14px;
+}
+
+.occupancy-toggle {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-soft);
+}
+
+/* El fondo lo pone .glass en el botón de mostrar; el de ocultar va sobre la tarjeta, sin fondo. */
+.occupancy-hide:not(:hover) {
+  background: transparent;
+}
+
+.occupancy-toggle:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+.occupancy-hide {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.occupancy-show {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--color-accent);
+}
+
 /* ---------- Crear objeto manualmente (ManualObjectDrawer) ---------- */
 
 .manual-drawer {
