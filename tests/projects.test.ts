@@ -54,6 +54,11 @@ describe("planBounds and fitPlanToBox", () => {
     expect(Math.min(...xs)).toBeCloseTo(200 - Math.max(...xs), 1);
     expect(Math.min(...ys)).toBeCloseTo(10, 1);
     expect(Math.max(...ys)).toBeCloseTo(140, 1);
+    // La caja encajada coincide con los extremos del polígono.
+    expect(fitted.box.x).toBeCloseTo(Math.min(...xs), 1);
+    expect(fitted.box.y).toBeCloseTo(10, 1);
+    expect(fitted.box.width).toBeCloseTo(Math.max(...xs) - Math.min(...xs), 1);
+    expect(fitted.box.height).toBeCloseTo(130, 1);
   });
 
   it("never divides by zero for a degenerate room or an empty list", () => {
@@ -61,7 +66,7 @@ describe("planBounds and fitPlanToBox", () => {
     expect(line.points).not.toMatch(/NaN|Infinity/);
     const point = fitPlanToBox([{ x: 1, y: 1 }, { x: 1, y: 1 }, { x: 1, y: 1 }], 100, 100);
     expect(point.points).toBe("50,50 50,50 50,50");
-    expect(fitPlanToBox([], 100, 100)).toEqual({ points: "", scale: 0 });
+    expect(fitPlanToBox([], 100, 100)).toEqual({ points: "", scale: 0, box: { x: 50, y: 50, width: 0, height: 0 } });
   });
 });
 
