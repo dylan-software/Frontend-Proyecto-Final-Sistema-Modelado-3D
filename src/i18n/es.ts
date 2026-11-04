@@ -47,6 +47,16 @@ export const es = {
     approxArea: (area: string) => `≈ ${area}`,
     planPending: "Plano provisional mientras carga la forma real",
   },
+  /** Panel de IA de la pantalla del proyecto (chat, buscador de muebles y creación manual). */
+  aiPanel: {
+    title: "Asistente de IA",
+    minimize: "Minimizar el asistente",
+    expand: "Abrir el asistente de IA",
+    close: "Cerrar el asistente",
+    catalogTitle: (count: number) => `Muebles (${count})`,
+    manualTitle: "Crear objeto manualmente",
+    manualHint: "Añade al catálogo un mueble con sus medidas, o vacía el catálogo entero.",
+  },
   /** Pantalla de un proyecto (/proyecto/[id]): cabecera mínima propia. */
   project: {
     exit: "← Salir del proyecto",
