@@ -47,6 +47,12 @@ export const es = {
     approxArea: (area: string) => `≈ ${area}`,
     planPending: "Plano provisional mientras carga la forma real",
   },
+  /** Pantalla de un proyecto (/proyecto/[id]): cabecera mínima propia. */
+  project: {
+    exit: "← Salir del proyecto",
+    loadingName: "Cargando el proyecto…",
+    invalidId: "Esta dirección no corresponde a ningún proyecto.",
+  },
   /** Red Social (/red): de momento solo el estado "En construcción", sin datos. */
   social: {
     status: "En construcción",

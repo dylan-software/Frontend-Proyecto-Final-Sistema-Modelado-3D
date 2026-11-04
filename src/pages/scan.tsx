@@ -4,6 +4,7 @@ import { RoomTracer } from "../components/RoomTracer";
 import { es } from "../i18n/es";
 import { api, type Point2D } from "../lib/api";
 import { checkNewRoom } from "../lib/roomShape";
+import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
 
 export default function ScanPage() {
@@ -15,8 +16,8 @@ export default function ScanPage() {
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Crea la sala de la cuenta con sesión (POST /api/v1/spaces/rooms, vértices en metros) y vuelve a
-   * "/" con ella como sala actual.
+   * Crea la sala de la cuenta con sesión (POST /api/v1/spaces/rooms, vértices en metros) y abre su
+   * proyecto ("/" ya solo es el inicio de sesión).
    */
   async function handleFinish(vertices: Point2D[]) {
     const check = checkNewRoom(name, heightM, vertices);
@@ -30,7 +31,7 @@ export default function ScanPage() {
     try {
       const room = await api.createRoom(check.room);
       saveCurrentRoomId(room.id);
-      await router.push("/");
+      await router.push(ROUTES.project(room.id));
     } catch (err) {
       setError((err as Error).message);
     } finally {
