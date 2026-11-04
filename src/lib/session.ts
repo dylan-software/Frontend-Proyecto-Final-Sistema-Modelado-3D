@@ -11,15 +11,57 @@ export const AUTH_TOKEN_KEY = "auth_token";
 export const AUTH_USER_ID_KEY = "auth_user_id";
 /** localStorage key holding the id of the room the user is working on. */
 export const CURRENT_ROOM_ID_KEY = "current_room_id";
+/** Clave de localStorage con el nombre del usuario (solo el nombre, para el chip de la barra superior). */
+export const AUTH_USER_KEY = "auth_user";
+/** Máximo de caracteres del nombre guardado. */
+export const MAX_USER_NAME_LENGTH = 120;
 
-/** Forgets every session key: token, account and current room. */
+/** Forgets every session key: token, account, user name and current room. */
 export function clearStoredSession(): void {
   try {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_ID_KEY);
+    localStorage.removeItem(AUTH_USER_KEY);
     localStorage.removeItem(CURRENT_ROOM_ID_KEY);
   } catch {
     // Storage blocked: there is no stored session to remove anyway.
+  }
+}
+
+/**
+ * Guarda el nombre del usuario (sin espacios en los extremos y recortado a 120 caracteres). Un
+ * nombre vacío borra la clave, para que el chip muestre "Mi cuenta".
+ */
+export function saveUserName(name: string | null | undefined): void {
+  const clean = Array.from((name ?? "").trim()).slice(0, MAX_USER_NAME_LENGTH).join("");
+  try {
+    if (clean) localStorage.setItem(AUTH_USER_KEY, clean);
+    else localStorage.removeItem(AUTH_USER_KEY);
+  } catch {
+    // Almacenamiento bloqueado: el chip mostrará "Mi cuenta".
+  }
+}
+
+/** El nombre guardado del usuario, o null si no hay (sesiones antiguas o almacenamiento bloqueado). */
+export function readUserName(): string | null {
+  try {
+    const value = localStorage.getItem(AUTH_USER_KEY)?.trim();
+    return value ? Array.from(value).slice(0, MAX_USER_NAME_LENGTH).join("") : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Id de la cuenta con sesión completa (token e id guardados), o null. Todas las páginas deciden con
+ * esta misma función si hay sesión, así que nunca discrepan entre sí (no hay bucles de redirección).
+ */
+export function readSessionUserId(): string | null {
+  try {
+    if (localStorage.getItem(AUTH_TOKEN_KEY) === null) return null;
+    return localStorage.getItem(AUTH_USER_ID_KEY);
+  } catch {
+    return null;
   }
 }
 

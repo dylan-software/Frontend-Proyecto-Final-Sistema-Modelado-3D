@@ -72,6 +72,19 @@ describe("current room", () => {
     expect(storage.has("current_room_id")).toBe(false);
   });
 
+  it("forgets the user name when the session expires or the user logs out", async () => {
+    const storage = memoryStorage({ auth_token: "t", auth_user_id: "5", auth_user: "Dylan" });
+    vi.stubGlobal("localStorage", storage);
+    const { expireSession, clearStoredSession, saveUserName } = await import("../src/lib/session");
+
+    expireSession();
+    expect(storage.has("auth_user")).toBe(false);
+
+    saveUserName("Dylan");
+    clearStoredSession();
+    expect(storage.has("auth_user")).toBe(false);
+  });
+
   it("works without storage (blocked or during prerendering)", async () => {
     vi.stubGlobal("localStorage", undefined);
     const { readCurrentRoomId, saveCurrentRoomId, clearStoredSession } = await import("../src/lib/session");
@@ -79,5 +92,46 @@ describe("current room", () => {
     expect(() => saveCurrentRoomId(1)).not.toThrow();
     expect(() => clearStoredSession()).not.toThrow();
     expect(readCurrentRoomId()).toBeNull();
+  });
+});
+
+describe("user name and session check", () => {
+  it("stores only the trimmed name, cut to 120 characters", async () => {
+    const storage = memoryStorage();
+    vi.stubGlobal("localStorage", storage);
+    const { saveUserName, readUserName } = await import("../src/lib/session");
+
+    saveUserName("  Dylan  ");
+    expect(storage.get("auth_user")).toBe("Dylan");
+    expect(readUserName()).toBe("Dylan");
+
+    saveUserName("ñ".repeat(150));
+    expect(Array.from(storage.get("auth_user")!)).toHaveLength(120);
+  });
+
+  it("has no name for old sessions, blank names or blocked storage", async () => {
+    const storage = memoryStorage({ auth_user: "Dylan" });
+    vi.stubGlobal("localStorage", storage);
+    const { saveUserName, readUserName } = await import("../src/lib/session");
+
+    saveUserName("   ");
+    expect(storage.has("auth_user")).toBe(false);
+    expect(readUserName()).toBeNull();
+
+    vi.stubGlobal("localStorage", undefined);
+    expect(readUserName()).toBeNull();
+    expect(() => saveUserName("x")).not.toThrow();
+  });
+
+  it("only counts a session with both the token and the account id", async () => {
+    const storage = memoryStorage({ auth_token: "t" });
+    vi.stubGlobal("localStorage", storage);
+    const { readSessionUserId } = await import("../src/lib/session");
+
+    expect(readSessionUserId()).toBeNull();
+    storage.setItem("auth_user_id", "5");
+    expect(readSessionUserId()).toBe("5");
+    storage.removeItem("auth_token");
+    expect(readSessionUserId()).toBeNull();
   });
 });
