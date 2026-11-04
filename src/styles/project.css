@@ -1,6 +1,104 @@
 /* Pantalla del proyecto (/proyecto/[id]): panel de IA a la izquierda y 3D a la derecha, con el estilo
    "plano técnico bajo vidrio" de shell.css. Solo tokens del tema activo. */
 
+/* ---------- Estructura: cabecera + dos columnas a todo el alto ---------- */
+
+.project-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.project-layout {
+  display: grid;
+  flex: 1;
+  grid-template-columns: clamp(380px, 28vw, 420px) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  min-height: 0;
+  padding: 16px;
+}
+
+/* Panel recogido: barra delgada y el 3D a todo el ancho. */
+.project-layout-collapsed {
+  grid-template-columns: 56px minmax(0, 1fr);
+}
+
+/* Móvil: el 3D a pantalla completa; el panel solo existe como capa. */
+.project-layout-mobile,
+.project-layout-mobile.project-layout-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0;
+  gap: 0;
+}
+
+.project-layout-mobile .scene-area {
+  border: 0;
+  border-radius: 0;
+}
+
+/* Capa cerrada: el panel sigue montado (no se pierde el chat) pero no se ve. */
+.project-layout-mobile .ai-panel-collapsed {
+  display: none;
+}
+
+.ai-panel-sheet:not(.ai-panel-collapsed) {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1200;
+  height: 90dvh;
+  border-radius: 20px 20px 0 0;
+  animation: ai-sheet-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-panel-sheet .ai-panel-chat {
+  height: max(260px, calc(90dvh - 250px));
+}
+
+@keyframes ai-sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.ai-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1150;
+  background: rgba(1, 4, 9, 0.55);
+}
+
+.ai-sheet-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(1, 4, 9, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-panel-sheet:not(.ai-panel-collapsed) {
+    animation: none;
+  }
+}
+
 /* ---------- Panel de IA (AiPanel) ---------- */
 
 .ai-panel {

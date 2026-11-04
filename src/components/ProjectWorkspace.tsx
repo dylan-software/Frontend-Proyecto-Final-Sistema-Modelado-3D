@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
+import { AiPanel } from "./AiPanel";
 import { CategoryAccordion } from "./CategoryAccordion";
-import { ChatPanel } from "./ChatPanel";
-import { ObjectForm } from "./ObjectForm";
+import { ChatDock } from "./ChatDock";
+import { ManualObjectDrawer } from "./ManualObjectDrawer";
 import { PhotoToRoom } from "./PhotoToRoom";
-import { RoomEditor } from "./RoomEditor";
-import { SpatialAnalytics } from "./SpatialAnalytics";
+import { SceneArea } from "./SceneArea";
+import { useMediaQuery } from "../hooks/useMediaQuery";
 import { es } from "../i18n/es";
 import {
   api,
@@ -21,12 +21,12 @@ import {
 } from "../lib/api";
 import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
+import { readAiPanelOpen, saveAiPanelOpen } from "../lib/uiPrefs";
 import { cmToM } from "../lib/units";
 import { DEFAULT_DIMENSIONS, type Dimensions3D, type FurnitureObject } from "../types/spatial";
 
-// three.js can't be evaluated during server prerendering, so the 3D
-// viewers are only loaded in the browser.
-const RenderScene = dynamic(() => import("../render/RenderScene").then((m) => m.RenderScene), { ssr: false });
+/** Por debajo de este ancho el 3D ocupa la pantalla y el panel de IA es una capa. */
+const MOBILE_QUERY = "(max-width: 900px)";
 
 /**
  * @deprecated Solo lo usa el layout viejo (/api/layout/generate); ninguna ruta /api/v1 lo usa.
@@ -54,11 +54,37 @@ interface ProjectWorkspaceProps {
 }
 
 /**
- * Pantalla de un proyecto: la misma que antes era la página "/", sin el inicio de sesión, sin el
- * selector de salas, sin el tema y sin "Cerrar sesión" (eso vive en el menú de usuario de la barra
- * superior). Una cabecera mínima propia lleva "← Salir del proyecto" y el nombre del proyecto.
+ * Pantalla de un proyecto. La cabecera mínima lleva "← Salir del proyecto" y el nombre; debajo, dos
+ * columnas: el panel de IA (AiPanel: chat, "Foto a 3D", buscador de muebles y creación manual) y el
+ * 3D (SceneArea). En el móvil el 3D ocupa la pantalla y el panel es una capa que se abre con un
+ * botón flotante. Este componente conserva la lógica de siempre (carga de la sala, objetos, foto y
+ * catálogo); RoomEditor, la distribución y el chat flotante ya no se montan (v4 R4), pero sus
+ * manejadores siguen aquí sin cambios.
  */
 export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
+  // Panel de IA: desplegado o recogido en escritorio (se recuerda); en el móvil, capa abierta o no.
+  const isMobile = useMediaQuery(MOBILE_QUERY);
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  useEffect(() => setPanelOpen(readAiPanelOpen()), []);
+
+  function handlePanelOpenChange(open: boolean) {
+    if (isMobile) {
+      setSheetOpen(open);
+      return;
+    }
+    setPanelOpen(open);
+    saveAiPanelOpen(open);
+  }
+
+  // Escape cierra la capa del móvil.
+  useEffect(() => {
+    if (!isMobile || !sheetOpen) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setSheetOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isMobile, sheetOpen]);
+
   const [space, setSpace] = useState<SpaceState | null | "loading" | "none">("loading");
   // Id of the room whose GET is the latest one asked for, so a slower earlier answer is dropped.
   const requestedRoomId = useRef<number | null>(null);
@@ -279,108 +305,72 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
         <h1 className="project-name">{projectName}</h1>
       </header>
 
-      <div className="dashboard">
-        {/* Left column: control sidebar. */}
-        <aside className="sidebar">
-          <div className="sidebar-header">
-            <span className="session-status">{es.home.sessionActive}</span>
+      <div className={`project-layout${isMobile ? " project-layout-mobile" : ""}${panelOpen ? "" : " project-layout-collapsed"}`}>
+        <AiPanel
+          open={isMobile ? sheetOpen : panelOpen}
+          onOpenChange={handlePanelOpenChange}
+          collapseLabel={isMobile ? es.aiPanel.close : es.aiPanel.minimize}
+          className={isMobile ? "ai-panel-sheet" : ""}
+          chat={
+            // Al cambiar de sala empieza una conversación nueva; recoger el panel no la borra.
+            <ChatDock
+              key={openRoomId ?? "none"}
+              roomId={openRoomId}
+              actions={
+                <PhotoToRoom
+                  compact
+                  roomId={openRoomId}
+                  savedItemCount={roomItems.length}
+                  onAnalyzed={handlePhotoAnalyzed}
+                />
+              }
+            />
+          }
+        >
+          {error && (
+            <p className="warning" role="alert">
+              {error}
+            </p>
+          )}
+
+          <div className="ai-panel-catalog">
+            <h3>{es.aiPanel.catalogTitle(catalog.length)}</h3>
+            <CategoryAccordion items={catalog} onDelete={deleteFurnitureById} deletingId={deletingId} />
           </div>
 
-          <SpatialAnalytics roomAreaM2={typeof space === "object" && space ? space.areaM2 : null} items={occupyingItems} />
+          <ManualObjectDrawer
+            userId={userId}
+            onCreated={(item) => setCatalog((prev) => [...prev, item])}
+            onClearCatalog={handleResetSpace}
+            clearing={clearing}
+            clearDisabled={catalog.length === 0 && placedFurniture.length === 0 && placedItems.length === 0}
+          />
+        </AiPanel>
 
-          <section>
-            <ObjectForm userId={userId} onCreated={(item) => setCatalog((prev) => [...prev, item])} />
-          </section>
+        <SceneArea space={space} roomItems={roomItems} estimated={estimated} occupyingItems={occupyingItems} />
 
-          <section className="catalog">
-            <div className="catalog-header">
-              <h3>{es.home.catalogTitle(catalog.length)}</h3>
-            </div>
-            <CategoryAccordion items={catalog} onDelete={deleteFurnitureById} deletingId={deletingId} />
-            <button
-              className="reset-button"
-              onClick={handleResetSpace}
-              disabled={clearing || (catalog.length === 0 && placedFurniture.length === 0 && placedItems.length === 0)}
-            >
-              {clearing ? es.home.clearing : es.home.clearCatalog}
-            </button>
-          </section>
-        </aside>
-
-        <main className="main-panel">
-          {space === "loading" && <p>{es.home.loading}</p>}
-
-          {space === "none" && (
-            <div>
-              <p>{es.home.noRooms}</p>
-              <Link href="/scan">
-                <button>{es.home.traceRoom}</button>
-              </Link>
-            </div>
-          )}
-
-          {space && space !== "loading" && space !== "none" && (
-            <div className="viewport-grid">
-              <section>
-                <h2>
-                  {space.name} ({space.areaM2} m²)
-                </h2>
-                <RoomEditor
-                  vertices={space.vertices}
-                  areaM2={space.areaM2}
-                  onVertexMoved={handleVertexMoved}
-                  onVertexInserted={handleVertexInserted}
-                  onVertexDeleted={handleVertexDeleted}
-                />
-                <Link href="/scan">
-                  <button className="link-button">{es.home.rescan}</button>
-                </Link>
-              </section>
-
-              <section>
-                <h2>{es.home.layoutTitle}</h2>
-                <button onClick={handleGenerateLayout} disabled={generating || catalog.length === 0}>
-                  {generating ? es.home.generating : es.home.generateLayout}
-                </button>
-                {catalog.length === 0 && <p className="hint">{es.home.layoutNeedsItems}</p>}
-
-                {placedItems.length > 0 && (
-                  <div className="canvas-wrapper">
-                    <RenderScene
-                      vertices={space.vertices}
-                      heightM={space.heightM}
-                      placedItems={placedItems}
-                      lighting={lighting}
-                    />
-                  </div>
-                )}
-              </section>
-            </div>
-          )}
-
-          {/* Foto a 3D: sustituye a la antigua "Análisis con cámara" (CameraCapture, que usaba un contrato muerto). */}
-          <section>
-            <h2>{es.photo.ui.title}</h2>
-            <PhotoToRoom roomId={openRoomId} savedItemCount={roomItems.length} onAnalyzed={handlePhotoAnalyzed} />
-            {space && space !== "loading" && space !== "none" && (
-              <div className="canvas-wrapper">
-                <RenderScene
-                  vertices={space.vertices}
-                  heightM={space.heightM}
-                  placedItems={[]}
-                  lighting={DEFAULT_LIGHTING}
-                  boxes={roomItems}
-                  estimated={estimated}
-                />
-              </div>
-            )}
-          </section>
-
-          {error && <p className="warning">{error}</p>}
-        </main>
-
-        {/* Asistente de IA flotante sobre la sala abierta; al cambiar de sala empieza una conversación nueva. */}
-        <ChatPanel key={openRoomId ?? "none"} roomId={openRoomId} />
+        {isMobile && sheetOpen && (
+          <div className="ai-sheet-backdrop" aria-hidden="true" onClick={() => setSheetOpen(false)} />
+        )}
+        {isMobile && !sheetOpen && (
+          <button
+            type="button"
+            className="ai-sheet-fab"
+            onClick={() => setSheetOpen(true)}
+            aria-label={es.aiPanel.expand}
+            aria-expanded={false}
+          >
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+              <path
+                d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4 4v-4h0.5A2.5 2.5 0 0 1 4 13.5z"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
