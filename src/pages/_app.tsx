@@ -4,6 +4,7 @@ import { Manrope } from "next/font/google";
 import { ThemeProvider } from "../context/ThemeContext";
 import "../styles/globals.css";
 import "../styles/shell.css";
+import "../styles/project.css";
 
 // Manrope se descarga en el build y se sirve desde la propia app (sin peticiones a Google en el
 // navegador). Con display "swap" el texto se pinta enseguida con la pila del sistema y cambia

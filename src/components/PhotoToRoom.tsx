@@ -12,6 +12,11 @@ interface PhotoToRoomProps {
   savedItemCount: number;
   /** Se llama con la respuesta del backend cuando la estimación ya está guardada. */
   onAnalyzed: (result: PhotoAnalysis) => void;
+  /**
+   * Versión para la fila de acciones del chat: sin la introducción, con un botón pequeño y el
+   * resultado en una línea debajo. El diálogo, el envío y los mensajes no cambian.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -19,7 +24,7 @@ interface PhotoToRoomProps {
  * privacidad y de lo que se pierde, reducirla en el navegador y enviarla. Solo tras aceptar el
  * diálogo se envía confirm_replace=true. En el móvil, `capture` abre la cámara sin getUserMedia.
  */
-export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed }: PhotoToRoomProps) {
+export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed, compact = false }: PhotoToRoomProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Foto elegida que espera la confirmación del diálogo.
   const [pending, setPending] = useState<File | null>(null);
@@ -75,8 +80,8 @@ export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed }: PhotoToRoomP
   }
 
   return (
-    <div className="photo-to-room">
-      <p className="hint">{es.photo.ui.intro}</p>
+    <div className={compact ? "photo-to-room photo-to-room-compact" : "photo-to-room"}>
+      {!compact && <p className="hint">{es.photo.ui.intro}</p>}
       <input
         ref={fileInputRef}
         type="file"
@@ -85,10 +90,28 @@ export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed }: PhotoToRoomP
         hidden
         onChange={handleFileChange}
       />
-      <button type="button" onClick={() => fileInputRef.current?.click()} disabled={roomId === null || busy}>
-        {busy ? es.photo.ui.analyzing : es.photo.ui.button}
+      <button
+        type="button"
+        className={compact ? "photo-to-room-button" : undefined}
+        onClick={() => fileInputRef.current?.click()}
+        disabled={roomId === null || busy}
+        title={compact ? es.photo.ui.intro : undefined}
+      >
+        {compact && (
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+            <path
+              d="M3 6.5A1.5 1.5 0 0 1 4.5 5h2l1.2-1.6h4.6L13.5 5h2A1.5 1.5 0 0 1 17 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 14.5z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
+            <circle cx="10" cy="10.5" r="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+          </svg>
+        )}
+        {busy ? (compact ? es.photo.ui.analyzingShort : es.photo.ui.analyzing) : es.photo.ui.button}
       </button>
-      {roomId === null && <p className="hint">{es.photo.ui.noRoom}</p>}
+      {roomId === null && !compact && <p className="hint">{es.photo.ui.noRoom}</p>}
       {busy && (
         <p className="hint" role="status">
           {es.photo.ui.analyzing}

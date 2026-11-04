@@ -145,6 +145,7 @@ export const es = {
     privacyNotice: "Tus mensajes se envían a un servicio de IA externo; no escribas datos personales.",
     noRoom: "Guarda o abre una sala para poder usar el chat.",
     placeholder: "Por ejemplo: ¿cómo distribuyo mis muebles?",
+    inputLabel: "Mensaje para el asistente",
     send: "Enviar",
     sending: "Enviando…",
     thinking: "Pensando…",
@@ -242,6 +243,7 @@ export const es = {
       button: "Foto a 3D",
       noRoom: "Abre o traza una sala para poder estimarla con una foto.",
       analyzing: "Analizando la foto con IA… puede tardar hasta un minuto.",
+      analyzingShort: "Analizando…",
       done: (count: number) =>
         count === 1 ? "Se dibujó 1 objeto estimado." : `Se dibujaron ${count} objetos estimados.`,
       discardedTitle: "Objetos descartados",

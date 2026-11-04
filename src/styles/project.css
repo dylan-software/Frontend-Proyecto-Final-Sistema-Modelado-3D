@@ -1,0 +1,104 @@
+/* Pantalla del proyecto (/proyecto/[id]): panel de IA a la izquierda y 3D a la derecha, con el estilo
+   "plano técnico bajo vidrio" de shell.css. Solo tokens del tema activo. */
+
+/* ---------- Chat acoplado (ChatDock) ---------- */
+
+.chat-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  height: 100%;
+}
+
+.chat-dock-messages {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 160px;
+  overflow-y: auto;
+  padding: 4px 2px 4px 0;
+}
+
+/* Texto plano: se respetan los saltos de línea y las palabras largas se parten. */
+.chat-dock .chat-bubble {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chat-dock-note {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.chat-dock .warning {
+  margin: 0;
+}
+
+.chat-dock-composer {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-dock-composer input {
+  flex: 1;
+  max-width: none;
+  margin: 0;
+  border-radius: 999px;
+  padding-left: 14px;
+}
+
+.chat-dock-composer button {
+  margin: 0;
+  border-radius: 999px;
+}
+
+/* Fila bajo el campo de texto: micrófono (tarea V) y "Foto a 3D". */
+.chat-dock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------- "Foto a 3D" compacto ---------- */
+
+.photo-to-room-compact {
+  display: contents;
+}
+
+.photo-to-room-compact .photo-to-room-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.photo-to-room-compact .photo-to-room-button:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+.photo-to-room-compact .photo-to-room-button:disabled {
+  color: var(--color-text-muted);
+  background: transparent;
+}
+
+/* El estado, el resultado y los errores ocupan su propia línea bajo la fila de acciones. */
+.photo-to-room-compact > p,
+.photo-to-room-compact > .photo-result {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 13px;
+}
