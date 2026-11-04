@@ -2,6 +2,9 @@
  * Textos de la interfaz en español, en un único lugar: cambiar un texto no
  * toca la lógica. Los componentes nuevos o reescritos leen sus textos de aquí.
  */
+/** Nombre provisional de la red social; solo se define aquí. */
+export const SOCIAL_NETWORK_NAME = "Habita";
+
 export const es = {
   app: {
     title: "Sistema de decoración de espacios en 3D",
@@ -43,6 +46,20 @@ export const es = {
     /** Área aproximada (rectángulo ancho × fondo) mientras no llega el plano real. */
     approxArea: (area: string) => `≈ ${area}`,
     planPending: "Plano provisional mientras carga la forma real",
+  },
+  /** Red Social (/red): de momento solo el estado "En construcción", sin datos. */
+  social: {
+    status: "En construcción",
+    title: SOCIAL_NETWORK_NAME,
+    lead: `${SOCIAL_NETWORK_NAME} será el sitio para enseñar tus espacios y descubrir cómo decoran los suyos otras personas.`,
+    ideasTitle: "Lo que podrás hacer",
+    ideas: [
+      { id: "share", title: "Compartir proyectos", text: "Publica una sala con su plano y sus muebles para que otros la vean." },
+      { id: "explore", title: "Explorar ideas", text: "Recorre salas de otras personas y busca por tamaño o por estilo." },
+      { id: "copy", title: "Copiar un proyecto", text: "Guarda en tus proyectos una copia de una sala que te guste y cámbiala a tu medida." },
+    ],
+    note: "Esta sección todavía no guarda ni muestra datos de nadie.",
+    backToProjects: "Volver a mis proyectos",
   },
   auth: {
     loginSubtitle: "Inicia sesión para continuar",
