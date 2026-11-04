@@ -784,3 +784,150 @@
     min-height: 180px;
   }
 }
+
+/* ---------- Red Social ---------- */
+
+.social-panel {
+  max-width: 880px;
+  padding: 32px;
+  border-radius: 20px;
+}
+
+.social-hero {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 28px;
+}
+
+.social-plan {
+  width: 160px;
+  height: 120px;
+}
+
+.social-plan path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.social-plan-done {
+  stroke: var(--color-accent);
+}
+
+.social-plan-pending {
+  stroke: var(--color-text-muted);
+  stroke-dasharray: 5 7;
+  opacity: 0.6;
+}
+
+.social-plan-cursor {
+  fill: var(--color-accent);
+  filter: drop-shadow(0 0 6px var(--color-accent-glow));
+}
+
+.social-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-accent-glow);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+}
+
+.social-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.social-lead {
+  max-width: 52ch;
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.social-ideas-title {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.social-ideas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social-idea {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  background: var(--color-surface-alt);
+}
+
+.social-idea-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.social-idea-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.social-idea-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.social-note {
+  margin: 24px 0 0;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.social-back {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+@media (max-width: 560px) {
+  .social-panel {
+    padding: 20px;
+  }
+
+  .social-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .social-plan {
+    width: 120px;
+    height: 90px;
+  }
+}
