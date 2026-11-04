@@ -22,6 +22,28 @@ export const es = {
     signedInAs: "Sesión iniciada como",
     logout: "Cerrar sesión",
   },
+  /** Pantalla de Proyectos (/proyectos): una tarjeta por sala y la tarjeta para crear una. */
+  projects: {
+    title: "Proyectos",
+    count: (n: number) => (n === 1 ? "1 proyecto" : `${n} proyectos`),
+    /** Nombre del proyecto nuevo; si ya existe se numera ("Proyecto nuevo 2"…). */
+    newProjectName: "Proyecto nuevo",
+    newProject: "Nuevo proyecto",
+    newProjectHint: "Sala de 4 × 3 m y 2,5 m de alto",
+    creating: "Creando…",
+    createFailed: (reason: string) => `No se pudo crear el proyecto. ${reason}`,
+    loading: "Cargando tus proyectos…",
+    empty: "Aún no tienes proyectos. Crea el primero con «Nuevo proyecto»: es una sala de 4 × 3 m que puedes cambiar después.",
+    noMatches: (query: string) => `Ningún proyecto se llama como «${query}».`,
+    clearSearch: "Ver todos los proyectos",
+    loadFailed: "No se pudieron cargar tus proyectos.",
+    retry: "Reintentar",
+    open: (name: string, area: string) => `Abrir el proyecto ${name}, ${area}`,
+    plan: (name: string, width: string, depth: string) => `Plano de ${name}: ${width} de ancho y ${depth} de fondo`,
+    /** Área aproximada (rectángulo ancho × fondo) mientras no llega el plano real. */
+    approxArea: (area: string) => `≈ ${area}`,
+    planPending: "Plano provisional mientras carga la forma real",
+  },
   auth: {
     loginSubtitle: "Inicia sesión para continuar",
     registerSubtitle: "Crea tu cuenta",

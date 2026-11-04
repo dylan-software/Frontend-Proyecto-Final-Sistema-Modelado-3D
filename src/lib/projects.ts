@@ -47,10 +47,14 @@ export function rectangleVertices(widthM: number, depthM: number): Point2D[] {
   ];
 }
 
-/** Plano encajado en un lienzo SVG: el atributo `points` y la escala usada (unidades SVG por metro). */
+/**
+ * Plano encajado en un lienzo SVG: el atributo `points`, la escala usada (unidades SVG por metro) y
+ * la caja delimitadora ya encajada (para dibujar las cotas), en unidades SVG.
+ */
 export interface FittedPlan {
   points: string;
   scale: number;
+  box: { x: number; y: number; width: number; height: number };
 }
 
 /**
@@ -58,7 +62,7 @@ export interface FittedPlan {
  * deformarlo. El eje y del plano crece hacia abajo, igual que en el SVG. Coordenadas con 2 decimales.
  */
 export function fitPlanToBox(vertices: Point2D[], width: number, height: number, padding = 0): FittedPlan {
-  if (vertices.length === 0) return { points: "", scale: 0 };
+  if (vertices.length === 0) return { points: "", scale: 0, box: { x: width / 2, y: height / 2, width: 0, height: 0 } };
   const bounds = planBounds(vertices);
   const innerW = Math.max(width - 2 * padding, 0);
   const innerH = Math.max(height - 2 * padding, 0);
@@ -72,7 +76,13 @@ export function fitPlanToBox(vertices: Point2D[], width: number, height: number,
   const points = vertices
     .map(({ x, y }) => `${round(offsetX + (x - bounds.minX) * scale)},${round(offsetY + (y - bounds.minY) * scale)}`)
     .join(" ");
-  return { points, scale };
+  const box = {
+    x: round(offsetX),
+    y: round(offsetY),
+    width: round(bounds.width * scale),
+    height: round(bounds.depth * scale),
+  };
+  return { points, scale, box };
 }
 
 /** Área del polígono en m² (fórmula del cordón de zapato); el sentido de los vértices no importa. */
