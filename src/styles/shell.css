@@ -1,0 +1,491 @@
+/* Contenedor común (AppShell): dirección "plano técnico bajo vidrio". Todos los colores salen de los
+   tokens del tema activo (themes.ts); aquí solo se añaden el rojo de peligro y la intensidad del vidrio. */
+
+:root {
+  --color-danger: #ff7b72;
+  --color-danger-soft: rgba(248, 81, 73, 0.14);
+  /* Opacidad de la superficie de vidrio y brillo de su borde superior. */
+  --glass-alpha: 62%;
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --grid-line: rgba(240, 246, 252, 0.035);
+}
+
+:root[data-theme="light"],
+:root[data-theme="lightBlue"] {
+  --color-danger: #cf222e;
+  --color-danger-soft: rgba(207, 34, 46, 0.1);
+  --glass-alpha: 72%;
+  --glass-highlight: rgba(255, 255, 255, 0.75);
+  --grid-line: rgba(31, 35, 40, 0.05);
+}
+
+/* Manrope (next/font) con la pila del sistema como respaldo. */
+.app-font {
+  font-family: var(--font-sans, system-ui, sans-serif);
+}
+
+.app-font button,
+.app-font input,
+.app-font select,
+.app-font textarea {
+  font-family: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.app-shell a:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Vidrio ---------- */
+
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--color-shadow);
+}
+
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) and
+  (background: color-mix(in srgb, red 50%, transparent)) {
+  .glass {
+    background: color-mix(in srgb, var(--color-surface) var(--glass-alpha), transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+}
+
+/* ---------- Estructura ---------- */
+
+/* Fondo: halo suave del acento y retícula de plano de 24 px; es lo que se ve a través del vidrio. */
+.app-shell {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(56rem 36rem at 0% 0%, var(--color-accent-soft), transparent 70%),
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: auto, 24px 24px, 24px 24px;
+  background-attachment: fixed;
+}
+
+.app-shell-body {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 24px;
+  padding: 24px;
+}
+
+.app-shell-main {
+  min-width: 0;
+  outline: none;
+}
+
+/* ---------- Barra superior ---------- */
+
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 440px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  padding: 0 20px;
+  border-width: 0 0 1px;
+  border-radius: 0;
+}
+
+.top-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  justify-self: start;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.brand-mark {
+  flex-shrink: 0;
+}
+
+.top-bar-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.top-bar-search {
+  position: relative;
+  width: 100%;
+  margin: 0;
+}
+
+.top-bar-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.top-bar-search .top-bar-search-input {
+  max-width: none;
+  height: 40px;
+  margin: 0;
+  padding: 0 38px;
+  border-color: var(--color-border-soft);
+  border-radius: 999px;
+  background: var(--color-input-bg);
+}
+
+.top-bar-search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.top-bar-search-clear {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.top-bar-search-clear:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  box-shadow: none;
+}
+
+.top-bar-search-clear:active:not(:disabled) {
+  transform: translateY(-50%);
+}
+
+.top-bar-actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 10px;
+}
+
+.top-bar .theme-selector-toggle {
+  height: 40px;
+}
+
+/* ---------- Menú de usuario ---------- */
+
+.user-menu {
+  position: relative;
+}
+
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  margin: 0;
+  padding: 4px 12px 4px 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.user-chip:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+.user-chip-initial {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+}
+
+.user-chip-name {
+  max-width: 14ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-chip-caret {
+  color: var(--color-text-muted);
+  transition: transform 150ms ease;
+}
+
+.user-chip[aria-expanded="true"] .user-chip-caret {
+  transform: rotate(180deg);
+}
+
+.user-menu-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  width: 240px;
+  padding: 8px;
+  border-radius: 14px;
+  transform-origin: top right;
+  animation: theme-menu-in 160ms ease-out;
+}
+
+.user-menu-who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 8px 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.user-menu-who-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.user-menu-who-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+  text-align: left;
+  color: var(--color-danger);
+  background: transparent;
+  border-radius: 8px;
+}
+
+.user-menu-logout:hover:not(:disabled),
+.user-menu-logout:focus-visible {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-menu-panel {
+    animation: none;
+  }
+
+  .user-chip-caret {
+    transition: none;
+  }
+}
+
+/* ---------- Barra lateral ---------- */
+
+.side-nav {
+  position: sticky;
+  top: 88px;
+  align-self: start;
+  padding: 18px 12px;
+  border-radius: 16px;
+}
+
+.side-nav-title {
+  margin: 0 12px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.side-nav-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.side-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.side-nav-link:hover {
+  color: var(--color-text);
+  background: var(--color-border-soft);
+}
+
+.side-nav-link[aria-current="page"] {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+}
+
+.side-nav-link[aria-current="page"] svg {
+  color: var(--color-accent);
+}
+
+/* Marca del elemento activo: una barra de 3 px del acento a la izquierda. */
+.side-nav-link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .side-nav-link {
+    transition: none;
+  }
+}
+
+/* ---------- Pantallas estrechas ---------- */
+
+@media (max-width: 960px) {
+  .top-bar {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .top-bar-title {
+    display: none;
+  }
+}
+
+/* En móvil la barra lateral pasa a ser una barra inferior fija con los dos destinos. */
+@media (max-width: 768px) {
+  .app-shell-body {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px 16px calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .top-bar {
+    gap: 10px;
+    padding: 0 12px;
+  }
+
+  .top-bar .theme-selector-current,
+  .user-chip-name,
+  .user-chip-caret {
+    display: none;
+  }
+
+  .top-bar .theme-selector-toggle {
+    padding: 8px 12px;
+  }
+
+  .user-chip {
+    padding: 4px;
+  }
+
+  .side-nav {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .side-nav-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .side-nav-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .side-nav-link {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .side-nav-link[aria-current="page"]::before {
+    top: 0;
+    right: 30%;
+    bottom: auto;
+    left: 30%;
+    width: auto;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+  }
+}

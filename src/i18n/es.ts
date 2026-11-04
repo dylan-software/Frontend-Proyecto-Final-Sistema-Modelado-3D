@@ -6,6 +6,22 @@ export const es = {
   app: {
     title: "Sistema de decoración de espacios en 3D",
   },
+  /** Contenedor común de Proyectos y Red Social: barra superior, barra lateral y menú de usuario. */
+  shell: {
+    homeLink: "Ir a Proyectos",
+    skipToContent: "Saltar al contenido",
+    searchLabel: "Buscar proyectos por nombre",
+    searchPlaceholder: "Buscar proyectos…",
+    clearSearch: "Limpiar búsqueda",
+    navTitle: "NAVEGACIÓN",
+    navLabel: "Navegación principal",
+    projects: "Proyectos",
+    social: "Red Social",
+    myAccount: "Mi cuenta",
+    userMenu: (name: string) => `Menú de usuario: ${name}`,
+    signedInAs: "Sesión iniciada como",
+    logout: "Cerrar sesión",
+  },
   auth: {
     loginSubtitle: "Inicia sesión para continuar",
     registerSubtitle: "Crea tu cuenta",

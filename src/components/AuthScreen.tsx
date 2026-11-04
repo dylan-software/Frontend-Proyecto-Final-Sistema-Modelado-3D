@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 
 import { es } from "../i18n/es";
 import { api } from "../lib/api";
-import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY } from "../lib/session";
+import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY, saveUserName } from "../lib/session";
 
 // Se reexportan para que los imports existentes desde este componente sigan funcionando.
 export { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY };
@@ -58,6 +58,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       const session = await api.login(credentials);
       localStorage.setItem(AUTH_TOKEN_KEY, session.access_token);
       localStorage.setItem(AUTH_USER_ID_KEY, String(session.usuario.id));
+      // Solo el nombre, para el chip de la barra superior (nunca el correo ni el token).
+      saveUserName(session.usuario.nombre);
       onAuthenticated();
     } catch (err) {
       setError((err as Error).message);
