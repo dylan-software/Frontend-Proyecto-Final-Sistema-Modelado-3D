@@ -1,6 +1,185 @@
 /* Pantalla del proyecto (/proyecto/[id]): panel de IA a la izquierda y 3D a la derecha, con el estilo
    "plano técnico bajo vidrio" de shell.css. Solo tokens del tema activo. */
 
+/* ---------- Panel de IA (AiPanel) ---------- */
+
+.ai-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.ai-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  min-height: 0;
+  padding: 14px 16px 16px;
+  overflow-y: auto;
+}
+
+/* display: flex anula el atributo hidden: se restablece para que recoger el panel lo oculte. */
+.ai-panel-content[hidden] {
+  display: none;
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-panel-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.ai-panel-title {
+  flex: 1;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.ai-panel-collapse {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 10px;
+}
+
+.ai-panel-collapse:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+/* El chat ocupa casi todo el alto visible; lo de debajo se alcanza desplazando el panel. */
+.ai-panel-chat {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  height: max(300px, calc(100dvh - 60px - 230px));
+}
+
+.ai-panel-extras {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Recogido: una barra delgada con el icono del asistente. */
+.ai-panel-collapsed {
+  align-items: center;
+  padding: 10px 0;
+}
+
+.ai-panel-rail {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-glow);
+  border-radius: 12px;
+}
+
+.ai-panel-rail:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+/* Buscador de muebles dentro del panel (CategoryAccordion de siempre). */
+.ai-panel-catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-panel-catalog h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* ---------- Crear objeto manualmente (ManualObjectDrawer) ---------- */
+
+.manual-drawer {
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-surface-alt);
+}
+
+.manual-drawer-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.manual-drawer-summary::-webkit-details-marker {
+  display: none;
+}
+
+.manual-drawer-summary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.manual-drawer-chevron {
+  color: var(--color-text-muted);
+  transition: transform 150ms ease;
+}
+
+.manual-drawer[open] .manual-drawer-chevron {
+  transform: rotate(90deg);
+}
+
+.manual-drawer-body {
+  padding: 0 12px 12px;
+}
+
+.manual-drawer-body .hint {
+  margin: 0 0 4px;
+}
+
+.manual-drawer-body .reset-button {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .manual-drawer-chevron {
+    transition: none;
+  }
+}
+
 /* ---------- Chat acoplado (ChatDock) ---------- */
 
 .chat-dock {
