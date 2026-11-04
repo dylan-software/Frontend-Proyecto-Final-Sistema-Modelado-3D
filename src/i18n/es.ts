@@ -57,6 +57,14 @@ export const es = {
     manualTitle: "Crear objeto manualmente",
     manualHint: "Añade al catálogo un mueble con sus medidas, o vacía el catálogo entero.",
   },
+  /** Zona del 3D de la pantalla del proyecto. */
+  sceneArea: {
+    label: "Vista 3D del proyecto",
+    loading: "Cargando la sala…",
+    unavailable: "No se pudo abrir esta sala. Vuelve a Proyectos y elige otra.",
+    hideOccupancy: "Ocultar la ocupación del espacio",
+    showOccupancy: "Mostrar la ocupación del espacio",
+  },
   /** Pantalla de un proyecto (/proyecto/[id]): cabecera mínima propia. */
   project: {
     exit: "← Salir del proyecto",
