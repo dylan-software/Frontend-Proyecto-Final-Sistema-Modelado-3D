@@ -71,6 +71,15 @@ export const es = {
     loadingName: "Cargando el proyecto…",
     invalidId: "Esta dirección no corresponde a ningún proyecto.",
   },
+  /** Edición en el sitio de nombres y descripciones (InlineEdit). */
+  inlineEdit: {
+    save: "Guardar",
+    saving: "Guardando…",
+    cancel: "Cancelar",
+    hintName: "Enter para guardar, Escape para cancelar",
+    hintDescription: "Ctrl+Enter para guardar, Escape para cancelar",
+    count: (used: number, max: number) => `${used}/${max}`,
+  },
   /** Grupos de proyectos (carpetas) en /proyectos. */
   groups: {
     /** Base del nombre por defecto de un proyecto: "Prueba 1", "Prueba 2"… dentro de cada grupo. */
