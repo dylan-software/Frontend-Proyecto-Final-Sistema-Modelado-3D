@@ -84,6 +84,27 @@ export const es = {
   groups: {
     /** Base del nombre por defecto de un proyecto: "Prueba 1", "Prueba 2"… dentro de cada grupo. */
     testBase: "Prueba",
+    summary: (groups: number, projects: number) =>
+      `${groups === 1 ? "1 grupo" : `${groups} grupos`}, ${projects === 1 ? "1 proyecto" : `${projects} proyectos`}`,
+    newGroup: "+ Nuevo grupo",
+    newGroupLabel: "Nombre del grupo nuevo",
+    newGroupPlaceholder: "Por ejemplo: Casa de la abuela",
+    createGroup: "Crear grupo",
+    creatingGroup: "Creando…",
+    cancel: "Cancelar",
+    ungroupedTitle: "Proyectos sin grupo",
+    projectCount: (n: number) => (n === 1 ? "1 proyecto" : `${n} proyectos`),
+    noDescription: "Sin descripción",
+    emptyGroup: "Aún no hay pruebas en este grupo.",
+    projectHere: "Proyecto aquí",
+    editGroupName: (name: string) => `Editar el nombre del grupo ${name}`,
+    editGroupDescription: (name: string) => `Editar la descripción del grupo ${name}`,
+    moveLabel: (name: string) => `Mover ${name} a otro grupo`,
+    moveTitle: "Mover a grupo",
+    noGroupOption: "Sin grupo",
+    moving: "Moviendo…",
+    moveFailed: (reason: string) => `No se pudo mover el proyecto. ${reason}`,
+    createGroupFailed: (reason: string) => `No se pudo crear el grupo. ${reason}`,
     validation: {
       nameRequired: "Escribe un nombre.",
       nameTooLong: (max: number) => `El nombre admite como mucho ${max} caracteres.`,
