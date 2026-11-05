@@ -1020,3 +1020,132 @@
     height: 90px;
   }
 }
+
+/* ---------- Edición en el sitio (InlineEdit) ---------- */
+
+.inline-edit {
+  min-width: 0;
+  margin: 0;
+}
+
+/* El texto mostrado es un botón sin aspecto de botón: hereda tamaño y peso del contexto. */
+.inline-edit-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 100%;
+  margin: 0;
+  padding: 2px 6px;
+  margin-left: -6px;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.inline-edit-display:hover:not(:disabled) {
+  color: inherit;
+  background: var(--color-accent-soft);
+  border-color: var(--color-border-soft);
+  box-shadow: none;
+}
+
+.inline-edit-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.inline-edit-empty .inline-edit-text {
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.inline-edit-pencil {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  opacity: 0.6;
+}
+
+.inline-edit-display:hover .inline-edit-pencil,
+.inline-edit-display:focus-visible .inline-edit-pencil {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.inline-edit-open {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 72ch;
+}
+
+.inline-edit-open .inline-edit-field {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  font: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.inline-edit-description .inline-edit-field {
+  padding: 8px 10px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.inline-edit-field[aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
+.inline-edit-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.inline-edit-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.inline-edit-hint {
+  margin-right: auto;
+}
+
+.inline-edit-bar button {
+  margin: 0;
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 999px;
+}
+
+.inline-edit-bar .inline-edit-cancel {
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+}
+
+.inline-edit-bar .inline-edit-cancel:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-border-soft);
+  box-shadow: none;
+}
+
+.inline-edit-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-danger);
+}
