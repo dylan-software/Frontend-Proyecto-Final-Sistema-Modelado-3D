@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
+import { InlineEdit } from "./InlineEdit";
 import { CategoryAccordion } from "./CategoryAccordion";
 import { ChatDock } from "./ChatDock";
 import { ManualObjectDrawer } from "./ManualObjectDrawer";
@@ -19,6 +20,7 @@ import {
   type RoomDetail,
   type RoomItem,
 } from "../lib/api";
+import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
 import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
 import { readAiPanelOpen, saveAiPanelOpen } from "../lib/uiPrefs";
@@ -294,7 +296,22 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
 
   // Sala ya cargada desde el backend (con id real), o null mientras se carga o si no hay ninguna.
   const openRoomId = space !== null && typeof space === "object" ? space.id : null;
-  const projectName = space !== null && typeof space === "object" ? space.name : es.project.loadingName;
+  const currentRoom = space !== null && typeof space === "object" ? space : null;
+
+  /**
+   * Renombra o describe el proyecto (PATCH /rooms/{id}). Solo se copian el nombre y la descripción: la
+   * forma no cambia y así la vista 3D no se reinicia.
+   */
+  async function saveRoomText(changes: { name?: string; description?: string | null }) {
+    if (!currentRoom) return;
+    const updated = await api.updateRoom(currentRoom.id, changes);
+    if (requestedRoomId.current !== updated.id) return;
+    setSpace((prev) =>
+      prev !== null && typeof prev === "object"
+        ? { ...prev, name: updated.name, description: updated.description ?? null }
+        : prev
+    );
+  }
 
   return (
     <div className="project-screen">
@@ -302,7 +319,31 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
         <Link href={ROUTES.projects} className="project-exit">
           {es.project.exit}
         </Link>
-        <h1 className="project-name">{projectName}</h1>
+        {currentRoom ? (
+          <div className="project-header-text">
+            <InlineEdit
+              as="h1"
+              className="project-name"
+              kind="name"
+              value={currentRoom.name}
+              editLabel={es.project.editName(currentRoom.name)}
+              check={(text) => checkPlainName(text, MAX_PROJECT_NAME_LENGTH)}
+              onSave={(name) => saveRoomText({ name: name ?? currentRoom.name })}
+            />
+            <InlineEdit
+              as="p"
+              className="project-description"
+              kind="description"
+              value={currentRoom.description ?? null}
+              placeholder={es.groups.noDescription}
+              editLabel={es.project.editDescription(currentRoom.name)}
+              check={checkDescription}
+              onSave={(description) => saveRoomText({ description })}
+            />
+          </div>
+        ) : (
+          <h1 className="project-name">{es.project.loadingName}</h1>
+        )}
       </header>
 
       <div className={`project-layout${isMobile ? " project-layout-mobile" : ""}${panelOpen ? "" : " project-layout-collapsed"}`}>

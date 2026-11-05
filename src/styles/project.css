@@ -99,6 +99,34 @@
   }
 }
 
+/* ---------- Cabecera: nombre y descripción editables ---------- */
+
+.project-header-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* El nombre editable no se recorta con puntos suspensivos: el botón de InlineEdit ya limita el ancho. */
+.project-header-text .project-name {
+  overflow: visible;
+  white-space: normal;
+}
+
+.project-header-text .project-description {
+  max-width: 72ch;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+/* Mientras se edita, la cabecera crece para el campo y sus botones. */
+.project-header:has(.inline-edit-open) {
+  align-items: flex-start;
+}
+
 /* ---------- Panel de IA (AiPanel) ---------- */
 
 .ai-panel {

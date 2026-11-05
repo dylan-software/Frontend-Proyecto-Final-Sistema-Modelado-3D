@@ -69,6 +69,8 @@ export const es = {
   project: {
     exit: "← Salir del proyecto",
     loadingName: "Cargando el proyecto…",
+    editName: (name: string) => `Editar el nombre del proyecto ${name}`,
+    editDescription: (name: string) => `Editar la descripción del proyecto ${name}`,
     invalidId: "Esta dirección no corresponde a ningún proyecto.",
   },
   /** Edición en el sitio de nombres y descripciones (InlineEdit). */
