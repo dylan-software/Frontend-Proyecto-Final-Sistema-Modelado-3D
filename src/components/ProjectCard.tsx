@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useId, useState, type CSSProperties } from "react";
 
 import { es } from "../i18n/es";
-import type { RoomDetail, RoomSummary } from "../lib/api";
+import type { ProjectGroup, RoomDetail, RoomSummary } from "../lib/api";
 import { formatAreaM2, polygonAreaM2, rectangleVertices } from "../lib/projects";
 import { roomDetailLoader } from "../lib/roomDetails";
 import { ROUTES } from "../lib/routes";
@@ -12,6 +12,10 @@ interface ProjectCardProps {
   room: RoomSummary;
   /** Posición en la cuadrícula, para escalonar la aparición. */
   index: number;
+  /** Grupos de la cuenta, para "Mover a grupo". */
+  groups: ProjectGroup[];
+  /** Mueve el proyecto a otro grupo (null = sin grupo); si lanza, la tarjeta muestra el error. */
+  onMove: (roomId: number, groupId: number | null) => Promise<void>;
 }
 
 /**
@@ -37,29 +41,82 @@ function useRoomDetail(roomId: number): RoomDetail | null {
   return detail;
 }
 
-/** Tarjeta de un proyecto: plano, nombre y área. Toda la tarjeta es el enlace al proyecto. */
-export function ProjectCard({ room, index }: ProjectCardProps) {
+/**
+ * Tarjeta de un proyecto: plano, nombre, área y una línea de descripción, todo como enlace al proyecto.
+ * Debajo, fuera del enlace, "Mover a grupo" con un selector nativo (teclado y móvil sin código propio).
+ */
+export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
   const t = es.projects;
+  const g = es.groups;
   const detail = useRoomDetail(room.id);
+  const [moving, setMoving] = useState(false);
+  const [moveError, setMoveError] = useState<string | null>(null);
+  const selectId = useId();
   const vertices = detail?.vertices ?? rectangleVertices(room.ancho, room.profundidad);
   const area = detail ? formatAreaM2(detail.areaM2) : t.approxArea(formatAreaM2(polygonAreaM2(vertices)));
-  const name = detail?.name ?? room.nombre;
+  // El nombre y la descripción de la lista son los más recientes (la caché de planos puede ser anterior).
+  const name = room.nombre;
+  const description = room.description ?? null;
+
+  async function handleMove(value: string) {
+    const groupId = value === "" ? null : Number(value);
+    setMoving(true);
+    setMoveError(null);
+    try {
+      await onMove(room.id, groupId);
+    } catch (err) {
+      setMoveError(g.moveFailed((err as Error).message));
+    } finally {
+      setMoving(false);
+    }
+  }
 
   return (
     <li className="project-card-item" style={{ "--i": Math.min(index, 12) } as CSSProperties}>
-      <Link href={ROUTES.project(room.id)} className="project-card glass" aria-label={t.open(name, area)}>
-        <span className="project-card-plan">
-          <RoomPlanThumbnail
-            vertices={vertices}
-            provisional={!detail}
-            label={detail ? name : `${name}. ${t.planPending}`}
-          />
-        </span>
-        <span className="project-card-body">
-          <span className="project-card-name">{name}</span>
-          <span className="project-card-area">{area}</span>
-        </span>
-      </Link>
+      <div className="project-card glass">
+        <Link href={ROUTES.project(room.id)} className="project-card-link" aria-label={t.open(name, area)}>
+          <span className="project-card-plan">
+            <RoomPlanThumbnail
+              vertices={vertices}
+              provisional={!detail}
+              label={detail ? name : `${name}. ${t.planPending}`}
+            />
+          </span>
+          <span className="project-card-body">
+            <span className="project-card-name">{name}</span>
+            <span className="project-card-area">{area}</span>
+          </span>
+          <span className={`project-card-description${description ? "" : " project-card-description-empty"}`}>
+            {description ?? g.noDescription}
+          </span>
+        </Link>
+        <div className="project-card-footer">
+          <label className="visually-hidden" htmlFor={selectId}>
+            {g.moveLabel(name)}
+          </label>
+          <select
+            id={selectId}
+            className="project-card-move"
+            value={room.group_id ?? ""}
+            disabled={moving}
+            title={g.moveTitle}
+            onChange={(e) => void handleMove(e.target.value)}
+          >
+            <option value="">{g.noGroupOption}</option>
+            {groups.map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.name}
+              </option>
+            ))}
+          </select>
+          {moving && <span className="project-card-moving">{g.moving}</span>}
+        </div>
+        {moveError && (
+          <p className="project-card-error" role="alert">
+            {moveError}
+          </p>
+        )}
+      </div>
     </li>
   );
 }

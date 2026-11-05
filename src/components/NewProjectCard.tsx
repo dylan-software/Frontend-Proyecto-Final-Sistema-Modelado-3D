@@ -6,10 +6,12 @@ interface NewProjectCardProps {
   onCreate: () => void;
   creating: boolean;
   disabled?: boolean;
+  /** Título de la tarjeta: "Nuevo proyecto" (sin grupo) o "Proyecto aquí" (dentro de un grupo). */
+  title?: string;
 }
 
 /** Primera tarjeta de la cuadrícula: crea una sala de 4 × 3 m y 2,5 m de alto y la abre. */
-export function NewProjectCard({ onCreate, creating, disabled = false }: NewProjectCardProps) {
+export function NewProjectCard({ onCreate, creating, disabled = false, title }: NewProjectCardProps) {
   const t = es.projects;
   return (
     <li className="project-card-item" style={{ "--i": 0 } as CSSProperties}>
@@ -25,7 +27,7 @@ export function NewProjectCard({ onCreate, creating, disabled = false }: NewProj
             <path d="M24 10v28M10 24h28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         </span>
-        <span className="new-project-title">{creating ? t.creating : t.newProject}</span>
+        <span className="new-project-title">{creating ? t.creating : (title ?? t.newProject)}</span>
         <span className="new-project-hint">{t.newProjectHint}</span>
       </button>
     </li>
