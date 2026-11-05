@@ -188,6 +188,10 @@ export interface RoomSummary {
   alto: number;
   profundidad: number;
   muebles: unknown[];
+  /** Grupo del proyecto (null = sin grupo); el backend siempre lo manda desde la migración 005. */
+  group_id?: number | null;
+  /** Descripción del proyecto, o null. */
+  description?: string | null;
 }
 
 /** A polygonal room, in meters; a vertex's y is the 3D z axis. */
@@ -197,6 +201,26 @@ export interface RoomDetail {
   vertices: Point2D[];
   heightM: number;
   areaM2: number;
+  /** Solo llega cuando tiene valor: ausente equivale a null (sin grupo). */
+  groupId?: number | null;
+  /** Solo llega cuando tiene valor: ausente equivale a null (sin descripción). */
+  description?: string | null;
+}
+
+/** Grupo (carpeta) de proyectos, como lo devuelve /api/v1/spaces/groups. */
+export interface ProjectGroup {
+  id: number;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  projectCount: number;
+}
+
+/** Cambios de PATCH /rooms/{id}: al menos uno. groupId null saca el proyecto de su grupo. */
+export interface RoomChanges {
+  name?: string;
+  description?: string | null;
+  groupId?: number | null;
 }
 
 /**
@@ -282,10 +306,33 @@ export const api = {
   /** 200 when the backend and its database are up; 503 when the database is offline. */
   health: () => v1Request<{ status: string; database: string }>("/health"),
 
-  createRoom: (body: { name: string; vertices: Point2D[]; heightM: number }) =>
-    v1Request<RoomDetail>("/spaces/rooms", { method: "POST", body: JSON.stringify(body) }),
+  createRoom: (body: {
+    name: string;
+    vertices: Point2D[];
+    heightM: number;
+    groupId?: number | null;
+    description?: string | null;
+  }) => v1Request<RoomDetail>("/spaces/rooms", { method: "POST", body: JSON.stringify(body) }),
 
   getRoom: (roomId: number) => v1Request<RoomDetail>(roomPath(roomId)),
+
+  /** Renombra, describe o mueve de grupo un proyecto; no toca su forma ni sus muebles. */
+  updateRoom: (roomId: number, changes: RoomChanges) =>
+    v1Request<RoomDetail>(roomPath(roomId), { method: "PATCH", body: JSON.stringify(changes) }),
+
+  /** Grupos de la cuenta, del más antiguo al más nuevo, con su número de proyectos. */
+  listGroups: () => v1Request<{ groups: ProjectGroup[] }>("/spaces/groups"),
+
+  /** 409 al llegar al tope de grupos de la cuenta. */
+  createGroup: (body: { name: string; description?: string | null }) =>
+    v1Request<ProjectGroup>("/spaces/groups", { method: "POST", body: JSON.stringify(body) }),
+
+  /** Cambia el nombre o la descripción (null o "" la borra) de un grupo. */
+  updateGroup: (groupId: number, changes: { name?: string; description?: string | null }) =>
+    v1Request<ProjectGroup>(`/spaces/groups/${encodeURIComponent(groupId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    }),
 
   /** 422 (and the room unchanged) if the move leaves an invalid polygon. */
   moveRoomVertex: (roomId: number, index: number, point: Point2D) =>

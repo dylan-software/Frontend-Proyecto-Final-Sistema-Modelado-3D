@@ -71,6 +71,18 @@ export const es = {
     loadingName: "Cargando el proyecto…",
     invalidId: "Esta dirección no corresponde a ningún proyecto.",
   },
+  /** Grupos de proyectos (carpetas) en /proyectos. */
+  groups: {
+    /** Base del nombre por defecto de un proyecto: "Prueba 1", "Prueba 2"… dentro de cada grupo. */
+    testBase: "Prueba",
+    validation: {
+      nameRequired: "Escribe un nombre.",
+      nameTooLong: (max: number) => `El nombre admite como mucho ${max} caracteres.`,
+      nameChars: "El nombre no puede llevar < ni > ni caracteres especiales invisibles.",
+      descriptionTooLong: (max: number) => `La descripción admite como mucho ${max} caracteres.`,
+      descriptionChars: "La descripción solo admite texto, saltos de línea y tabuladores.",
+    },
+  },
   /** Red Social (/red): de momento solo el estado "En construcción", sin datos. */
   social: {
     status: "En construcción",
