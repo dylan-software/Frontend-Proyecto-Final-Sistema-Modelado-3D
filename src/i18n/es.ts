@@ -57,6 +57,22 @@ export const es = {
     manualTitle: "Crear objeto manualmente",
     manualHint: "Añade al catálogo un mueble con sus medidas, o vacía el catálogo entero.",
   },
+  /** Lista "Objetos del proyecto" del panel de IA: los objetos guardados en ESTA sala (GET /items). */
+  projectObjects: {
+    title: (count: number) => `Objetos del proyecto (${count})`,
+    filterLabel: "Filtrar los objetos por nombre",
+    filterPlaceholder: "Filtrar por nombre…",
+    clearFilter: "Ver todos los objetos",
+    empty: "Este proyecto aún no tiene objetos",
+    emptyHint: "Usa «Foto a 3D» para crear la sala y sus objetos a partir de una foto.",
+    noMatches: (query: string) => `Ningún objeto coincide con «${query}».`,
+    onFloor: "En el suelo",
+    aboveFloor: (height: string) => `A ${height} del suelo`,
+    /** Ancho × fondo × alto, en metros. */
+    size: (width: string, depth: string, height: string) => `${width} × ${depth} × ${height} m`,
+    sizeLabel: (width: string, depth: string, height: string) =>
+      `${width} m de ancho, ${depth} m de fondo y ${height} m de alto`,
+  },
   /** Zona del 3D de la pantalla del proyecto. */
   sceneArea: {
     label: "Vista 3D del proyecto",
