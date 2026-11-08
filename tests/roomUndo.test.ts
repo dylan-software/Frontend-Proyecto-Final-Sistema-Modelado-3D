@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 
 import { es } from "../src/i18n/es";
-import { MAX_PHOTO_UNDO_DEPTH, nextUndoDepth } from "../src/lib/photoUndo";
+import { MAX_UNDO_DEPTH, nextUndoDepth, undoneMessage } from "../src/lib/roomUndo";
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = new Map(Object.entries(initial));
@@ -17,6 +17,7 @@ const UNDONE = {
   room: { id: 3, name: "Sala", vertices: [{ x: 0, y: 0 }, { x: 5, y: 0 }, { x: 5, y: 4 }, { x: 0, y: 4 }], heightM: 2.6, areaM2: 20 },
   items: [{ id: 12, name: "Mesa", x: 1.4, y: 1.1, rotation: 0, widthM: 1.2, depthM: 0.8, heightM: 0.75, elevationM: 0 }],
   remaining: 2,
+  undone: "chat",
 };
 
 function answer(status: number, body: unknown, headers: Record<string, string> = {}) {
@@ -40,15 +41,15 @@ afterEach(() => {
   vi.resetModules();
 });
 
-describe("api.undoRoomPhoto", () => {
-  it("posts to /rooms/{id}/photo-undo without a body and returns the restored room", async () => {
+describe("api.undoRoom", () => {
+  it("posts to /rooms/{id}/undo without a body and returns the restored room", async () => {
     vi.stubGlobal("fetch", answer(200, UNDONE));
     const { api } = await import("../src/lib/api");
 
-    const result = await api.undoRoomPhoto(3);
+    const result = await api.undoRoom(3);
 
     const [url, init] = vi.mocked(fetch).mock.calls.at(-1)!;
-    expect(url).toBe("http://localhost:8000/api/v1/spaces/rooms/3/photo-undo");
+    expect(url).toBe("http://localhost:8000/api/v1/spaces/rooms/3/undo");
     expect(init!.method).toBe("POST");
     expect(init!.body).toBeUndefined();
     expect((init!.headers as Record<string, string>).Authorization).toBe(`Bearer ${SESSION.auth_token}`);
@@ -57,17 +58,18 @@ describe("api.undoRoomPhoto", () => {
 });
 
 describe("nextUndoDepth", () => {
-  it("a photo adds one, up to 5", () => {
-    expect(nextUndoDepth(0, { type: "photo" })).toBe(1);
-    expect(nextUndoDepth(4, { type: "photo" })).toBe(5);
-    expect(nextUndoDepth(5, { type: "photo" })).toBe(MAX_PHOTO_UNDO_DEPTH);
+  it("a change adds one, up to 50", () => {
+    expect(MAX_UNDO_DEPTH).toBe(50);
+    expect(nextUndoDepth(0, { type: "change" })).toBe(1);
+    expect(nextUndoDepth(49, { type: "change" })).toBe(50);
+    expect(nextUndoDepth(50, { type: "change" })).toBe(50);
   });
 
   it("an undo takes the remaining count from the backend", () => {
     expect(nextUndoDepth(3, { type: "undone", remaining: 2 })).toBe(2);
     expect(nextUndoDepth(1, { type: "undone", remaining: 0 })).toBe(0);
     // Valores raros del servidor no rompen el contador.
-    expect(nextUndoDepth(1, { type: "undone", remaining: 9 })).toBe(5);
+    expect(nextUndoDepth(1, { type: "undone", remaining: 90 })).toBe(50);
     expect(nextUndoDepth(1, { type: "undone", remaining: -1 })).toBe(0);
     expect(nextUndoDepth(1, { type: "undone", remaining: Number.NaN })).toBe(0);
   });
@@ -78,23 +80,23 @@ describe("nextUndoDepth", () => {
   });
 });
 
-describe("photoUndoErrorMessage", () => {
+describe("undoErrorMessage", () => {
   async function failWith(status: number, detail: string | null, headers: Record<string, string> = {}) {
     vi.stubGlobal("fetch", answer(status, detail === null ? {} : { detail }, headers));
     const { api } = await import("../src/lib/api");
-    const { photoUndoErrorMessage } = await import("../src/lib/photoUndo");
-    const error = await api.undoRoomPhoto(3).catch((err: unknown) => err);
-    return photoUndoErrorMessage(error);
+    const { undoErrorMessage } = await import("../src/lib/roomUndo");
+    const error = await api.undoRoom(3).catch((err: unknown) => err);
+    return undoErrorMessage(error);
   }
 
   it.each([
     [404, "No existe una habitación con id 3.", "Esta sala ya no existe o no es de tu cuenta. Recarga la página."],
     [
       409,
-      "No hay ninguna foto que deshacer en esta sala. El historial de Deshacer solo se guarda mientras el servidor está encendido y se pierde si se reinicia.",
-      "No hay ninguna foto que deshacer en esta sala. El historial de Deshacer solo se guarda mientras el servidor está encendido y se pierde si se reinicia.",
+      "No hay ningún cambio que deshacer en esta sala. El historial de Deshacer solo se guarda mientras el servidor está encendido y se pierde si se reinicia.",
+      "No hay ningún cambio que deshacer en esta sala. El historial de Deshacer solo se guarda mientras el servidor está encendido y se pierde si se reinicia.",
     ],
-    [409, null, "No queda ninguna foto que deshacer. El historial se borra si el servidor se reinicia."],
+    [409, null, "No queda ningún cambio que deshacer. El historial se borra si el servidor se reinicia."],
     [401, null, "Tu sesión ha caducado. Vuelve a iniciar sesión."],
     [503, null, "La base de datos no está disponible ahora. Inténtalo más tarde."],
   ])("status %i (detail %s)", async (status, detail, expected) => {
@@ -104,18 +106,23 @@ describe("photoUndoErrorMessage", () => {
   it("an unreachable server keeps its own text", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const { api } = await import("../src/lib/api");
-    const { photoUndoErrorMessage } = await import("../src/lib/photoUndo");
+    const { undoErrorMessage } = await import("../src/lib/roomUndo");
 
-    const error = await api.undoRoomPhoto(3).catch((err: unknown) => err);
+    const error = await api.undoRoom(3).catch((err: unknown) => err);
 
-    expect(photoUndoErrorMessage(error)).toMatch(/^No se pudo conectar con el servidor/);
+    expect(undoErrorMessage(error)).toMatch(/^No se pudo conectar con el servidor/);
   });
 });
 
-describe("es.photo.undo.done", () => {
-  it("says how many more photos can be undone", () => {
-    expect(es.photo.undo.done(0)).toBe("Se restauró la sala de antes de la foto.");
-    expect(es.photo.undo.done(1)).toBe("Se restauró la sala de antes de la foto. Puedes deshacer 1 más.");
-    expect(es.photo.undo.done(4)).toBe("Se restauró la sala de antes de la foto. Puedes deshacer 4 más.");
+describe("undoneMessage", () => {
+  it("says what was undone and how many more can be", () => {
+    expect(undoneMessage("photo", 0)).toBe(es.undo.done.photo);
+    expect(undoneMessage("chat", 1)).toBe("Se deshizo el último cambio del chat. Puedes deshacer 1 más.");
+    expect(undoneMessage("delete", 4)).toBe("Se recuperó el objeto borrado. Puedes deshacer 4 más.");
+  });
+
+  it("an unknown or missing change has a generic text", () => {
+    expect(undoneMessage(undefined, 0)).toBe("Se deshizo el último cambio.");
+    expect(undoneMessage("rotate" as never, 2)).toBe("Se deshizo el último cambio. Puedes deshacer 2 más.");
   });
 });

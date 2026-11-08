@@ -5,7 +5,7 @@ import { AiPanel } from "./AiPanel";
 import { InlineEdit } from "./InlineEdit";
 import { ChatDock } from "./ChatDock";
 import { PhotoToRoom } from "./PhotoToRoom";
-import { PhotoUndoButton } from "./PhotoUndoButton";
+import { UndoButton } from "./UndoButton";
 import { RoomItemList } from "./RoomItemList";
 import { SceneArea } from "./SceneArea";
 import { useMediaQuery } from "../hooks/useMediaQuery";
@@ -16,13 +16,13 @@ import {
   toFurnitureInput,
   type FurnitureInput,
   type PhotoAnalysis,
-  type PhotoUndoResult,
   type Point2D,
   type RoomDetail,
   type RoomItem,
+  type RoomUndoResult,
 } from "../lib/api";
 import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
-import { nextUndoDepth } from "../lib/photoUndo";
+import { nextUndoDepth } from "../lib/roomUndo";
 import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
 import { readAiPanelOpen, saveAiPanelOpen } from "../lib/uiPrefs";
@@ -59,7 +59,7 @@ interface ProjectWorkspaceProps {
 
 /**
  * Pantalla de un proyecto. La cabecera mínima lleva "← Salir del proyecto" y el nombre; debajo, dos
- * columnas: el panel de IA (AiPanel: chat, "Foto a 3D", "Deshacer foto" y "Objetos del proyecto") y
+ * columnas: el panel de IA (AiPanel: chat, "Foto a 3D", "Deshacer" y "Objetos del proyecto") y
  * el 3D (SceneArea). En el móvil el 3D ocupa la pantalla y el panel es una capa que se abre con un
  * botón flotante. Este componente conserva la lógica de siempre (carga de la sala, objetos, foto y
  * catálogo); RoomEditor, la distribución y el chat flotante ya no se montan (v4 R4), pero sus
@@ -105,8 +105,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
   const [roomItems, setRoomItems] = useState<RoomItem[]>([]);
   // True mientras la sala abierta muestra lo que estimó una foto (solo en memoria; el backend no lo guarda).
   const [estimated, setEstimated] = useState(false);
-  // Fotos de esta visita que se pueden deshacer (lib/photoUndo.ts); 0 al abrir otra sala o recargar.
-  const [photoUndoDepth, setPhotoUndoDepth] = useState(0);
+  // Cambios de esta visita que se pueden deshacer (lib/roomUndo.ts); 0 al abrir otra sala o recargar.
+  const [undoDepth, setUndoDepth] = useState(0);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   // Catalog entry whose DELETE request is in flight.
@@ -123,7 +123,7 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     setPlacedItems([]);
     setRoomItems([]);
     setEstimated(false);
-    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "reset" }));
+    setUndoDepth((depth) => nextUndoDepth(depth, { type: "reset" }));
     try {
       const [room, saved] = await Promise.all([api.getRoom(roomId), api.listRoomItems(roomId)]);
       if (requestedRoomId.current !== roomId) return;
@@ -181,17 +181,17 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     setRoomItems(result.items);
     setEstimated(result.estimated);
     setPlacedItems([]);
-    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "photo" }));
+    setUndoDepth((depth) => nextUndoDepth(depth, { type: "change" }));
   }
 
-  /** "Deshacer foto" ya restauró la sala en el backend: se muestra sin pedir nada más. */
-  function handlePhotoUndone(result: PhotoUndoResult) {
+  /** "Deshacer" ya restauró la sala en el backend: se muestra sin pedir nada más. */
+  function handleUndone(result: RoomUndoResult) {
     if (requestedRoomId.current !== result.room.id) return;
     setSpace(result.room);
     setRoomItems(result.items);
     setEstimated(false);
     setPlacedItems([]);
-    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "undone", remaining: result.remaining }));
+    setUndoDepth((depth) => nextUndoDepth(depth, { type: "undone", remaining: result.remaining }));
   }
 
   // Cajas en metros de todo lo que ocupa la sala: el layout generado (medidas en cm), los objetos
@@ -386,11 +386,11 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
                     savedItemCount={roomItems.length}
                     onAnalyzed={handlePhotoAnalyzed}
                   />
-                  <PhotoUndoButton
+                  <UndoButton
                     roomId={openRoomId}
-                    depth={photoUndoDepth}
-                    onUndone={handlePhotoUndone}
-                    onNothingToUndo={() => setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "nothing" }))}
+                    depth={undoDepth}
+                    onUndone={handleUndone}
+                    onNothingToUndo={() => setUndoDepth((depth) => nextUndoDepth(depth, { type: "nothing" }))}
                   />
                 </>
               }

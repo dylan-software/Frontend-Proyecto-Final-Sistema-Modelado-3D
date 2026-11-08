@@ -1,4 +1,19 @@
-import { MAX_CHAT_MESSAGE_CHARS, MAX_CHAT_MESSAGES, type ChatTurn } from "./api";
+import { es } from "../i18n/es";
+import { MAX_CHAT_MESSAGE_CHARS, MAX_CHAT_MESSAGES, type ChatChange, type ChatTurn } from "./api";
+
+/**
+ * Las líneas discretas que confirman lo que guardó el chat ("Añadí: Cuadro, en la pared izquierda").
+ * Una acción desconocida no se muestra.
+ */
+export function describeChanges(changes: readonly ChatChange[]): string[] {
+  const t = es.chat.changes;
+  return changes.flatMap((change) => {
+    if (change.action === "added") return [t.added(change.name, change.where)];
+    if (change.action === "removed") return [t.removed(change.name)];
+    if (change.action === "moved") return [t.moved(change.name, change.where)];
+    return [];
+  });
+}
 
 /**
  * Prepara la conversación para POST /api/v1/chat dentro de sus límites, que el
