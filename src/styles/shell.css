@@ -1213,6 +1213,49 @@
   letter-spacing: -0.01em;
 }
 
+/* Flecha para plegar y desplegar la sección; apunta a la derecha cuando está plegada. */
+.group-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  align-self: center;
+  width: 26px;
+  height: 26px;
+  margin: 0 0 0 -4px;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+.group-section-toggle:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-border-soft);
+  box-shadow: none;
+}
+
+.group-section-toggle svg {
+  transition: transform 0.15s ease;
+}
+
+.group-section-closed .group-section-toggle svg {
+  transform: rotate(-90deg);
+}
+
+.group-section-closed .group-section-header {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group-section-toggle svg {
+    transition: none;
+  }
+}
+
 .group-section-count {
   font-size: 13px;
   color: var(--color-text-muted);

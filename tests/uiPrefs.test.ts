@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 
-import { AI_PANEL_OPEN_KEY, readAiPanelOpen, saveAiPanelOpen } from "../src/lib/uiPrefs";
+import {
+  AI_PANEL_OPEN_KEY,
+  groupOpenKey,
+  readAiPanelOpen,
+  readGroupOpen,
+  saveAiPanelOpen,
+  saveGroupOpen,
+} from "../src/lib/uiPrefs";
 
 function memoryStorage(initial: Record<string, string> = {}) {
   const data = new Map(Object.entries(initial));
@@ -44,5 +51,43 @@ describe("AI panel preference", () => {
     vi.stubGlobal("localStorage", undefined);
     expect(readAiPanelOpen()).toBe(true);
     expect(() => saveAiPanelOpen(false)).not.toThrow();
+  });
+});
+
+describe("group section preference", () => {
+  it("uses one key per group and one for the projects without a group", () => {
+    expect(groupOpenKey(7)).toBe("ui_group_open_7");
+    expect(groupOpenKey(null)).toBe("ui_group_open_none");
+  });
+
+  it("is open by default and remembers each group on its own", () => {
+    const storage = memoryStorage();
+    vi.stubGlobal("localStorage", storage);
+    expect(readGroupOpen(1)).toBe(true);
+
+    saveGroupOpen(1, false);
+    saveGroupOpen(null, false);
+
+    expect(readGroupOpen(1)).toBe(false);
+    expect(readGroupOpen(2)).toBe(true);
+    expect(readGroupOpen(null)).toBe(false);
+    saveGroupOpen(1, true);
+    expect(readGroupOpen(1)).toBe(true);
+  });
+
+  it("stores only 'true' or 'false'", () => {
+    const storage = memoryStorage();
+    vi.stubGlobal("localStorage", storage);
+
+    saveGroupOpen(3, false);
+    saveGroupOpen(4, true);
+
+    expect([storage.get("ui_group_open_3"), storage.get("ui_group_open_4")]).toEqual(["false", "true"]);
+  });
+
+  it("works with blocked storage", () => {
+    vi.stubGlobal("localStorage", undefined);
+    expect(readGroupOpen(1)).toBe(true);
+    expect(() => saveGroupOpen(1, false)).not.toThrow();
   });
 });
