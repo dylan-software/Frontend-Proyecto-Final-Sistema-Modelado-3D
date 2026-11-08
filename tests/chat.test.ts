@@ -120,3 +120,20 @@ describe("api.chatAboutRoom", () => {
     });
   });
 });
+describe("toChatRequest with displayed changes", () => {
+  it("sends only role and content, never the changes shown on screen", () => {
+    const shown = [
+      { role: "user" as const, content: "Pon un cuadro" },
+      {
+        role: "assistant" as const,
+        content: "Añadí «Cuadro» en la pared izquierda.",
+        changes: [{ action: "added" as const, name: "Cuadro", where: "en la pared izquierda" }],
+      },
+    ];
+
+    expect(toChatRequest(shown)).toEqual([
+      { role: "user", content: "Pon un cuadro" },
+      { role: "assistant", content: "Añadí «Cuadro» en la pared izquierda." },
+    ]);
+  });
+});
