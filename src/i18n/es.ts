@@ -173,6 +173,10 @@ export const es = {
     invalidEmail: "Introduce un correo electrónico válido.",
     passwordTooShort: (min: number) => `La contraseña debe tener al menos ${min} caracteres.`,
     passwordsDiffer: "Las contraseñas no coinciden.",
+    showPassword: "Mostrar la contraseña",
+    hidePassword: "Ocultar la contraseña",
+    knownEmails: "Cuentas usadas en este navegador",
+    knownEmailsPlaceholder: "Elegir un correo…",
   },
   scan: {
     title: "Escanea tu espacio",

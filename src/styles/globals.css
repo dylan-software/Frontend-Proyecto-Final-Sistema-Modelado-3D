@@ -659,8 +659,49 @@ select:disabled {
   flex-direction: column;
 }
 
-.auth-form input {
+.auth-form input,
+.auth-form select {
   max-width: none;
+}
+
+/* Contraseña con el ojito dentro del campo, a la derecha. */
+.auth-form .auth-password-label {
+  margin-bottom: 0;
+}
+
+.auth-password {
+  position: relative;
+  margin: 0 0 8px;
+}
+
+.auth-password input {
+  padding-right: 44px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 4px; /* el margin-top del input */
+  right: 2px;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border-radius: 6px;
+}
+
+.auth-password-toggle:hover:not(:disabled) {
+  color: var(--color-accent);
+  background: transparent;
+  box-shadow: none;
+}
+
+.auth-password-toggle[aria-pressed="true"] {
+  color: var(--color-accent);
 }
 
 .auth-header {
