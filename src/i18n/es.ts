@@ -121,6 +121,8 @@ export const es = {
     projectHere: "Proyecto aquí",
     editGroupName: (name: string) => `Editar el nombre del grupo ${name}`,
     editGroupDescription: (name: string) => `Editar la descripción del grupo ${name}`,
+    collapse: (name: string) => `Plegar ${name}`,
+    expand: (name: string) => `Desplegar ${name}`,
     moveLabel: (name: string) => `Mover ${name} a otro grupo`,
     moveTitle: "Mover a grupo",
     noGroupOption: "Sin grupo",
