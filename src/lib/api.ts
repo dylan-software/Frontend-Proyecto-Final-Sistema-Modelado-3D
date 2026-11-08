@@ -255,6 +255,15 @@ export interface PhotoAnalysis {
   discarded: DiscardedObject[];
 }
 
+/** Respuesta 200 de POST /rooms/{id}/photo-undo (CONTRATO-DESHACER-FOTO.md). */
+export interface PhotoUndoResult {
+  /** La sala como estaba antes de la última foto, igual que en analyze-photo. */
+  room: RoomDetail;
+  items: RoomItem[];
+  /** Cuántas fotos más se pueden deshacer en esta sala. */
+  remaining: number;
+}
+
 /** Máximo de caracteres de las instrucciones opcionales de la foto (422 por encima). */
 export const MAX_PHOTO_INSTRUCTIONS_CHARS = 500;
 
@@ -374,6 +383,13 @@ export const api = {
     if (instructions) form.append("instrucciones", instructions);
     return v1Request<PhotoAnalysis>(`${roomPath(roomId)}/analyze-photo`, { method: "POST", body: form });
   },
+
+  /**
+   * Devuelve la sala a la forma y los muebles que tenía antes de su última foto (sin cuerpo). 409 si
+   * no queda ninguna foto que deshacer (también tras un reinicio del servidor). No gasta cuota de IA.
+   */
+  undoRoomPhoto: (roomId: number) =>
+    v1Request<PhotoUndoResult>(`${roomPath(roomId)}/photo-undo`, { method: "POST" }),
 
   chatAboutRoom: (roomId: number, messages: ChatTurn[]) =>
     v1Request<{ role: "assistant"; content: string }>("/chat", {

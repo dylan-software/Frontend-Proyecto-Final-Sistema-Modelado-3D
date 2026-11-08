@@ -337,5 +337,16 @@ export const es = {
       timeout: "El análisis de la foto tardó demasiado. Inténtalo de nuevo en un momento o con una foto más pequeña.",
       unreadable: "No se pudo leer la foto en el navegador. Prueba con otra imagen JPEG o PNG.",
     },
+    /** Deshacer la foto a 3D (CONTRATO-DESHACER-FOTO.md). */
+    undo: {
+      button: "Deshacer foto",
+      busy: "Deshaciendo…",
+      hint: "Vuelve a la forma y los muebles que tenía la sala antes de la última foto.",
+      done: (remaining: number) =>
+        remaining > 0
+          ? `Se restauró la sala de antes de la foto. Puedes deshacer ${remaining} más.`
+          : "Se restauró la sala de antes de la foto.",
+      nothing: "No queda ninguna foto que deshacer. El historial se borra si el servidor se reinicia.",
+    },
   },
 } as const;
