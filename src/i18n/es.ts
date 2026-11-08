@@ -63,6 +63,7 @@ export const es = {
     filterLabel: "Filtrar los objetos por nombre",
     filterPlaceholder: "Filtrar por nombre…",
     clearFilter: "Ver todos los objetos",
+    loading: "Cargando los objetos…",
     empty: "Este proyecto aún no tiene objetos",
     emptyHint: "Usa «Foto a 3D» para crear la sala y sus objetos a partir de una foto.",
     noMatches: (query: string) => `Ningún objeto coincide con «${query}».`,
