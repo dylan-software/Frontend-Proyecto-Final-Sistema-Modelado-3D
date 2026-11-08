@@ -3,11 +3,10 @@ import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
 import { InlineEdit } from "./InlineEdit";
-import { CategoryAccordion } from "./CategoryAccordion";
 import { ChatDock } from "./ChatDock";
-import { ManualObjectDrawer } from "./ManualObjectDrawer";
 import { PhotoToRoom } from "./PhotoToRoom";
 import { PhotoUndoButton } from "./PhotoUndoButton";
+import { RoomItemList } from "./RoomItemList";
 import { SceneArea } from "./SceneArea";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { es } from "../i18n/es";
@@ -60,11 +59,16 @@ interface ProjectWorkspaceProps {
 
 /**
  * Pantalla de un proyecto. La cabecera mínima lleva "← Salir del proyecto" y el nombre; debajo, dos
- * columnas: el panel de IA (AiPanel: chat, "Foto a 3D", buscador de muebles y creación manual) y el
- * 3D (SceneArea). En el móvil el 3D ocupa la pantalla y el panel es una capa que se abre con un
+ * columnas: el panel de IA (AiPanel: chat, "Foto a 3D", "Deshacer foto" y "Objetos del proyecto") y
+ * el 3D (SceneArea). En el móvil el 3D ocupa la pantalla y el panel es una capa que se abre con un
  * botón flotante. Este componente conserva la lógica de siempre (carga de la sala, objetos, foto y
  * catálogo); RoomEditor, la distribución y el chat flotante ya no se montan (v4 R4), pero sus
  * manejadores siguen aquí sin cambios.
+ *
+ * Los objetos son del proyecto (TAREA-RENOMBRAR.md, punto 3): el buscador del catálogo de la cuenta
+ * (CategoryAccordion) y "Crear objeto manualmente" (ManualObjectDrawer, que guardaba en el catálogo)
+ * ya no se montan aquí. Sus componentes, el estado `catalog` y sus manejadores se conservan; la
+ * creación manual volverá cuando exista el endpoint que añade objetos a la sala (TAREA-CHAT-ACCIONES.md).
  */
 export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
   // Panel de IA: desplegado o recogido en escritorio (se recuerda); en el móvil, capa abierta o no.
@@ -399,18 +403,7 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
             </p>
           )}
 
-          <div className="ai-panel-catalog">
-            <h3>{es.aiPanel.catalogTitle(catalog.length)}</h3>
-            <CategoryAccordion items={catalog} onDelete={deleteFurnitureById} deletingId={deletingId} />
-          </div>
-
-          <ManualObjectDrawer
-            userId={userId}
-            onCreated={(item) => setCatalog((prev) => [...prev, item])}
-            onClearCatalog={handleResetSpace}
-            clearing={clearing}
-            clearDisabled={catalog.length === 0 && placedFurniture.length === 0 && placedItems.length === 0}
-          />
+          {space !== "none" && <RoomItemList items={roomItems} loading={space === "loading"} />}
         </AiPanel>
 
         <SceneArea space={space} roomItems={roomItems} estimated={estimated} occupyingItems={occupyingItems} />
