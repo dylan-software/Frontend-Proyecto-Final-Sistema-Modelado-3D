@@ -1075,6 +1075,18 @@
   opacity: 1;
 }
 
+/* truncate: una línea con puntos suspensivos; el lápiz no se encoge y queda siempre a la vista. */
+.inline-edit-truncate .inline-edit-display {
+  min-width: 0;
+}
+
+.inline-edit-truncate .inline-edit-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
 .inline-edit-open {
   display: flex;
   flex-direction: column;
@@ -1199,14 +1211,22 @@
   box-shadow: none;
 }
 
+/* Una sola fila: el título se encoge (puntos suspensivos) antes que la flecha, el lápiz o el recuento.
+   Al editar el nombre, la fila vuelve a partirse para dejar sitio al campo. */
 .group-section-title-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 4px 14px;
+  min-width: 0;
+}
+
+.group-section-title-row:has(.inline-edit-open) {
+  flex-wrap: wrap;
 }
 
 .group-section-title {
+  min-width: 0;
   margin: 0;
   font-size: 18px;
   font-weight: 700;
@@ -1257,6 +1277,8 @@
 }
 
 .group-section-count {
+  flex-shrink: 0;
+  white-space: nowrap;
   font-size: 13px;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;

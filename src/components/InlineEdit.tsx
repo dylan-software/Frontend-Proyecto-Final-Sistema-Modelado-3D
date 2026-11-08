@@ -19,6 +19,11 @@ interface InlineEditProps {
   /** Etiqueta HTML del texto mostrado (h2 para el nombre de un grupo, p para descripciones…). */
   as?: "h1" | "h2" | "p" | "span";
   className?: string;
+  /**
+   * Una sola línea con puntos suspensivos si no cabe; el lápiz sigue visible y el texto completo va en
+   * su `title`. Para títulos largos en filas estrechas (nombre de un grupo).
+   */
+  truncate?: boolean;
 }
 
 /**
@@ -35,6 +40,7 @@ export function InlineEdit({
   onSave,
   as: Tag = "span",
   className = "",
+  truncate = false,
 }: InlineEditProps) {
   const t = es.inlineEdit;
   const [editing, setEditing] = useState(false);
@@ -100,17 +106,18 @@ export function InlineEdit({
 
   if (!editing) {
     const empty = !value;
+    const text = empty ? placeholder : value;
     return (
-      <Tag className={`inline-edit ${className}`.trim()}>
+      <Tag className={`inline-edit${truncate ? " inline-edit-truncate" : ""} ${className}`.trim()}>
         <button
           ref={toggleRef}
           type="button"
           className={`inline-edit-display${empty ? " inline-edit-empty" : ""}`}
           onClick={open}
           aria-label={editLabel}
-          title={editLabel}
+          title={truncate ? text : editLabel}
         >
-          <span className="inline-edit-text">{empty ? placeholder : value}</span>
+          <span className="inline-edit-text">{text}</span>
           <svg className="inline-edit-pencil" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
             <path
               d="M11 2.5 13.5 5 6 12.5 3 13l.5-3z"

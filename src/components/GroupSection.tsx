@@ -92,6 +92,7 @@ export function GroupSection({
             <InlineEdit
               as="h2"
               className="group-section-title"
+              truncate
               kind="name"
               value={group.name}
               editLabel={t.editGroupName(group.name)}
