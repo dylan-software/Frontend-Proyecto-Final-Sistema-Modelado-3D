@@ -131,6 +131,9 @@ export function filterProjects<T extends { nombre: string }>(projects: T[], quer
 /**
  * Nombre libre para un proyecto nuevo: `base` si nadie lo usa; si no, "base 2", "base 3"… con el
  * menor número libre. Compara sin distinguir mayúsculas, tildes ni espacios de los extremos.
+ *
+ * @deprecated Sin uso desde 2fe7107: el nombre por defecto es "Prueba N" y lo calcula `nextTestName`
+ * (lib/groups.ts). Se conserva sin borrar.
  */
 export function nextProjectName(existingNames: string[], base: string): string {
   const taken = new Set(existingNames.map(normalizeName));
