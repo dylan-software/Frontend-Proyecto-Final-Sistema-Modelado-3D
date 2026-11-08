@@ -7,6 +7,7 @@ import { CategoryAccordion } from "./CategoryAccordion";
 import { ChatDock } from "./ChatDock";
 import { ManualObjectDrawer } from "./ManualObjectDrawer";
 import { PhotoToRoom } from "./PhotoToRoom";
+import { PhotoUndoButton } from "./PhotoUndoButton";
 import { SceneArea } from "./SceneArea";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { es } from "../i18n/es";
@@ -16,11 +17,13 @@ import {
   toFurnitureInput,
   type FurnitureInput,
   type PhotoAnalysis,
+  type PhotoUndoResult,
   type Point2D,
   type RoomDetail,
   type RoomItem,
 } from "../lib/api";
 import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
+import { nextUndoDepth } from "../lib/photoUndo";
 import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
 import { readAiPanelOpen, saveAiPanelOpen } from "../lib/uiPrefs";
@@ -98,6 +101,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
   const [roomItems, setRoomItems] = useState<RoomItem[]>([]);
   // True mientras la sala abierta muestra lo que estimó una foto (solo en memoria; el backend no lo guarda).
   const [estimated, setEstimated] = useState(false);
+  // Fotos de esta visita que se pueden deshacer (lib/photoUndo.ts); 0 al abrir otra sala o recargar.
+  const [photoUndoDepth, setPhotoUndoDepth] = useState(0);
   const [lighting, setLighting] = useState(DEFAULT_LIGHTING);
   const [generating, setGenerating] = useState(false);
   // Catalog entry whose DELETE request is in flight.
@@ -114,6 +119,7 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     setPlacedItems([]);
     setRoomItems([]);
     setEstimated(false);
+    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "reset" }));
     try {
       const [room, saved] = await Promise.all([api.getRoom(roomId), api.listRoomItems(roomId)]);
       if (requestedRoomId.current !== roomId) return;
@@ -171,6 +177,17 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     setRoomItems(result.items);
     setEstimated(result.estimated);
     setPlacedItems([]);
+    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "photo" }));
+  }
+
+  /** "Deshacer foto" ya restauró la sala en el backend: se muestra sin pedir nada más. */
+  function handlePhotoUndone(result: PhotoUndoResult) {
+    if (requestedRoomId.current !== result.room.id) return;
+    setSpace(result.room);
+    setRoomItems(result.items);
+    setEstimated(false);
+    setPlacedItems([]);
+    setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "undone", remaining: result.remaining }));
   }
 
   // Cajas en metros de todo lo que ocupa la sala: el layout generado (medidas en cm), los objetos
@@ -358,12 +375,20 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
               key={openRoomId ?? "none"}
               roomId={openRoomId}
               actions={
-                <PhotoToRoom
-                  compact
-                  roomId={openRoomId}
-                  savedItemCount={roomItems.length}
-                  onAnalyzed={handlePhotoAnalyzed}
-                />
+                <>
+                  <PhotoToRoom
+                    compact
+                    roomId={openRoomId}
+                    savedItemCount={roomItems.length}
+                    onAnalyzed={handlePhotoAnalyzed}
+                  />
+                  <PhotoUndoButton
+                    roomId={openRoomId}
+                    depth={photoUndoDepth}
+                    onUndone={handlePhotoUndone}
+                    onNothingToUndo={() => setPhotoUndoDepth((depth) => nextUndoDepth(depth, { type: "nothing" }))}
+                  />
+                </>
               }
             />
           }
