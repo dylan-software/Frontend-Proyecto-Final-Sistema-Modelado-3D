@@ -255,7 +255,37 @@ export interface PhotoAnalysis {
   discarded: DiscardedObject[];
 }
 
-/** Respuesta 200 de POST /rooms/{id}/photo-undo (CONTRATO-DESHACER-FOTO.md). */
+/** Qué cambio se deshizo (el que vino después de la copia restaurada). */
+export type UndoneChange = "photo" | "chat" | "add" | "update" | "delete" | "layout" | "vertices";
+
+/** Respuesta 200 de POST /rooms/{id}/undo (CONTRATO-FASE2.md, 1.3). */
+export interface RoomUndoResult {
+  /** La sala como estaba antes del último cambio. Los objetos vuelven con ids nuevos. */
+  room: RoomDetail;
+  items: RoomItem[];
+  /** Cuántos cambios más se pueden deshacer en esta sala. */
+  remaining: number;
+  undone: UndoneChange;
+}
+
+/** Un cambio guardado por el chat; `where` ya viene en palabras ("en la pared izquierda"). */
+export interface ChatChange {
+  action: "added" | "removed" | "moved";
+  name: string;
+  where: string;
+}
+
+/** Respuesta de POST /api/v1/chat; `changes` vale [] si el mensaje no cambió nada. */
+export interface ChatReply {
+  role: "assistant";
+  content: string;
+  changes: ChatChange[];
+}
+
+/**
+ * Respuesta 200 de POST /rooms/{id}/photo-undo (CONTRATO-DESHACER-FOTO.md).
+ * @deprecated Usa RoomUndoResult y api.undoRoom (un solo Deshacer por sala).
+ */
 export interface PhotoUndoResult {
   /** La sala como estaba antes de la última foto, igual que en analyze-photo. */
   room: RoomDetail;
@@ -385,17 +415,23 @@ export const api = {
   },
 
   /**
-   * Devuelve la sala a la forma y los muebles que tenía antes de su última foto (sin cuerpo). 409 si
-   * no queda ninguna foto que deshacer (también tras un reinicio del servidor). No gasta cuota de IA.
+   * Deshace el último cambio de la sala, sea cual sea: foto, chat u objetos (sin cuerpo). 409 si no
+   * queda nada que deshacer (también tras un reinicio del servidor). No gasta cuota de IA.
    */
+  undoRoom: (roomId: number) => v1Request<RoomUndoResult>(`${roomPath(roomId)}/undo`, { method: "POST" }),
+
+  /** @deprecated Alias viejo del backend; usa undoRoom (misma pila). */
   undoRoomPhoto: (roomId: number) =>
     v1Request<PhotoUndoResult>(`${roomPath(roomId)}/photo-undo`, { method: "POST" }),
 
-  chatAboutRoom: (roomId: number, messages: ChatTurn[]) =>
-    v1Request<{ role: "assistant"; content: string }>("/chat", {
+  /** El chat puede añadir, quitar o mover objetos; lo que guardó llega en `changes`. */
+  chatAboutRoom: async (roomId: number, messages: ChatTurn[]): Promise<ChatReply> => {
+    const reply = await v1Request<Partial<ChatReply> & { content: string }>("/chat", {
       method: "POST",
       body: JSON.stringify({ roomId, messages }),
-    }),
+    });
+    return { role: "assistant", content: reply.content, changes: Array.isArray(reply.changes) ? reply.changes : [] };
+  },
 
   /** @deprecated Legacy Node route; replaced by chatAboutRoom (4C). */
   chat: (projectId: string, messages: ChatTurn[]) =>

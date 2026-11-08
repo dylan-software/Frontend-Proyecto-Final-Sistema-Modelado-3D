@@ -234,6 +234,13 @@ export const es = {
     minimize: "Minimizar el chat",
     open: "Abrir el asistente de IA",
     close: "Cerrar el asistente de IA",
+    /** Línea discreta bajo la respuesta que guardó cambios (CONTRATO-FASE2.md, sección 3). */
+    changes: {
+      label: "Cambios guardados",
+      added: (name: string, where: string) => `Añadí: ${name}, ${where}`,
+      removed: (name: string) => `Quité: ${name}`,
+      moved: (name: string, where: string) => `Moví: ${name}, ${where}`,
+    },
   },
   scene: {
     resetView: "Restablecer vista",
@@ -357,16 +364,23 @@ export const es = {
       timeout: "El análisis de la foto tardó demasiado. Inténtalo de nuevo en un momento o con una foto más pequeña.",
       unreadable: "No se pudo leer la foto en el navegador. Prueba con otra imagen JPEG o PNG.",
     },
-    /** Deshacer la foto a 3D (CONTRATO-DESHACER-FOTO.md). */
-    undo: {
-      button: "Deshacer foto",
-      busy: "Deshaciendo…",
-      hint: "Vuelve a la forma y los muebles que tenía la sala antes de la última foto.",
-      done: (remaining: number) =>
-        remaining > 0
-          ? `Se restauró la sala de antes de la foto. Puedes deshacer ${remaining} más.`
-          : "Se restauró la sala de antes de la foto.",
-      nothing: "No queda ninguna foto que deshacer. El historial se borra si el servidor se reinicia.",
+  },
+  /** Deshacer único de la sala: foto, chat y objetos (CONTRATO-FASE2.md). */
+  undo: {
+    button: "Deshacer",
+    busy: "Deshaciendo…",
+    hint: "Deshace el último cambio de la sala: la foto, el chat o los objetos.",
+    done: {
+      photo: "Se deshizo la foto.",
+      chat: "Se deshizo el último cambio del chat.",
+      add: "Se quitó el objeto añadido.",
+      update: "Se deshizo el cambio del objeto.",
+      delete: "Se recuperó el objeto borrado.",
+      layout: "Se deshizo la distribución.",
+      vertices: "Se deshizo el cambio de la forma de la sala.",
+      other: "Se deshizo el último cambio.",
     },
+    more: (remaining: number) => `Puedes deshacer ${remaining} más.`,
+    nothing: "No queda ningún cambio que deshacer. El historial se borra si el servidor se reinicia.",
   },
 } as const;
