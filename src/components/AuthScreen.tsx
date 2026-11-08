@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 
 import { es } from "../i18n/es";
 import { api } from "../lib/api";
+import { readKnownEmails, rememberEmail } from "../lib/knownEmails";
 import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY, saveUserName } from "../lib/session";
 
 // Se reexportan para que los imports existentes desde este componente sigan funcionando.
@@ -18,6 +19,11 @@ interface AuthScreenProps {
 /**
  * Pantalla de bloqueo mientras no hay sesión: oculta el espacio 3D y ofrece los formularios de inicio
  * de sesión y de registro. Los textos vienen de i18n/es.ts.
+ *
+ * El ojito muestra u oculta la contraseña (y su confirmación). En el login, si este navegador ya inició
+ * sesión antes, una lista desplegable ofrece esos correos (lib/knownEmails.ts: solo correos, nunca
+ * contraseñas; no se pide nada al servidor). Los atributos autocomplete dejan que el gestor de
+ * contraseñas del navegador rellene y guarde las credenciales.
  */
 export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const t = es.auth;
@@ -27,8 +33,24 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [knownEmails, setKnownEmails] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const passwordId = useId();
+
+  // Se lee al montar (no en el render del servidor) para no desajustar la hidratación.
+  useEffect(() => {
+    setKnownEmails(readKnownEmails());
+  }, []);
+
+  function chooseKnownEmail(value: string) {
+    if (!value) return;
+    setEmail(value);
+    setError(null);
+    passwordRef.current?.focus();
+  }
 
   function toggleView() {
     setIsLoginView((login) => !login);
@@ -51,6 +73,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     if (validationError) return;
 
     setSubmitting(true);
+    // La contraseña vuelve a ocultarse al enviar (los gestores de contraseñas buscan type="password").
+    setShowPassword(false);
     try {
       const credentials = { email: email.trim(), password };
       // Registrarse no abre sesión, así que una cuenta nueva inicia sesión justo después.
@@ -60,6 +84,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
       localStorage.setItem(AUTH_USER_ID_KEY, String(session.usuario.id));
       // Solo el nombre, para el chip de la barra superior (nunca el correo ni el token).
       saveUserName(session.usuario.nombre);
+      // Solo el correo, para la lista desplegable del próximo login en este navegador.
+      rememberEmail(credentials.email);
       onAuthenticated();
     } catch (err) {
       setError((err as Error).message);
@@ -86,11 +112,32 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               <input
                 type="text"
                 name="username"
-                autoComplete="username"
+                // Es el nombre que se muestra, no el identificador del login (que es el correo).
+                autoComplete="nickname"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder={t.usernamePlaceholder}
               />
+            </label>
+          )}
+
+          {isLoginView && knownEmails.length > 0 && (
+            <label>
+              {t.knownEmails}
+              <select
+                name="knownEmail"
+                className="auth-known-emails"
+                autoComplete="off"
+                value=""
+                onChange={(e) => chooseKnownEmail(e.target.value)}
+              >
+                <option value="">{t.knownEmailsPlaceholder}</option>
+                {knownEmails.map((known) => (
+                  <option key={known} value={known}>
+                    {known}
+                  </option>
+                ))}
+              </select>
             </label>
           )}
 
@@ -99,30 +146,62 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
             <input
               type="email"
               name="email"
-              autoComplete="email"
+              inputMode="email"
+              // El correo es el identificador de la cuenta: "username" para que el gestor de
+              // contraseñas lo asocie a la contraseña guardada.
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t.emailPlaceholder}
             />
           </label>
 
-          <label>
+          <label htmlFor={passwordId} className="auth-password-label">
             {t.password}
+          </label>
+          <div className="auth-password">
             <input
-              type="password"
+              ref={passwordRef}
+              id={passwordId}
+              type={showPassword ? "text" : "password"}
               name="password"
               autoComplete={isLoginView ? "current-password" : "new-password"}
+              autoCapitalize="none"
+              spellCheck={false}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t.passwordPlaceholder(MIN_PASSWORD_LENGTH)}
             />
-          </label>
+            <button
+              type="button"
+              className="auth-password-toggle"
+              aria-controls={passwordId}
+              aria-pressed={showPassword}
+              aria-label={showPassword ? t.hidePassword : t.showPassword}
+              title={showPassword ? t.hidePassword : t.showPassword}
+              onClick={() => setShowPassword((shown) => !shown)}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path
+                  d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
+                {showPassword && (
+                  <path d="M4 4l16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                )}
+              </svg>
+            </button>
+          </div>
 
           {!isLoginView && (
             <label>
               {t.confirmPassword}
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 autoComplete="new-password"
                 value={confirmPassword}
