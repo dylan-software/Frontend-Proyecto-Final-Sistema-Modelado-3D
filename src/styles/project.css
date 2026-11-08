@@ -250,6 +250,105 @@
   font-weight: 700;
 }
 
+/* ---------- Objetos del proyecto (RoomItemList): un cuadro de objetos de plano ---------- */
+
+.room-objects {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room-objects-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.room-objects-filter {
+  max-width: none;
+  margin-top: 0;
+}
+
+.room-objects-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 12px;
+  background: var(--color-surface-alt);
+}
+
+/* Marca | nombre ......... medidas
+          | en el suelo / a 1,40 m del suelo */
+.room-objects-row {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: baseline;
+  padding: 9px 12px;
+}
+
+.room-objects-row + .room-objects-row {
+  border-top: 1px solid var(--color-border-soft);
+}
+
+.room-objects-mark {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--color-text-muted);
+}
+
+/* Lo que cuelga de la pared se distingue con el acento, solo en la marca. */
+.room-objects-row-raised .room-objects-mark {
+  color: var(--color-accent);
+}
+
+.room-objects-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-objects-size {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.room-objects-place {
+  grid-column: 2 / span 2;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+/* Vacío: un recuadro a trazos, como el hueco aún sin dibujar de un plano. */
+.room-objects-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+}
+
+.room-objects-empty p {
+  margin: 0;
+}
+
+.room-objects-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.room-objects-none {
+  margin: 0;
+}
+
 /* ---------- Zona del 3D (SceneArea) ---------- */
 
 /* Altura definida por su contenedor: el lienzo se reajusta al recoger el panel o redimensionar. */
