@@ -29,7 +29,10 @@ export const es = {
   projects: {
     title: "Proyectos",
     count: (n: number) => (n === 1 ? "1 proyecto" : `${n} proyectos`),
-    /** Nombre del proyecto nuevo; si ya existe se numera ("Proyecto nuevo 2"…). */
+    /**
+     * @deprecated Sin uso desde 2fe7107: los proyectos nuevos se llaman "Prueba N" (`groups.testBase` y
+     * `nextTestName` de lib/groups.ts). Se conserva sin borrar; los proyectos ya existentes no se renombran.
+     */
     newProjectName: "Proyecto nuevo",
     newProject: "Nuevo proyecto",
     newProjectHint: "Sala de 4 × 3 m y 2,5 m de alto",

@@ -119,9 +119,9 @@ describe("nextProjectName", () => {
 
 describe("newProjectRoom", () => {
   it("is a 4 x 3 m room 2.5 m high", () => {
-    const room = newProjectRoom("Proyecto nuevo");
+    const room = newProjectRoom("Prueba 1");
     expect(room).toEqual({
-      name: "Proyecto nuevo",
+      name: "Prueba 1",
       vertices: [{ x: 0, y: 0 }, { x: 4, y: 0 }, { x: 4, y: 3 }, { x: 0, y: 3 }],
       heightM: 2.5,
     });
