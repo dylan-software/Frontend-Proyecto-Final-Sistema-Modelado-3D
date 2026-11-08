@@ -184,6 +184,24 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     setUndoDepth((depth) => nextUndoDepth(depth, { type: "change" }));
   }
 
+  /**
+   * El chat guardó cambios en la sala: se recargan sus objetos (GET /items) para verlos en el 3D y el
+   * mensaje cuenta como un cambio que se puede deshacer (una copia por mensaje en el backend).
+   */
+  async function handleChatChanges() {
+    const changedRoomId = requestedRoomId.current;
+    if (changedRoomId === null) return;
+    setUndoDepth((depth) => nextUndoDepth(depth, { type: "change" }));
+    try {
+      const saved = await api.listRoomItems(changedRoomId);
+      if (requestedRoomId.current !== changedRoomId) return;
+      setRoomItems(saved.items);
+      setPlacedItems([]);
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  }
+
   /** "Deshacer" ya restauró la sala en el backend: se muestra sin pedir nada más. */
   function handleUndone(result: RoomUndoResult) {
     if (requestedRoomId.current !== result.room.id) return;
@@ -378,6 +396,7 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
             <ChatDock
               key={openRoomId ?? "none"}
               roomId={openRoomId}
+              onChanges={handleChatChanges}
               actions={
                 <>
                   <PhotoToRoom
