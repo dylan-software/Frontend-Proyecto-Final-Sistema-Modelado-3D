@@ -5,6 +5,7 @@ import { AppShell } from "../components/AppShell";
 import { GroupSection } from "../components/GroupSection";
 import { ImportProjectButton } from "../components/ImportProjectButton";
 import { NewGroupButton } from "../components/NewGroupButton";
+import { PlanEmpty } from "../components/PlanState";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
 import { api, type ProjectGroup, type RoomImportResult, type RoomSummary } from "../lib/api";
@@ -204,7 +205,7 @@ export default function ProjectsPage() {
               disabled={creatingIn !== null}
               onCreateProject={() => void handleCreate(null)}
               onMove={handleMove}
-              footer={ready.rooms.length === 0 ? <p className="page-empty">{t.empty}</p> : null}
+              footer={ready.rooms.length === 0 ? <PlanEmpty title={t.emptyTitle} text={t.emptyText} /> : null}
             />
           )}
 

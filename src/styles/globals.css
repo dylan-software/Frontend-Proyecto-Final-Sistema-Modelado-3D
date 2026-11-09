@@ -1187,22 +1187,21 @@ select:disabled {
   align-items: center;
   gap: 8px;
   margin: 0;
-  padding: 8px 14px;
+  padding: 8px 12px;
   color: var(--color-text);
-  background: var(--color-surface);
+  background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
 }
 
 .theme-selector-toggle:hover:not(:disabled) {
-  color: var(--color-accent);
-  background: var(--color-surface);
+  color: var(--color-text);
+  background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px var(--color-accent-glow);
 }
 
 .theme-selector-current {
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 .theme-selector-menu {
@@ -1211,15 +1210,15 @@ select:disabled {
   right: 0;
   z-index: 1100;
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
   width: 220px;
-  padding: 8px;
+  padding: var(--space-2);
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  box-shadow: var(--color-shadow);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
   transform-origin: top right;
-  animation: theme-menu-in 160ms ease-out;
+  animation: theme-menu-in var(--duration-fast) ease-out;
 }
 
 .theme-option {
@@ -1228,17 +1227,16 @@ select:disabled {
   gap: 10px;
   width: 100%;
   margin: 0;
-  padding: 8px;
+  padding: var(--space-2);
   text-align: left;
   color: var(--color-text);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .theme-option:hover:not(:disabled) {
   background: var(--color-accent-soft);
-  box-shadow: none;
 }
 
 .theme-option[aria-pressed="true"] {
@@ -1250,8 +1248,8 @@ select:disabled {
   display: inline-flex;
   flex-shrink: 0;
   overflow: hidden;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-sm);
 }
 
 .theme-swatch span {
