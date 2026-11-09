@@ -1,5 +1,6 @@
 import { es } from "../i18n/es";
 import type { FurnitureInput } from "../lib/api";
+import { IconChevronRight } from "./icons";
 import { ObjectForm } from "./ObjectForm";
 
 interface ManualObjectDrawerProps {
@@ -20,9 +21,7 @@ export function ManualObjectDrawer({ userId, onCreated, onClearCatalog, clearing
   return (
     <details className="manual-drawer">
       <summary className="manual-drawer-summary">
-        <svg className="manual-drawer-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="M4.5 3 7.5 6 4.5 9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <IconChevronRight className="manual-drawer-chevron" size={16} />
         {t.manualTitle}
       </summary>
       <div className="manual-drawer-body">

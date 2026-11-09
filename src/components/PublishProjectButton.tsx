@@ -4,6 +4,7 @@ import { es } from "../i18n/es";
 import { api, type OwnPublication, type RoomDetail } from "../lib/api";
 import { charCount, MAX_DESCRIPTION_LENGTH, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
 import { checkPublicationForm, formatPublishedDate, publishErrorMessage, unpublishErrorMessage } from "../lib/social";
+import { IconShare } from "./icons";
 
 /** Estado de publicación del proyecto abierto. */
 type PublicationState =
@@ -232,6 +233,7 @@ export function PublishProjectButton({ room }: PublishProjectButtonProps) {
           aria-expanded={formOpen}
           title={room ? t.buttonTitle : t.unavailable}
         >
+          <IconShare size={18} />
           {t.button}
         </button>
         {state.status === "error" && (

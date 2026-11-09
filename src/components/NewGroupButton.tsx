@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { es } from "../i18n/es";
 import { checkPlainName, MAX_GROUP_NAME_LENGTH } from "../lib/groups";
+import { IconFolderPlus } from "./icons";
 
 interface NewGroupButtonProps {
   /** Crea el grupo en el backend; si lanza (p. ej. 409 por el tope), el campo sigue abierto con el error. */
@@ -59,6 +60,7 @@ export function NewGroupButton({ onCreate, disabled = false }: NewGroupButtonPro
         onClick={() => setOpen(true)}
         disabled={disabled}
       >
+        <IconFolderPlus size={18} />
         {t.newGroup}
       </button>
     );

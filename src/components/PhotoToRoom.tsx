@@ -4,6 +4,7 @@ import { es } from "../i18n/es";
 import { api, MAX_PHOTO_INSTRUCTIONS_CHARS, type DiscardedObject, type PhotoAnalysis } from "../lib/api";
 import { ACCEPTED_PHOTO_TYPES, downscalePhoto, MAX_PHOTO_BYTES } from "../lib/photo";
 import { photoErrorMessage } from "../lib/photoErrors";
+import { IconCamera } from "./icons";
 
 interface PhotoToRoomProps {
   /** Sala abierta, o null si todavía no hay ninguna (el botón se desactiva). */
@@ -98,16 +99,7 @@ export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed, compact = fals
         title={compact ? es.photo.ui.intro : undefined}
       >
         {compact && (
-          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-            <path
-              d="M3 6.5A1.5 1.5 0 0 1 4.5 5h2l1.2-1.6h4.6L13.5 5h2A1.5 1.5 0 0 1 17 6.5v8a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 3 14.5z"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinejoin="round"
-            />
-            <circle cx="10" cy="10.5" r="3" fill="none" stroke="currentColor" strokeWidth="1.4" />
-          </svg>
+          <IconCamera size={18} />
         )}
         {busy ? (compact ? es.photo.ui.analyzingShort : es.photo.ui.analyzing) : es.photo.ui.button}
       </button>

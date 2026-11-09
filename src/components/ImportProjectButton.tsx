@@ -3,6 +3,7 @@ import { useRef, useState, type ChangeEvent } from "react";
 import { es } from "../i18n/es";
 import type { RoomImportResult } from "../lib/api";
 import { importProjectFile } from "../lib/projectImport";
+import { IconUpload } from "./icons";
 
 interface ImportProjectButtonProps {
   /** El backend ya creó el proyecto nuevo (ids nuevos, sin grupo). */
@@ -44,6 +45,7 @@ export function ImportProjectButton({ onImported, onError, disabled = false }: I
         aria-busy={busy || undefined}
         title={t.importTitle}
       >
+        <IconUpload size={18} />
         {busy ? t.importing : t.importButton}
       </button>
       <input

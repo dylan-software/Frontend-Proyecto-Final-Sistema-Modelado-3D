@@ -1,6 +1,7 @@
 import { es } from "../i18n/es";
 import type { RoomItem } from "../lib/api";
 import { arrowLabel, elevationRange, moveHint, type ArrowDirection, type MoveMode } from "../lib/objectMove";
+import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconClose } from "./icons";
 
 /** Mensaje bajo los controles: el resultado del último movimiento o su error. */
 export interface MoveStatus {
@@ -25,11 +26,11 @@ interface ObjectMovePanelProps {
 }
 
 // Orden en la cruceta de 3 x 3 (CSS): arriba, izquierda, derecha y abajo.
-const ARROWS: { direction: ArrowDirection; glyph: string }[] = [
-  { direction: "up", glyph: "↑" },
-  { direction: "left", glyph: "←" },
-  { direction: "right", glyph: "→" },
-  { direction: "down", glyph: "↓" },
+const ARROWS: { direction: ArrowDirection; Glyph: typeof IconArrowUp }[] = [
+  { direction: "up", Glyph: IconArrowUp },
+  { direction: "left", Glyph: IconArrowLeft },
+  { direction: "right", Glyph: IconArrowRight },
+  { direction: "down", Glyph: IconArrowDown },
 ];
 
 /**
@@ -60,13 +61,13 @@ export function ObjectMovePanel({
           {item.name}
         </strong>
         <button type="button" className="object-move-close" onClick={onClose} aria-label={t.close} title={t.close}>
-          ✕
+          <IconClose size={16} />
         </button>
       </div>
       <p className="object-move-hint">{moveHint(mode)}</p>
 
       <div className="object-move-arrows" role="group" aria-label={t.arrowsLabel}>
-        {ARROWS.map(({ direction, glyph }) => (
+        {ARROWS.map(({ direction, Glyph }) => (
           <button
             key={direction}
             type="button"
@@ -76,7 +77,7 @@ export function ObjectMovePanel({
             aria-label={arrowLabel(mode, direction)}
             title={arrowLabel(mode, direction)}
           >
-            <span aria-hidden="true">{glyph}</span>
+            <Glyph size={18} />
           </button>
         ))}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { es } from "../i18n/es";
 import { userInitial } from "../lib/projects";
+import { IconChevronDown, IconLogout } from "./icons";
 
 interface UserMenuProps {
   /** Nombre guardado del usuario, o null en sesiones sin él (se muestra "Mi cuenta"). */
@@ -61,9 +62,7 @@ export function UserMenu({ userName, onLogout }: UserMenuProps) {
           {userInitial(userName, t.myAccount)}
         </span>
         <span className="user-chip-name">{label}</span>
-        <svg className="user-chip-caret" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <IconChevronDown className="user-chip-caret" size={14} />
       </button>
 
       {open && (
@@ -82,16 +81,7 @@ export function UserMenu({ userName, onLogout }: UserMenuProps) {
               onLogout();
             }}
           >
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-              <path
-                d="M6 2.5H3.5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1H6M10.5 11 13.5 8l-3-3M13.5 8H6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <IconLogout size={18} />
             {t.logout}
           </button>
         </div>
