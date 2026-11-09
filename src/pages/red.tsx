@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import { AppShell } from "../components/AppShell";
+import { PlanEmpty, PlanLoading } from "../components/PlanState";
 import { PublicationCard } from "../components/PublicationCard";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
@@ -88,11 +89,7 @@ export default function SocialPage() {
         {t.privacyNote} {t.howToPublish}
       </p>
 
-      {state.status === "loading" && (
-        <p className="page-empty" role="status">
-          {t.loading}
-        </p>
-      )}
+      {state.status === "loading" && <PlanLoading label={t.loading} />}
 
       {state.status === "error" && (
         <div className="page-state glass" role="alert">
@@ -105,12 +102,16 @@ export default function SocialPage() {
       )}
 
       {state.status === "ready" && state.items.length === 0 && (
-        <p className="page-empty">
-          {t.empty}{" "}
-          <Link href={ROUTES.projects} className="social-back">
-            {t.backToProjects}
-          </Link>
-        </p>
+        <PlanEmpty
+          drawing="sheets"
+          title={t.emptyTitle}
+          text={t.emptyText}
+          action={
+            <Link href={ROUTES.projects} className="social-back">
+              {t.backToProjects}
+            </Link>
+          }
+        />
       )}
 
       {state.status === "ready" && state.items.length > 0 && (
