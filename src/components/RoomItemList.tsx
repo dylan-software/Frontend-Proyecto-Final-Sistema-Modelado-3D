@@ -3,6 +3,7 @@ import { useId, useMemo, useState } from "react";
 import { es } from "../i18n/es";
 import type { RoomItem } from "../lib/api";
 import { describeRoomItem, filterRoomItems } from "../lib/roomItems";
+import { PlanEmpty, PlanLoading } from "./PlanState";
 
 interface RoomItemListProps {
   /** Objetos guardados en la sala abierta (GET /rooms/{id}/items o la respuesta de la foto). */
@@ -52,14 +53,9 @@ export function RoomItemList({ items, loading = false }: RoomItemListProps) {
       </h3>
 
       {loading ? (
-        <p className="hint" role="status">
-          {t.loading}
-        </p>
+        <PlanLoading label={t.loading} className="room-objects-loading" />
       ) : items.length === 0 ? (
-        <div className="room-objects-empty">
-          <p className="room-objects-empty-title">{t.empty}</p>
-          <p className="hint">{t.emptyHint}</p>
-        </div>
+        <PlanEmpty compact drawing="objects" title={t.empty} text={t.emptyHint} className="room-objects-empty" />
       ) : (
         <>
           <label className="visually-hidden" htmlFor={filterId}>
