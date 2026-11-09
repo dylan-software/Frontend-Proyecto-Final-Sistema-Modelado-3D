@@ -482,6 +482,150 @@
   color: var(--color-accent);
 }
 
+/* ---------- Mover objetos a mano (ObjectMovePanel, FASE 3) ---------- */
+
+/* Debajo de "Nombres" y "Restablecer vista"; la tarjeta de ocupación queda abajo a la izquierda. */
+.object-move-panel,
+.object-move-tip {
+  position: absolute;
+  top: 52px;
+  right: 12px;
+  z-index: 2;
+  margin: 0;
+}
+
+.object-move-tip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.object-move-panel {
+  display: grid;
+  gap: 8px;
+  width: min(240px, calc(100% - 24px));
+  padding: 12px 14px;
+  border-radius: 14px;
+}
+
+.object-move-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.object-move-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.object-move-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.object-move-close {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border-soft);
+}
+
+.object-move-hint,
+.object-move-status {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.object-move-status:empty {
+  display: none;
+}
+
+.object-move-status-error {
+  color: var(--color-danger);
+}
+
+/* Cruceta de 3 x 3: arriba en el centro, izquierda y derecha en medio, abajo en el centro. */
+.object-move-arrows {
+  display: grid;
+  grid-template-columns: repeat(3, 40px);
+  grid-template-rows: repeat(3, 40px);
+  gap: 4px;
+  justify-content: center;
+}
+
+.object-move-arrow {
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border-radius: 10px;
+  font-size: 18px;
+  /* Toques rápidos seguidos sin que el navegador haga zoom. */
+  touch-action: manipulation;
+}
+
+.object-move-arrow-up {
+  grid-area: 1 / 2;
+}
+
+.object-move-arrow-left {
+  grid-area: 2 / 1;
+}
+
+.object-move-arrow-right {
+  grid-area: 2 / 3;
+}
+
+.object-move-arrow-down {
+  grid-area: 3 / 2;
+}
+
+.object-move-height {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.object-move-height input {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--color-accent);
+}
+
+/* En el móvil, a lo ancho por arriba: abajo están la ocupación y el botón flotante del panel de IA. */
+.project-layout-mobile .object-move-panel,
+.project-layout-mobile .object-move-tip {
+  left: 12px;
+  right: 12px;
+  width: auto;
+}
+
+.project-layout-mobile .object-move-tip {
+  text-align: center;
+}
+
 /* ---------- Crear objeto manualmente (ManualObjectDrawer) ---------- */
 
 .manual-drawer {
