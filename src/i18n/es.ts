@@ -250,6 +250,9 @@ export const es = {
   },
   scene: {
     resetView: "Restablecer vista",
+    labels: "Nombres",
+    hideLabels: "Ocultar los nombres de los objetos",
+    showLabels: "Mostrar los nombres de los objetos",
   },
   objectForm: {
     title: "Añadir un objeto nuevo",
