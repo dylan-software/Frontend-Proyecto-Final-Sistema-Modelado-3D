@@ -17,6 +17,7 @@ import {
 } from "../lib/objectMove";
 import type { Dimensions3D } from "../types/spatial";
 import { IconClose, IconMeter } from "./icons";
+import { PlanEmpty, PlanLoading } from "./PlanState";
 import { ObjectMovePanel, type MoveStatus } from "./ObjectMovePanel";
 import { SpatialAnalytics } from "./SpatialAnalytics";
 
@@ -133,10 +134,14 @@ export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveI
           onDragPreview={setPreview}
           onDragEnd={(original, target) => void commitMove(original, target)}
         />
+      ) : space === "none" ? (
+        <div className="scene-area-status" role="status">
+          <PlanEmpty title={t.unavailable} />
+        </div>
       ) : (
-        <p className="scene-area-status" role="status">
-          {space === "none" ? t.unavailable : t.loading}
-        </p>
+        <div className="scene-area-status">
+          <PlanLoading label={t.loading} />
+        </div>
       )}
 
       {room && movable && shownSelected && mode ? (

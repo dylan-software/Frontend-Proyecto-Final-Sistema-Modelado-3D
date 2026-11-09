@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
 import { ExportProjectButton } from "./ExportProjectButton";
-import { IconAssistant } from "./icons";
+import { IconArrowLeft, IconAssistant } from "./icons";
 import { PublishProjectButton } from "./PublishProjectButton";
 import { InlineEdit } from "./InlineEdit";
 import { ChatDock } from "./ChatDock";
@@ -375,7 +375,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     <div className="project-screen">
       <header className="project-header glass">
         <Link href={ROUTES.projects} className="project-exit">
-          {es.project.exit}
+          <IconArrowLeft size={18} />
+          <span className="project-exit-text">{es.project.exit}</span>
         </Link>
         {currentRoom ? (
           <div className="project-header-text">

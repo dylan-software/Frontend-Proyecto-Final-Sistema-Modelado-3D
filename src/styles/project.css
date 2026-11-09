@@ -1,5 +1,5 @@
-/* Pantalla del proyecto (/proyecto/[id]): panel de IA a la izquierda y 3D a la derecha, con el estilo
-   "plano técnico bajo vidrio" de shell.css. Solo tokens del tema activo. */
+/* Pantalla del proyecto (/proyecto/[id]): panel de IA a la izquierda y 3D a la derecha, sistema
+   «Plano de obra». Solo lee las variables de tokens.css y los colores del tema activo. */
 
 /* ---------- Estructura: cabecera + dos columnas a todo el alto ---------- */
 
@@ -17,9 +17,9 @@
   flex: 1;
   grid-template-columns: clamp(380px, 28vw, 420px) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  gap: 16px;
+  gap: var(--space-4);
   min-height: 0;
-  padding: 16px;
+  padding: var(--space-4);
 }
 
 /* Panel recogido: barra delgada y el 3D a todo el ancho. */
@@ -75,13 +75,13 @@
   position: fixed;
   inset: 0;
   z-index: 1150;
-  background: rgba(1, 4, 9, 0.55);
+  background: var(--color-scrim);
 }
 
 .ai-sheet-fab {
   position: fixed;
-  right: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   z-index: 1100;
   display: grid;
   place-items: center;
@@ -89,8 +89,8 @@
   height: 56px;
   margin: 0;
   padding: 0;
-  border-radius: 50%;
-  box-shadow: 0 8px 24px rgba(1, 4, 9, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -115,9 +115,9 @@
 }
 
 .project-header-text .project-description {
-  max-width: 72ch;
+  max-width: var(--measure);
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
   line-height: 1.4;
   color: var(--color-text-muted);
 }
@@ -360,7 +360,7 @@
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   box-shadow: none;
   background-color: var(--color-surface-alt);
   background-image:
@@ -387,25 +387,27 @@
   left: 14px;
 }
 
+/* Carga o error del 3D: el estado de plano, centrado en la zona. */
 .scene-area-status {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   margin: 0;
-  padding: 24px;
-  text-align: center;
+  padding: var(--space-5);
   color: var(--color-text-muted);
 }
 
+/* Lo que flota sobre el 3D lleva la sombra de lo que flota. */
 .occupancy-card {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
+  bottom: var(--space-3);
+  left: var(--space-3);
   z-index: 2;
   width: min(280px, calc(100% - 24px));
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
 }
 
 .occupancy-card .spatial-analytics {
@@ -418,10 +420,10 @@
 }
 
 .occupancy-card .spatial-analytics h3 {
-  margin: 0 0 4px;
-  padding-right: 32px;
-  font-size: 13px;
-  font-weight: 700;
+  margin: 0 0 var(--space-1);
+  padding-right: var(--space-6);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
 }
 
 .occupancy-card .meter {
@@ -458,28 +460,27 @@
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 .occupancy-hide {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--space-2);
+  right: var(--space-2);
   width: 28px;
   height: 28px;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: var(--radius-sm);
 }
 
 .occupancy-show {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
+  bottom: var(--space-3);
+  left: var(--space-3);
   z-index: 2;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   color: var(--color-accent);
+  box-shadow: var(--shadow-float);
 }
 
 /* ---------- Mover objetos a mano (ObjectMovePanel, FASE 3) ---------- */
@@ -496,18 +497,19 @@
 
 .object-move-tip {
   padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 12px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
   pointer-events: none;
 }
 
 .object-move-panel {
   display: grid;
-  gap: 8px;
+  gap: var(--space-2);
   width: min(240px, calc(100% - 24px));
-  padding: 12px 14px;
-  border-radius: 14px;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
 }
 
 .object-move-header {
@@ -518,10 +520,8 @@
 }
 
 .object-move-title {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
   color: var(--color-text-muted);
 }
 
@@ -531,7 +531,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
 }
 
 .object-move-close {
@@ -542,11 +543,15 @@
   height: 28px;
   margin: 0;
   padding: 0;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   background: transparent;
   border: 1px solid var(--color-border-soft);
+}
+
+.object-move-close:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-border-soft);
 }
 
 .object-move-hint,
@@ -574,15 +579,24 @@
   justify-content: center;
 }
 
+/* Flechas: controles secundarios con borde; el acento solo al pasar el puntero o al pulsar. */
 .object-move-arrow {
   display: grid;
   place-items: center;
   margin: 0;
   padding: 0;
-  border-radius: 10px;
-  font-size: 18px;
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
   /* Toques rápidos seguidos sin que el navegador haga zoom. */
   touch-action: manipulation;
+}
+
+.object-move-arrow:hover:not(:disabled) {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .object-move-arrow-up {
@@ -603,9 +617,14 @@
 
 .object-move-height {
   display: grid;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--space-1);
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
+}
+
+.object-move-height strong {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .object-move-height input {

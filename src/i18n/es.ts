@@ -88,7 +88,7 @@ export const es = {
   },
   /** Pantalla de un proyecto (/proyecto/[id]): cabecera mínima propia. */
   project: {
-    exit: "← Salir del proyecto",
+    exit: "Salir del proyecto",
     loadingName: "Cargando el proyecto…",
     editName: (name: string) => `Editar el nombre del proyecto ${name}`,
     editDescription: (name: string) => `Editar la descripción del proyecto ${name}`,
