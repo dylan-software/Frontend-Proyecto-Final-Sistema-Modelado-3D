@@ -1019,17 +1019,21 @@
 
 /* El catálogo reutiliza la cuadrícula y las tarjetas de Proyectos (.project-grid, .project-card). */
 
+/* Nota de privacidad: una anotación al margen, con la regla en roble de las cotas. */
 .social-privacy {
-  max-width: 72ch;
-  margin: -8px 0 20px;
-  font-size: 14px;
-  line-height: 1.5;
+  max-width: var(--measure);
+  margin: 0 0 var(--space-5);
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--color-measure);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
   color: var(--color-text-muted);
 }
 
 .social-back {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--color-accent);
+  text-underline-offset: 3px;
 }
 
 .publication-title {
@@ -1039,9 +1043,9 @@
 .publication-description {
   display: -webkit-box;
   margin: 0;
-  padding: 0 16px 10px;
+  padding: 0 var(--space-4) 10px;
   overflow: hidden;
-  font-size: 13px;
+  font-size: var(--text-xs);
   line-height: 1.45;
   color: var(--color-text-muted);
   -webkit-box-orient: vertical;
@@ -1054,27 +1058,28 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
+  gap: 6px var(--space-2);
   margin: auto 0 0;
-  padding: 0 16px 4px;
-  font-size: 12px;
+  padding: 0 var(--space-4) var(--space-1);
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
+/* "Tuyo": etiqueta de plano (radio de campo), no una píldora. */
 .publication-mine {
-  padding: 2px 8px;
-  font-weight: 600;
+  padding: 1px 6px;
+  font-weight: var(--weight-semibold);
   color: var(--color-text);
   background: var(--color-accent-soft);
   border: 1px solid var(--color-accent-glow);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
 }
 
 .publication-date {
   margin: 0;
-  padding: 0 16px 12px;
-  font-size: 12px;
+  padding: 0 var(--space-4) var(--space-3);
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
 }
 
@@ -1085,7 +1090,7 @@
 .social-more {
   display: flex;
   justify-content: center;
-  margin: 24px 0 8px;
+  margin: var(--space-5) 0 var(--space-2);
 }
 
 .social-more-error {
