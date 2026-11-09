@@ -3,6 +3,8 @@ import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from "re
 import { es } from "../i18n/es";
 import { api, MAX_CHAT_MESSAGE_CHARS, type ChatChange, type ChatTurn } from "../lib/api";
 import { describeChanges, toChatRequest } from "../lib/chat";
+import { appendDictation } from "../lib/dictation";
+import { DictationButton } from "./DictationButton";
 
 const t = es.chat;
 
@@ -24,6 +26,8 @@ interface ChatDockProps {
  * mensajes se muestran SIEMPRE como texto plano: React escapa el contenido y el CSS solo respeta los
  * saltos de línea; nada de Markdown ni HTML. Si la respuesta guardó cambios, debajo va una línea
  * discreta por cambio ("Añadí: Cuadro, en la pared izquierda") y se avisa con onChanges.
+ * El micrófono (DictationButton) va primero en la fila de acciones: lo dictado se escribe en el campo
+ * y el mensaje solo se envía cuando el usuario pulsa "Enviar".
  */
 export function ChatDock({ roomId, actions, onChanges }: ChatDockProps) {
   const [messages, setMessages] = useState<DisplayTurn[]>([]);
@@ -31,7 +35,14 @@ export function ChatDock({ roomId, actions, onChanges }: ChatDockProps) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
+
+  /** Lo dictado se añade al campo y se le da el foco para revisarlo; enviar sigue siendo cosa del usuario. */
+  function handleDictated(text: string) {
+    setInput((current) => appendDictation(current, text, MAX_CHAT_MESSAGE_CHARS));
+    inputRef.current?.focus();
+  }
 
   // Mantiene a la vista el último mensaje (o la burbuja de "Pensando…").
   useEffect(() => {
@@ -102,6 +113,7 @@ export function ChatDock({ roomId, actions, onChanges }: ChatDockProps) {
         </label>
         <input
           id={inputId}
+          ref={inputRef}
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -115,7 +127,10 @@ export function ChatDock({ roomId, actions, onChanges }: ChatDockProps) {
         </button>
       </form>
 
-      {actions && <div className="chat-dock-actions">{actions}</div>}
+      <div className="chat-dock-actions">
+        <DictationButton disabled={sending || disabled} onText={handleDictated} />
+        {actions}
+      </div>
     </div>
   );
 }
