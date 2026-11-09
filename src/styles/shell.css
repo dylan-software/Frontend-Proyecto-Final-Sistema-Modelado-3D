@@ -1182,6 +1182,162 @@
   margin-left: auto;
 }
 
+/* ---------- "Publicar en Habita" (cabecera del proyecto) ---------- */
+
+/* El formulario y la confirmación flotan bajo el botón, sin mover la cabecera. */
+.publish-project {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.publish-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.publish-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-glow);
+  border-radius: 999px;
+}
+
+.publish-badge::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.publish-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, calc(100vw - 24px));
+  margin: 0;
+  padding: 18px;
+  text-align: left;
+  border-radius: 16px;
+}
+
+.publish-panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.publish-notice {
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  background: var(--color-accent-soft);
+  border-radius: 10px;
+}
+
+.publish-notice p {
+  margin: 0;
+}
+
+.publish-notice p + p {
+  margin-top: 4px;
+}
+
+.publish-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.publish-panel input,
+.publish-panel textarea {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  font: inherit;
+  font-size: 14px;
+}
+
+.publish-panel textarea {
+  resize: vertical;
+}
+
+.publish-panel [aria-invalid="true"] {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px var(--color-danger-soft);
+}
+
+.publish-count {
+  margin: -4px 0 0;
+  font-size: 12px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.publish-confirm-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.publish-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+.publish-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.publish-actions button {
+  margin: 0;
+  border-radius: 999px;
+}
+
+.publish-actions .publish-secondary {
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+}
+
+.publish-actions .publish-secondary:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-border-soft);
+  box-shadow: none;
+}
+
+.publish-actions .publish-danger {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger);
+}
+
+.publish-actions .publish-danger:hover:not(:disabled) {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  box-shadow: none;
+}
+
 /* Cada grupo es una "lámina" del plano: regla del acento junto a la cabecera, sin tarjeta alrededor;
    entre láminas, una línea fina. */
 .group-section {
