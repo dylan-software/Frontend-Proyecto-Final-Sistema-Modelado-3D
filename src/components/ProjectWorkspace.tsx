@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
+import { ClampedDescription } from "./ClampedDescription";
 import { ExportProjectButton } from "./ExportProjectButton";
 import { IconArrowLeft, IconAssistant } from "./icons";
 import { PublishProjectButton } from "./PublishProjectButton";
@@ -81,6 +82,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
   const [panelOpen, setPanelOpen] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
   useEffect(() => setPanelOpen(readAiPanelOpen()), []);
+  // Descripción de la cabecera desplegada ("Ver más" en el móvil): solo mientras la página está abierta.
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   function handlePanelOpenChange(open: boolean) {
     if (isMobile) {
@@ -412,16 +415,21 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
               check={(text) => checkPlainName(text, MAX_PROJECT_NAME_LENGTH)}
               onSave={(name) => saveRoomText({ name: name ?? currentRoom.name })}
             />
-            <InlineEdit
-              as="p"
-              className="project-description"
-              kind="description"
-              value={currentRoom.description ?? null}
-              placeholder={es.groups.noDescription}
-              editLabel={es.project.editDescription(currentRoom.name)}
-              check={checkDescription}
-              onSave={(description) => saveRoomText({ description })}
-            />
+            <ClampedDescription
+              expanded={descriptionExpanded}
+              onToggle={() => setDescriptionExpanded((expanded) => !expanded)}
+            >
+              <InlineEdit
+                as="p"
+                className="project-description"
+                kind="description"
+                value={currentRoom.description ?? null}
+                placeholder={es.groups.noDescription}
+                editLabel={es.project.editDescription(currentRoom.name)}
+                check={checkDescription}
+                onSave={(description) => saveRoomText({ description })}
+              />
+            </ClampedDescription>
           </div>
         ) : (
           <h1 className="project-name">{es.project.loadingName}</h1>

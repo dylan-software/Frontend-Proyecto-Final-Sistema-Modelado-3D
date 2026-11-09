@@ -984,10 +984,66 @@
   padding: 0 var(--space-4);
 }
 
+/* Pantallas estrechas: los botones bajan a su propia fila, bajo la flecha de salir y el nombre. */
+@media (max-width: 900px) {
+  .project-header {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
+  .project-header .page-header-actions {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .project-header .project-export {
+    margin-left: 0;
+  }
+
+  /* El formulario de publicar se ancla a la cabecera entera (no al botón) para no salirse por la izquierda. */
+  .project-header .publish-project {
+    position: static;
+  }
+
+  .project-header .publish-panel {
+    right: 12px;
+    left: auto;
+    width: min(420px, calc(100% - 24px));
+  }
+}
+
 @media (max-width: 560px) {
   .project-header {
     gap: 10px;
     padding: 8px 12px;
+  }
+
+  /* Los dos botones se reparten la fila; si está publicado, su estado ocupa la fila entera. */
+  .project-header .page-header-actions > * {
+    flex: 1 1 0;
+    min-width: 0;
+    align-items: stretch;
+  }
+
+  .project-header .page-header-actions > .publish-project:has(.publish-status) {
+    flex-basis: 100%;
+  }
+
+  .project-header .publish-status {
+    justify-content: flex-start;
+  }
+
+  .project-header .publish-status > * {
+    flex: 1 1 auto;
+  }
+
+  .project-header .page-header-actions .new-group-button {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    white-space: normal;
   }
 
   /* En el móvil, "Salir" queda solo como flecha; el texto sigue para los lectores de pantalla. */
