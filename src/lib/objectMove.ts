@@ -253,6 +253,17 @@ export function moveHint(mode: MoveMode): string {
   return mode.kind === "raised" ? t.hintRaised : t.hintFloor;
 }
 
+/** Cuánto se ve "Posición guardada…" (o el aviso de hueco más cercano) antes de ocultarse solo. */
+export const MOVE_STATUS_HIDE_MS = 4000;
+
+/**
+ * Milisegundos tras los que se oculta el mensaje del panel, o null si se queda: los avisos de un
+ * movimiento correcto se van solos; un error se queda hasta el siguiente movimiento o selección.
+ */
+export function statusHideDelay(kind: "info" | "error"): number | null {
+  return kind === "info" ? MOVE_STATUS_HIDE_MS : null;
+}
+
 /** Mensaje tras un PATCH correcto: si el servidor movió el objeto a otro sitio, se dice. */
 export function moveResultMessage(result: PlacedItemResult): string {
   return result.adjusted ? es.objectMove.adjusted : es.objectMove.saved;
