@@ -10,6 +10,18 @@ interface RoomItemListProps {
   items: readonly RoomItem[];
   /** True mientras se carga la sala: no se muestra el estado vacío antes de tiempo. */
   loading?: boolean;
+  /** Objeto seleccionado en el 3D (se marca en la lista). */
+  selectedId?: number | null;
+  /**
+   * Elegir un objeto de la lista (FASE 8): cada fila pasa a ser un botón que se alcanza con Tab y se
+   * pulsa con Enter o Espacio; el 3D abre su panel de mover. Sin esta prop la lista es solo lectura.
+   */
+  onSelect?: (id: number) => void;
+}
+
+/** id del botón de una fila, para devolverle el foco al soltar el objeto con Escape. */
+export function roomObjectRowId(itemId: number): string {
+  return `room-object-${itemId}`;
 }
 
 /**
@@ -37,10 +49,11 @@ function ElevationMark({ raised }: { raised: boolean }) {
  * Cada línea dice el nombre, si está en el suelo o a qué altura, y sus medidas; nunca coordenadas.
  * Componente pequeño y reutilizable: solo recibe los objetos y no llama a la API.
  */
-export function RoomItemList({ items, loading = false }: RoomItemListProps) {
+export function RoomItemList({ items, loading = false, selectedId = null, onSelect }: RoomItemListProps) {
   const t = es.projectObjects;
   const titleId = useId();
   const filterId = useId();
+  const hintId = useId();
   const [query, setQuery] = useState("");
 
   const lines = useMemo(() => items.map(describeRoomItem), [items]);
@@ -80,19 +93,46 @@ export function RoomItemList({ items, loading = false }: RoomItemListProps) {
               </button>
             </p>
           ) : (
-            <ul className="room-objects-list">
-              {visible.map((line) => (
-                <li key={line.id} className={`room-objects-row${line.raised ? " room-objects-row-raised" : ""}`}>
-                  <ElevationMark raised={line.raised} />
-                  <span className="room-objects-name">{line.name}</span>
-                  <span className="room-objects-size" title={line.sizeLabel}>
-                    <span aria-hidden="true">{line.size}</span>
-                    <span className="visually-hidden">{line.sizeLabel}</span>
-                  </span>
-                  <span className="room-objects-place">{line.place}</span>
-                </li>
-              ))}
-            </ul>
+            <>
+              {onSelect && (
+                <p id={hintId} className="hint room-objects-hint">
+                  {t.selectHint}
+                </p>
+              )}
+              <ul className="room-objects-list" aria-describedby={onSelect ? hintId : undefined}>
+                {visible.map((line) => {
+                  const rowClass = `room-objects-row${line.raised ? " room-objects-row-raised" : ""}`;
+                  const content = (
+                    <>
+                      <ElevationMark raised={line.raised} />
+                      <span className="room-objects-name">{line.name}</span>
+                      <span className="room-objects-size" title={line.sizeLabel}>
+                        <span aria-hidden="true">{line.size}</span>
+                        <span className="visually-hidden">{line.sizeLabel}</span>
+                      </span>
+                      <span className="room-objects-place">{line.place}</span>
+                    </>
+                  );
+                  return onSelect ? (
+                    <li key={line.id} className="room-objects-item">
+                      <button
+                        type="button"
+                        id={roomObjectRowId(line.id)}
+                        className={`${rowClass} room-objects-select`}
+                        aria-pressed={line.id === selectedId}
+                        onClick={() => onSelect(line.id)}
+                      >
+                        {content}
+                      </button>
+                    </li>
+                  ) : (
+                    <li key={line.id} className={rowClass}>
+                      {content}
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
           )}
         </>
       )}

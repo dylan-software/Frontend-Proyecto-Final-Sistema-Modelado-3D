@@ -40,6 +40,15 @@ interface SceneAreaProps {
    * prop los objetos no se pueden mover. Los errores llegan como excepción y se muestran en el panel.
    */
   onMoveItem?: (roomId: number, itemId: number, body: ItemMoveBody) => Promise<PlacedItemResult>;
+  /**
+   * Objeto seleccionado cuando lo controla el padre (FASE 8: también se elige desde la lista de
+   * objetos). Sin esta prop, SceneArea guarda la selección por su cuenta, como antes.
+   */
+  selectedId?: number | null;
+  /** Avisa de cada cambio de selección (tocar un objeto, cerrar el panel, cambiar de sala). */
+  onSelectedChange?: (id: number | null) => void;
+  /** Petición de foco para el panel de mover (ver ObjectMovePanel.focusRequest); 0 = ninguna. */
+  focusMovePanel?: number;
 }
 
 /**
@@ -51,13 +60,27 @@ interface SceneAreaProps {
  * o la barra de altura muestran una vista previa y, al soltar, se guarda con onMoveItem. Mientras se
  * guarda se ve la posición pedida; después, la que devolvió el servidor (o la de antes si falló).
  */
-export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveItem }: SceneAreaProps) {
+export function SceneArea({
+  space,
+  roomItems,
+  estimated,
+  occupyingItems,
+  onMoveItem,
+  selectedId: controlledId,
+  onSelectedChange,
+  focusMovePanel = 0,
+}: SceneAreaProps) {
   const t = es.sceneArea;
   const [showOccupancy, setShowOccupancy] = useState(true);
   const room = space !== null && typeof space === "object" ? space : null;
   const roomId = room?.id ?? null;
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [ownSelectedId, setOwnSelectedId] = useState<number | null>(null);
+  const selectedId = controlledId !== undefined ? controlledId : ownSelectedId;
+  function setSelectedId(id: number | null) {
+    setOwnSelectedId(id);
+    onSelectedChange?.(id);
+  }
   // El objeto movido como se ve mientras se arrastra o se guarda (null = como está guardado).
   const [preview, setPreview] = useState<RoomItem | null>(null);
   const [busy, setBusy] = useState(false);
@@ -66,6 +89,9 @@ export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveI
   // Sin el objeto guardado (otra sala, o Deshacer lo recreó con otro id) no hay panel.
   const selected = roomItems.find((item) => item.id === selectedId) ?? null;
   const mode = selected && room ? moveModeOf(selected, room.vertices) : null;
+
+  // Otro objeto (también si se eligió desde la lista): el mensaje del movimiento anterior no le corresponde.
+  useEffect(() => setStatus(null), [selectedId]);
 
   // Otra sala: nada seleccionado ni a medias.
   useEffect(() => {
@@ -155,6 +181,7 @@ export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveI
           onElevationPreview={handleElevationPreview}
           onElevationCommit={handleElevationCommit}
           onClose={() => select(null)}
+          focusRequest={focusMovePanel}
         />
       ) : (
         room &&

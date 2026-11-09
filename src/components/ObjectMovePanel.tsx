@@ -1,6 +1,8 @@
+import { useEffect, useRef, type KeyboardEvent } from "react";
+
 import { es } from "../i18n/es";
 import type { RoomItem } from "../lib/api";
-import { arrowLabel, elevationRange, moveHint, type ArrowDirection, type MoveMode } from "../lib/objectMove";
+import { arrowKeyDirection, arrowLabel, elevationRange, moveHint, type ArrowDirection, type MoveMode } from "../lib/objectMove";
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconArrowUp, IconClose } from "./icons";
 
 /** Mensaje bajo los controles: el resultado del último movimiento o su error. */
@@ -23,6 +25,12 @@ interface ObjectMovePanelProps {
   /** Se suelta la barra (o se deja de pulsar una tecla): se guarda la altura. */
   onElevationCommit: () => void;
   onClose: () => void;
+  /**
+   * Petición de foco (FASE 8): cada vez que el objeto se elige desde la lista, este número cambia y el
+   * foco pasa al panel, para que las flechas lo muevan sin buscar los botones. 0 = sin petición (el
+   * objeto se eligió tocándolo en el 3D y el foco se queda donde estaba).
+   */
+  focusRequest?: number;
 }
 
 // Orden en la cruceta de 3 x 3 (CSS): arriba, izquierda, derecha y abajo.
@@ -37,6 +45,10 @@ const ARROWS: { direction: ArrowDirection; Glyph: typeof IconArrowUp }[] = [
  * Panel del objeto seleccionado en el 3D (FASE 3): cómo moverlo, las flechas de respaldo (por si el
  * arrastre falla en el móvil; 10 cm por toque, o 5 cm de altura en una pared), la barra de altura de
  * los objetos levantados y el resultado del último movimiento. Cada movimiento lo guarda el servidor.
+ *
+ * Teclado (FASE 8): con el foco dentro del panel, las flechas hacen lo mismo que los botones de la
+ * cruceta y Escape suelta el objeto. La barra de altura conserva sus flechas propias. Tras cada flecha
+ * el foco queda en el panel (no en un botón, que se deshabilita mientras se guarda y lo perdería).
  */
 export function ObjectMovePanel({
   item,
@@ -48,13 +60,41 @@ export function ObjectMovePanel({
   onElevationPreview,
   onElevationCommit,
   onClose,
+  focusRequest = 0,
 }: ObjectMovePanelProps) {
   const t = es.objectMove;
   const range = elevationRange(item, roomHeightM);
   const message = busy ? t.saving : status?.text ?? "";
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (focusRequest > 0) panelRef.current?.focus();
+  }, [focusRequest]);
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+    // La barra de altura usa las flechas para su propio valor.
+    if ((event.target as HTMLElement).tagName === "INPUT") return;
+    const direction = arrowKeyDirection(event.key);
+    if (!direction) return;
+    event.preventDefault();
+    panelRef.current?.focus();
+    if (!busy) onArrow(direction);
+  }
 
   return (
-    <div className="object-move-panel glass" role="group" aria-label={t.panelLabel(item.name)}>
+    <div
+      ref={panelRef}
+      className="object-move-panel glass"
+      role="group"
+      aria-label={t.panelLabel(item.name)}
+      tabIndex={-1}
+      onKeyDown={handleKeyDown}
+    >
       <div className="object-move-header">
         <span className="object-move-title">{t.title}</span>
         <strong className="object-move-name" title={item.name}>
@@ -65,6 +105,7 @@ export function ObjectMovePanel({
         </button>
       </div>
       <p className="object-move-hint">{moveHint(mode)}</p>
+      <p className="object-move-hint object-move-keys">{t.keyboardHint}</p>
 
       <div className="object-move-arrows" role="group" aria-label={t.arrowsLabel}>
         {ARROWS.map(({ direction, Glyph }) => (

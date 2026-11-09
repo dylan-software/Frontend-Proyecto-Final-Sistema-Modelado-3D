@@ -71,6 +71,8 @@ export const es = {
     empty: "Este proyecto aún no tiene objetos",
     emptyHint: "Usa «Foto a 3D» para crear la sala y sus objetos a partir de una foto.",
     noMatches: (query: string) => `Ningún objeto coincide con «${query}».`,
+    /** Selección desde la lista (FASE 8): abre el panel de mover del 3D. */
+    selectHint: "Elige un objeto para moverlo en el 3D.",
     onFloor: "En el suelo",
     aboveFloor: (height: string) => `A ${height} del suelo`,
     /** Ancho × fondo × alto, en metros. */
@@ -329,6 +331,8 @@ export const es = {
     title: "Mover",
     close: "Dejar de mover este objeto",
     selectHint: "Toca o haz clic en un objeto para moverlo.",
+    /** Línea del panel para quien usa el teclado (FASE 8). */
+    keyboardHint: "Con el teclado: las flechas lo mueven y Escape lo suelta.",
     hintFloor: "Arrástralo por el suelo o usa las flechas (10 cm por toque).",
     hintRaised: "Arrástralo o usa las flechas (10 cm por toque); la altura, con la barra.",
     hintWall: (wall: string) =>
