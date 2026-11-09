@@ -268,6 +268,12 @@ export interface RoomUndoResult {
   undone: UndoneChange;
 }
 
+/** Respuesta 201 de POST /rooms/import (CONTRATO-FASE6.md): el proyecto nuevo, con ids nuevos. */
+export interface RoomImportResult {
+  room: RoomDetail;
+  items: RoomItem[];
+}
+
 /** Un cambio guardado por el chat; `where` ya viene en palabras ("en la pared izquierda"). */
 export interface ChatChange {
   action: "added" | "removed" | "moved";
@@ -354,6 +360,13 @@ export const api = {
   }) => v1Request<RoomDetail>("/spaces/rooms", { method: "POST", body: JSON.stringify(body) }),
 
   getRoom: (roomId: number) => v1Request<RoomDetail>(roomPath(roomId)),
+
+  /**
+   * Crea un proyecto nuevo a partir del texto de un archivo exportado. El texto se envía tal cual como
+   * application/json: lo valida el backend (máx. 256 KB, esquema estricto).
+   */
+  importRoom: (fileText: string) =>
+    v1Request<RoomImportResult>("/spaces/rooms/import", { method: "POST", body: fileText }),
 
   /** Renombra, describe o mueve de grupo un proyecto; no toca su forma ni sus muebles. */
   updateRoom: (roomId: number, changes: RoomChanges) =>
