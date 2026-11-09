@@ -339,6 +339,9 @@ export function RenderScene({
         </button>
       </div>
       <Canvas
+        // Los rótulos (Html de drei) se añaden a este contenedor con z-index enormes; la clase lo
+        // convierte en su propio contexto de apilamiento (ver .scene-canvas en globals.css).
+        className="scene-canvas"
         camera={{ position: view.position, fov: CAMERA_FOV_DEG }}
         // Un toque (sin arrastrar) fuera de las cajas quita la selección.
         onPointerMissed={onSelect ? () => onSelect(null) : undefined}
