@@ -1368,6 +1368,25 @@
   box-shadow: var(--shadow-float);
 }
 
+/* Variante modal (tarjetas de /proyectos): fondo que cubre la página y el diálogo centrado. */
+.publish-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  overflow-y: auto;
+  background: var(--color-scrim);
+}
+
+.publish-panel.publish-panel-modal {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: min(420px, 100%);
+}
+
 .publish-panel-title {
   margin: 0;
   font-size: var(--text-md);
@@ -1711,6 +1730,57 @@
 .project-card-moving {
   font-size: 12px;
   color: var(--color-text-muted);
+}
+
+/* "Más acciones" (tres puntos) a la derecha de "Mover a grupo". */
+.project-card-more {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.project-card-more:hover:not(:disabled),
+.project-card-more[aria-expanded="true"] {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+/* Lo que despliega "Más acciones": "Publicar en Habita" a lo ancho de la tarjeta. */
+.project-card-actions {
+  padding: 0 12px 10px;
+}
+
+.project-card-actions[hidden] {
+  display: none;
+}
+
+.project-card-actions .publish-project {
+  align-items: stretch;
+}
+
+.project-card-actions .publish-status {
+  justify-content: flex-start;
+}
+
+.project-card-actions .publish-status > * {
+  flex: 1 1 auto;
+}
+
+.project-card-actions .new-group-button {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: var(--text-xs);
+  line-height: 1.25;
+  white-space: normal;
 }
 
 .project-card-error {
