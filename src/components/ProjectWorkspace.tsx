@@ -9,7 +9,7 @@ import { InlineEdit } from "./InlineEdit";
 import { ChatDock } from "./ChatDock";
 import { PhotoToRoom } from "./PhotoToRoom";
 import { UndoButton } from "./UndoButton";
-import { RoomItemList } from "./RoomItemList";
+import { RoomItemList, roomObjectRowId } from "./RoomItemList";
 import { SceneArea } from "./SceneArea";
 import { useMediaQuery } from "../hooks/useMediaQuery";
 import { es } from "../i18n/es";
@@ -89,6 +89,29 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     }
     setPanelOpen(open);
     saveAiPanelOpen(open);
+  }
+
+  // FASE 8: objeto seleccionado, compartido por la lista "Objetos del proyecto" y el 3D, y si se eligió
+  // desde la lista (entonces el panel de mover toma el foco y, al soltarlo, el foco vuelve a la fila).
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedFromList, setSelectedFromList] = useState(false);
+  // Cambia en cada elección desde la lista, también si se vuelve a elegir el mismo objeto.
+  const [panelFocusRequest, setPanelFocusRequest] = useState(0);
+
+  function handleListSelect(id: number) {
+    setSelectedItemId(id);
+    setSelectedFromList(true);
+    setPanelFocusRequest((n) => n + 1);
+    // En el móvil la lista está en la capa: se cierra para ver el 3D y su panel.
+    if (isMobile) setSheetOpen(false);
+  }
+
+  function handleSceneSelection(id: number | null) {
+    const previous = selectedItemId;
+    const returnFocus = id === null && selectedFromList && previous !== null;
+    setSelectedItemId(id);
+    setSelectedFromList(false);
+    if (returnFocus) requestAnimationFrame(() => document.getElementById(roomObjectRowId(previous))?.focus());
   }
 
   // Escape cierra la capa del móvil.
@@ -447,7 +470,14 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
             </p>
           )}
 
-          {space !== "none" && <RoomItemList items={roomItems} loading={space === "loading"} />}
+          {space !== "none" && (
+            <RoomItemList
+              items={roomItems}
+              loading={space === "loading"}
+              selectedId={selectedItemId}
+              onSelect={handleListSelect}
+            />
+          )}
         </AiPanel>
 
         <SceneArea
@@ -456,6 +486,9 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
           estimated={estimated}
           occupyingItems={occupyingItems}
           onMoveItem={handleMoveItem}
+          selectedId={selectedItemId}
+          onSelectedChange={handleSceneSelection}
+          focusMovePanel={selectedFromList ? panelFocusRequest : 0}
         />
 
         {isMobile && sheetOpen && (

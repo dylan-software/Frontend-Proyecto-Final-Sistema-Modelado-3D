@@ -292,8 +292,59 @@
   padding: 9px 12px;
 }
 
-.room-objects-row + .room-objects-row {
+.room-objects-row + .room-objects-row,
+.room-objects-item + .room-objects-item {
   border-top: 1px solid var(--color-border-soft);
+}
+
+/* Fila elegible (FASE 8): botón a todo el ancho con el aspecto de la fila de solo lectura. */
+.room-objects-item {
+  display: block;
+}
+
+.room-objects-select {
+  width: 100%;
+  margin: 0;
+  text-align: left;
+  font-weight: var(--weight-regular);
+  color: var(--color-text);
+  background: transparent;
+  border-radius: 0;
+}
+
+.room-objects-item:first-child .room-objects-select {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.room-objects-item:last-child .room-objects-select {
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.room-objects-item:only-child .room-objects-select {
+  border-radius: var(--radius-md);
+}
+
+.room-objects-select:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+}
+
+.room-objects-select:active:not(:disabled) {
+  transform: none;
+}
+
+/* El foco se dibuja por dentro: la lista recorta los bordes. */
+.room-objects-select:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Seleccionado: tinte del acento y una regla de 2 px a la izquierda, como en la navegación. */
+.room-objects-select[aria-pressed="true"] {
+  background: var(--color-accent-soft);
+  box-shadow: inset 2px 0 0 var(--color-accent);
+}
+
+.room-objects-hint {
+  margin: 0;
 }
 
 .room-objects-mark {
@@ -557,6 +608,11 @@
 
 .object-move-status:empty {
   display: none;
+}
+
+/* Con el foco en el panel (elegido con el teclado), el anillo rodea la tarjeta entera. */
+.object-move-panel:focus-visible {
+  outline-offset: 2px;
 }
 
 .object-move-status-error {

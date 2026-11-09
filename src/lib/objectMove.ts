@@ -43,6 +43,21 @@ export type MoveMode = { kind: "floor" } | { kind: "wall"; wall: WallSide } | { 
 /** Dirección de una flecha: en el plano para floor/raised; a lo largo de la pared y altura para wall. */
 export type ArrowDirection = "up" | "down" | "left" | "right";
 
+const ARROW_KEYS: Readonly<Record<string, ArrowDirection>> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+};
+
+/**
+ * Flecha de la cruceta que corresponde a una tecla (FASE 8: mover con el teclado), o null si la tecla
+ * no es una flecha. Solo lee una tabla fija: O(1).
+ */
+export function arrowKeyDirection(key: string): ArrowDirection | null {
+  return Object.hasOwn(ARROW_KEYS, key) ? ARROW_KEYS[key] : null;
+}
+
 /** Cuerpo del PATCH: solo `position` (las medidas y el nombre no cambian). */
 export interface ItemMoveBody {
   position: { x: number; y: number; elevationM?: number; wall?: WallSide };
