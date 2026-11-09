@@ -17,12 +17,14 @@ import {
   toFurnitureInput,
   type FurnitureInput,
   type PhotoAnalysis,
+  type PlacedItemResult,
   type Point2D,
   type RoomDetail,
   type RoomItem,
   type RoomUndoResult,
 } from "../lib/api";
 import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
+import type { ItemMoveBody } from "../lib/objectMove";
 import { nextUndoDepth } from "../lib/roomUndo";
 import { ROUTES } from "../lib/routes";
 import { saveCurrentRoomId } from "../lib/session";
@@ -201,6 +203,20 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
     } catch (err) {
       setError((err as Error).message);
     }
+  }
+
+  /**
+   * Mover a mano (FASE 3): PATCH del objeto; el servidor revalida y su respuesta (la posición FINAL)
+   * sustituye al objeto en la lista y en el 3D. Cuenta como un cambio que se puede deshacer (el backend
+   * guarda una copia antes de cada PATCH correcto). Los errores se relanzan para que SceneArea los muestre.
+   */
+  async function handleMoveItem(roomId: number, itemId: number, body: ItemMoveBody): Promise<PlacedItemResult> {
+    const result = await api.updateRoomItem(roomId, itemId, body);
+    if (requestedRoomId.current === roomId) {
+      setRoomItems((items) => items.map((item) => (item.id === result.item.id ? result.item : item)));
+      setUndoDepth((depth) => nextUndoDepth(depth, { type: "change" }));
+    }
+    return result;
   }
 
   /** "Deshacer" ya restauró la sala en el backend: se muestra sin pedir nada más. */
@@ -428,7 +444,13 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
           {space !== "none" && <RoomItemList items={roomItems} loading={space === "loading"} />}
         </AiPanel>
 
-        <SceneArea space={space} roomItems={roomItems} estimated={estimated} occupyingItems={occupyingItems} />
+        <SceneArea
+          space={space}
+          roomItems={roomItems}
+          estimated={estimated}
+          occupyingItems={occupyingItems}
+          onMoveItem={handleMoveItem}
+        />
 
         {isMobile && sheetOpen && (
           <div className="ai-sheet-backdrop" aria-hidden="true" onClick={() => setSheetOpen(false)} />
