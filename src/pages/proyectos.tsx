@@ -3,10 +3,11 @@ import { useRouter } from "next/router";
 
 import { AppShell } from "../components/AppShell";
 import { GroupSection } from "../components/GroupSection";
+import { ImportProjectButton } from "../components/ImportProjectButton";
 import { NewGroupButton } from "../components/NewGroupButton";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
-import { api, type ProjectGroup, type RoomSummary } from "../lib/api";
+import { api, type ProjectGroup, type RoomImportResult, type RoomSummary } from "../lib/api";
 import { groupProjects, nextTestName } from "../lib/groups";
 import { filterProjects, newProjectRoom } from "../lib/projects";
 import { roomDetailLoader } from "../lib/roomDetails";
@@ -52,6 +53,7 @@ export default function ProjectsPage() {
   // Sección donde se está creando un proyecto: id del grupo, "none" (sin grupo) o null.
   const [creatingIn, setCreatingIn] = useState<number | "none" | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   const userId = session.status === "signedIn" ? session.userId : null;
 
@@ -89,6 +91,12 @@ export default function ProjectsPage() {
       setCreateError(t.createFailed((err as Error).message));
       setCreatingIn(null);
     }
+  }
+
+  /** El proyecto importado (nuevo, sin grupo) se abre como cualquier proyecto recién creado. */
+  async function handleImported(result: RoomImportResult) {
+    saveCurrentRoomId(result.room.id);
+    await router.push(ROUTES.project(result.room.id));
   }
 
   async function handleCreateGroup(name: string) {
@@ -129,6 +137,7 @@ export default function ProjectsPage() {
         <h1 className="page-title">{t.title}</h1>
         {ready && <p className="page-subtitle">{g.summary(ready.groups.length, ready.rooms.length)}</p>}
         <div className="page-header-actions">
+          <ImportProjectButton onImported={handleImported} onError={setImportError} disabled={!ready || creatingIn !== null} />
           <NewGroupButton onCreate={handleCreateGroup} disabled={!ready} />
         </div>
       </div>
@@ -136,6 +145,11 @@ export default function ProjectsPage() {
       {createError && (
         <p className="page-alert" role="alert">
           {createError}
+        </p>
+      )}
+      {importError && (
+        <p className="page-alert" role="alert">
+          {importError}
         </p>
       )}
 
