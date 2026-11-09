@@ -17,9 +17,9 @@ interface TopBarProps {
 export function BrandMark() {
   return (
     <svg className="brand-mark" viewBox="0 0 28 28" width="28" height="28" aria-hidden="true">
-      <rect x="1" y="1" width="26" height="26" rx="7" fill="var(--color-accent-soft)" stroke="var(--color-accent-glow)" />
+      <rect x="1" y="1" width="26" height="26" rx="6" fill="var(--color-accent-soft)" stroke="var(--color-border-soft)" />
       <path d="M8 20V8h12" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M12 12h8v8h-8z" fill="none" stroke="var(--color-accent)" strokeWidth="1.2" strokeDasharray="2 2" />
+      <path d="M12 12h8v8h-8z" fill="none" stroke="var(--color-measure)" strokeWidth="1.2" strokeDasharray="2 2" />
     </svg>
   );
 }
