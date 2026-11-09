@@ -876,127 +876,13 @@
 
 /* ---------- Red Social ---------- */
 
-.social-panel {
-  max-width: 880px;
-  padding: 32px;
-  border-radius: 20px;
-}
+/* El catálogo reutiliza la cuadrícula y las tarjetas de Proyectos (.project-grid, .project-card). */
 
-.social-hero {
-  display: grid;
-  grid-template-columns: 160px minmax(0, 1fr);
-  align-items: center;
-  gap: 28px;
-  margin-bottom: 28px;
-}
-
-.social-plan {
-  width: 160px;
-  height: 120px;
-}
-
-.social-plan path {
-  fill: none;
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.social-plan-done {
-  stroke: var(--color-accent);
-}
-
-.social-plan-pending {
-  stroke: var(--color-text-muted);
-  stroke-dasharray: 5 7;
-  opacity: 0.6;
-}
-
-.social-plan-cursor {
-  fill: var(--color-accent);
-  filter: drop-shadow(0 0 6px var(--color-accent-glow));
-}
-
-.social-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 10px;
-  padding: 4px 12px;
-  border: 1px solid var(--color-accent-glow);
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text);
-  background: var(--color-accent-soft);
-}
-
-.social-status::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--color-accent);
-}
-
-.social-lead {
-  max-width: 52ch;
-  margin: 10px 0 0;
-  font-size: 16px;
-  line-height: 1.55;
-  color: var(--color-text-muted);
-}
-
-.social-ideas-title {
-  margin: 0 0 14px;
-  font-size: 17px;
-  font-weight: 700;
-}
-
-.social-ideas {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.social-idea {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 18px;
-  border: 1px solid var(--color-border-soft);
-  border-radius: 14px;
-  background: var(--color-surface-alt);
-}
-
-.social-idea-icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-  color: var(--color-accent);
-  background: var(--color-accent-soft);
-}
-
-.social-idea-title {
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.social-idea-text {
+.social-privacy {
+  max-width: 72ch;
+  margin: -8px 0 20px;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--color-text-muted);
-}
-
-.social-note {
-  margin: 24px 0 0;
-  font-size: 14px;
   color: var(--color-text-muted);
 }
 
@@ -1005,20 +891,64 @@
   color: var(--color-accent);
 }
 
-@media (max-width: 560px) {
-  .social-panel {
-    padding: 20px;
-  }
+.publication-title {
+  margin: 0;
+}
 
-  .social-hero {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
-  }
+.publication-description {
+  display: -webkit-box;
+  margin: 0;
+  padding: 0 16px 10px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow-wrap: anywhere;
+}
 
-  .social-plan {
-    width: 120px;
-    height: 90px;
-  }
+.publication-facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: auto 0 0;
+  padding: 0 16px 4px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.publication-mine {
+  padding: 2px 8px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-glow);
+  border-radius: 999px;
+}
+
+.publication-date {
+  margin: 0;
+  padding: 0 16px 12px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.publication-card .publication-copy {
+  flex: 1;
+}
+
+.social-more {
+  display: flex;
+  justify-content: center;
+  margin: 24px 0 8px;
+}
+
+.social-more-error {
+  margin-top: 20px;
 }
 
 /* ---------- Edición en el sitio (InlineEdit) ---------- */
