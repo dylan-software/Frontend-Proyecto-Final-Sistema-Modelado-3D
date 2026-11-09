@@ -52,8 +52,9 @@
   left: 0;
   z-index: 1200;
   height: 90dvh;
-  border-radius: 20px 20px 0 0;
-  animation: ai-sheet-in 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: var(--shadow-float);
+  animation: ai-sheet-in var(--duration-base) var(--ease-out);
 }
 
 .ai-panel-sheet .ai-panel-chat {
@@ -135,16 +136,16 @@
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
 }
 
 .ai-panel-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-4);
   height: 100%;
   min-height: 0;
-  padding: 14px 16px 16px;
+  padding: 14px var(--space-4) var(--space-4);
   overflow-y: auto;
 }
 
@@ -153,10 +154,13 @@
   display: none;
 }
 
+/* Cabecera del panel: icono, título y "recoger"; una línea fina la separa de la conversación. */
 .ai-panel-header {
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .ai-panel-icon {
@@ -164,7 +168,7 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   color: var(--color-accent);
   background: var(--color-accent-soft);
 }
@@ -172,9 +176,10 @@
 .ai-panel-title {
   flex: 1;
   margin: 0;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  font-stretch: var(--title-stretch);
+  letter-spacing: var(--title-tracking);
 }
 
 .ai-panel-collapse {
@@ -187,14 +192,13 @@
   color: var(--color-text-muted);
   background: transparent;
   border: 1px solid var(--color-border-soft);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
 }
 
 .ai-panel-collapse:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 /* El chat ocupa casi todo el alto visible; lo de debajo se alcanza desplazando el panel. */
@@ -227,14 +231,13 @@
   color: var(--color-accent);
   background: var(--color-accent-soft);
   border: 1px solid var(--color-accent-glow);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 .ai-panel-rail:hover:not(:disabled) {
   color: var(--color-accent);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: 0 0 12px var(--color-accent-glow);
 }
 
 /* Buscador de muebles dentro del panel (CategoryAccordion de siempre). */
@@ -260,8 +263,8 @@
 
 .room-objects-title {
   margin: 0;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
 }
 
 .room-objects-filter {
@@ -274,7 +277,7 @@
   padding: 0;
   list-style: none;
   border: 1px solid var(--color-border-soft);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--color-surface-alt);
 }
 
@@ -299,22 +302,22 @@
   color: var(--color-text-muted);
 }
 
-/* Lo que cuelga de la pared se distingue con el acento, solo en la marca. */
+/* Lo que cuelga de la pared se distingue con el roble de las cotas, solo en la marca. */
 .room-objects-row-raised .room-objects-mark {
-  color: var(--color-accent);
+  color: var(--color-measure);
 }
 
 .room-objects-name {
   min-width: 0;
   overflow: hidden;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .room-objects-size {
-  font-size: 12px;
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -322,27 +325,17 @@
 
 .room-objects-place {
   grid-column: 2 / span 2;
-  font-size: 12px;
+  font-size: var(--text-2xs);
   color: var(--color-text-muted);
 }
 
-/* Vacío: un recuadro a trazos, como el hueco aún sin dibujar de un plano. */
-.room-objects-empty {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 14px;
+/* Vacío y carga: el estado de plano compacto dentro de un recuadro a trazos. */
+.room-objects-empty,
+.room-objects-loading {
+  padding: var(--space-3) 14px;
   border: 1px dashed var(--color-border);
-  border-radius: 12px;
-}
-
-.room-objects-empty p {
-  margin: 0;
-}
-
-.room-objects-empty-title {
-  font-size: 14px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  max-width: none;
 }
 
 .room-objects-none {
@@ -727,9 +720,20 @@
   overflow-wrap: anywhere;
 }
 
+/* Cambios guardados por una respuesta: anotaciones al margen con una regla en roble. */
+.chat-dock-messages > .hint {
+  margin: 0 0 0 var(--space-2);
+  padding-left: 10px;
+  border-left: 1px solid var(--color-measure);
+}
+
+.chat-dock-messages > .hint p {
+  margin: 2px 0;
+}
+
 .chat-dock-note {
   margin: 0;
-  font-size: 12px;
+  font-size: var(--text-2xs);
   line-height: 1.4;
   color: var(--color-text-muted);
 }
@@ -740,20 +744,18 @@
 
 .chat-dock-composer {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .chat-dock-composer input {
   flex: 1;
   max-width: none;
   margin: 0;
-  border-radius: 999px;
-  padding-left: 14px;
+  padding-left: var(--space-3);
 }
 
 .chat-dock-composer button {
   margin: 0;
-  border-radius: 999px;
 }
 
 /* Fila bajo el campo de texto: micrófono (tarea V) y "Foto a 3D". */
@@ -801,18 +803,17 @@
   gap: 6px;
   margin: 0;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: var(--text-xs);
   color: var(--color-text);
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
 }
 
 .dictation-button:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 .dictation-button:disabled {
@@ -864,18 +865,17 @@
   gap: 6px;
   margin: 0;
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: var(--text-xs);
   color: var(--color-text);
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
 }
 
 .photo-to-room-compact .photo-to-room-button:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 .photo-to-room-compact .photo-to-room-button:disabled {

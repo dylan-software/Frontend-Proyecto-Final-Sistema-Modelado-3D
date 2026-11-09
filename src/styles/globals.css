@@ -623,23 +623,27 @@ select:disabled {
   margin: 12px 0;
 }
 
+/* Burbujas: el asistente sobre la zona hundida, a la izquierda; lo que escribe la persona con el
+   tinte del acento, a la derecha. La esquina del lado de quien habla queda casi recta. */
 .chat-bubble {
-  padding: 8px 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  line-height: 1.4;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
   max-width: 90%;
 }
 
 .chat-bubble-assistant {
-  background: var(--color-accent-soft);
-  border: 1px solid var(--color-accent-glow);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-soft);
+  border-top-left-radius: 2px;
   align-self: flex-start;
 }
 
 .chat-bubble-user {
-  background: var(--color-surface-alt);
-  border: 1px solid var(--color-border-soft);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent-glow);
+  border-top-right-radius: 2px;
   align-self: flex-end;
 }
 
