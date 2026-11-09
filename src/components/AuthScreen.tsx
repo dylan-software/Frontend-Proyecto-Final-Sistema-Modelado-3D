@@ -4,6 +4,7 @@ import { es } from "../i18n/es";
 import { api } from "../lib/api";
 import { readKnownEmails, rememberEmail } from "../lib/knownEmails";
 import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY, saveUserName } from "../lib/session";
+import { IconEye } from "./icons";
 
 // Se reexportan para que los imports existentes desde este componente sigan funcionando.
 export { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY };
@@ -181,19 +182,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               title={showPassword ? t.hidePassword : t.showPassword}
               onClick={() => setShowPassword((shown) => !shown)}
             >
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-                <path
-                  d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-                <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
-                {showPassword && (
-                  <path d="M4 4l16 16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                )}
-              </svg>
+              <IconEye off={showPassword} />
             </button>
           </div>
 

@@ -55,6 +55,21 @@
   box-shadow: none;
 }
 
+/* ---------- Iconos (components/icons.tsx) ---------- */
+
+.icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Botones secundarios con icono y texto: el icono a la izquierda, alineado al texto. */
+.new-group-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 /* ---------- Estructura ---------- */
 
 /* Fondo: halo suave del acento y retícula de plano de 24 px; es lo que se ve a través del vidrio. */

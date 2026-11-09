@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
 import { ExportProjectButton } from "./ExportProjectButton";
+import { IconAssistant } from "./icons";
 import { PublishProjectButton } from "./PublishProjectButton";
 import { InlineEdit } from "./InlineEdit";
 import { ChatDock } from "./ChatDock";
@@ -467,15 +468,7 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
             aria-label={es.aiPanel.expand}
             aria-expanded={false}
           >
-            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-              <path
-                d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H10l-4 4v-4h0.5A2.5 2.5 0 0 1 4 13.5z"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <IconAssistant size={24} />
           </button>
         )}
       </div>

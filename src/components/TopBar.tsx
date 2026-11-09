@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { es } from "../i18n/es";
 import { ROUTES } from "../lib/routes";
+import { IconClose, IconSearch } from "./icons";
 import { ThemeSelector } from "./ThemeSelector";
 import { UserMenu } from "./UserMenu";
 
@@ -40,10 +41,7 @@ export function TopBar({ searchQuery, onSearchChange, userName, onLogout }: TopB
         <label className="visually-hidden" htmlFor="project-search">
           {t.searchLabel}
         </label>
-        <svg className="top-bar-search-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-          <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <path d="m10.5 10.5 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
+        <IconSearch className="top-bar-search-icon" size={18} />
         <input
           id="project-search"
           type="search"
@@ -55,7 +53,7 @@ export function TopBar({ searchQuery, onSearchChange, userName, onLogout }: TopB
         />
         {searchQuery && (
           <button type="button" className="top-bar-search-clear" aria-label={t.clearSearch} onClick={() => onSearchChange("")}>
-            ✕
+            <IconClose size={16} />
           </button>
         )}
       </form>

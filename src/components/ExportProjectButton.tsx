@@ -3,6 +3,7 @@ import { useState } from "react";
 import { es } from "../i18n/es";
 import type { RoomDetail, RoomItem } from "../lib/api";
 import { downloadProject, JsonProjectExporter, type ProjectExporter } from "../lib/projectExport";
+import { IconDownload } from "./icons";
 
 interface ExportProjectButtonProps {
   /** La sala abierta, o null mientras carga o si falló: entonces el botón está deshabilitado. */
@@ -38,6 +39,7 @@ export function ExportProjectButton({ room, items, exporter = JSON_EXPORTER }: E
         disabled={!room}
         title={room ? t.exportTitle : t.exportUnavailable}
       >
+        <IconDownload size={18} />
         {t.exportButton}
       </button>
       {error && (

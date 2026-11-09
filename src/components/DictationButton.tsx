@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { es } from "../i18n/es";
 import { DictationSession, detectDictationSupport, dictationErrorMessage, type DictationSupport } from "../lib/dictation";
+import { IconMicrophone } from "./icons";
 
 const t = es.dictation;
 
@@ -19,14 +20,9 @@ interface DictationViewProps {
   onToggle: () => void;
 }
 
-/** Icono de micrófono. */
+/** Icono de micrófono (set común de icons.tsx). */
 function MicIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-      <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
+  return <IconMicrophone size={16} />;
 }
 
 /**

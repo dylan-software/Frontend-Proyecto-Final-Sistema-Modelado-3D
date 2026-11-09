@@ -4,6 +4,7 @@ import { es } from "../i18n/es";
 import type { PublicPublication } from "../lib/api";
 import { formatAreaM2, formatMeters } from "../lib/projects";
 import { formatPublishedDate } from "../lib/social";
+import { IconCopy } from "./icons";
 import { RoomPlanThumbnail } from "./RoomPlanThumbnail";
 
 interface PublicationCardProps {
@@ -60,6 +61,7 @@ export function PublicationCard({ publication, index, copying, disabled, error, 
             disabled={disabled}
             aria-label={t.copyLabel(title)}
           >
+            <IconCopy size={18} />
             {copying ? t.copying : t.copy}
           </button>
         </div>

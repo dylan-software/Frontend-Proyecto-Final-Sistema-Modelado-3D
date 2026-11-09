@@ -16,6 +16,7 @@ import {
   type ItemMoveBody,
 } from "../lib/objectMove";
 import type { Dimensions3D } from "../types/spatial";
+import { IconClose, IconMeter } from "./icons";
 import { ObjectMovePanel, type MoveStatus } from "./ObjectMovePanel";
 import { SpatialAnalytics } from "./SpatialAnalytics";
 
@@ -38,17 +39,6 @@ interface SceneAreaProps {
    * prop los objetos no se pueden mover. Los errores llegan como excepción y se muestran en el panel.
    */
   onMoveItem?: (roomId: number, itemId: number, body: ItemMoveBody) => Promise<PlacedItemResult>;
-}
-
-/** Icono de la tarjeta de ocupación recogida: dos barras de medidor. */
-function MeterIcon() {
-  return (
-    <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-      <rect x="3" y="5" width="14" height="3" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <rect x="3" y="12" width="14" height="3" rx="1.5" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M4.5 6.5h6M4.5 13.5h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 /**
@@ -177,7 +167,7 @@ export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveI
             aria-label={t.hideOccupancy}
             title={t.hideOccupancy}
           >
-            ✕
+            <IconClose size={16} />
           </button>
         </div>
       ) : (
@@ -188,7 +178,7 @@ export function SceneArea({ space, roomItems, estimated, occupyingItems, onMoveI
           aria-label={t.showOccupancy}
           title={t.showOccupancy}
         >
-          <MeterIcon />
+          <IconMeter />
         </button>
       )}
     </section>

@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent }
 
 import { useTheme } from "../context/ThemeContext";
 import { THEMES, THEME_ORDER } from "../styles/themes";
+import { IconCheck, IconTheme } from "./icons";
 
 /**
- * Paint-palette button that opens a menu with the six interface themes.
+ * Theme button that opens a menu with the six interface themes.
  * Each option previews the theme's background, surface and accent colors.
  */
 export function ThemeSelector() {
@@ -80,7 +81,7 @@ export function ThemeSelector() {
         aria-expanded={open}
         aria-label={`Cambiar tema (actual: ${theme.label})`}
       >
-        <span aria-hidden="true">🎨</span>
+        <IconTheme size={18} />
         <span className="theme-selector-current">{theme.label}</span>
       </button>
 
@@ -117,9 +118,7 @@ export function ThemeSelector() {
                   <span className="theme-option-description">{option.description}</span>
                 </span>
                 {id === theme.id && (
-                  <span className="theme-option-check" aria-hidden="true">
-                    ✓
-                  </span>
+                  <IconCheck className="theme-option-check" size={18} />
                 )}
               </button>
             );

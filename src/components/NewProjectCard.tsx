@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 
 import { es } from "../i18n/es";
+import { IconPlus } from "./icons";
 
 interface NewProjectCardProps {
   onCreate: () => void;
@@ -23,9 +24,7 @@ export function NewProjectCard({ onCreate, creating, disabled = false, title }: 
         aria-busy={creating}
       >
         <span className="new-project-icon" aria-hidden="true">
-          <svg viewBox="0 0 48 48" width="48" height="48">
-            <path d="M24 10v28M10 24h28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
+          <IconPlus size={28} />
         </span>
         <span className="new-project-title">{creating ? t.creating : (title ?? t.newProject)}</span>
         <span className="new-project-hint">{t.newProjectHint}</span>

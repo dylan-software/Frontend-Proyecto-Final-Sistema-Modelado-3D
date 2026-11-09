@@ -4,6 +4,7 @@ import { es } from "../i18n/es";
 import type { ProjectGroup, RoomSummary } from "../lib/api";
 import { checkDescription, checkPlainName, MAX_GROUP_NAME_LENGTH } from "../lib/groups";
 import { readGroupOpen, saveGroupOpen } from "../lib/uiPrefs";
+import { IconChevronDown } from "./icons";
 import { InlineEdit } from "./InlineEdit";
 import { NewProjectCard } from "./NewProjectCard";
 import { ProjectCard } from "./ProjectCard";
@@ -77,16 +78,7 @@ export function GroupSection({
             title={open ? t.collapse(title) : t.expand(title)}
             onClick={toggle}
           >
-            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
-              <path
-                d="M4 6l4 4 4-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <IconChevronDown size={18} />
           </button>
           {group && onUpdateGroup ? (
             <InlineEdit

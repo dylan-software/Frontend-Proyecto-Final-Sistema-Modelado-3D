@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { es } from "../i18n/es";
 import { api, ApiError, type RoomUndoResult } from "../lib/api";
 import { undoErrorMessage, undoneMessage } from "../lib/roomUndo";
+import { IconUndo } from "./icons";
 
 interface UndoButtonProps {
   /** Sala abierta, o null mientras no haya ninguna. */
@@ -60,16 +61,7 @@ export function UndoButton({ roomId, depth, onUndone, onNothingToUndo }: UndoBut
           disabled={roomId === null || busy}
           title={es.undo.hint}
         >
-          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
-            <path
-              d="M7.5 5 4 8.5 7.5 12M4.5 8.5h7a4 4 0 0 1 0 8H9"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <IconUndo size={18} />
           {busy ? es.undo.busy : es.undo.button}
         </button>
       )}
