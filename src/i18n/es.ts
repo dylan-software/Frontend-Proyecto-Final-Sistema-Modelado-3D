@@ -137,20 +137,10 @@ export const es = {
       descriptionChars: "La descripción solo admite texto, saltos de línea y tabuladores.",
     },
   },
-  /** Red Social (/red): de momento solo el estado "En construcción", sin datos. */
+  /** Red Social (/red): catálogo público de proyectos publicados (CONTRATO-FASE9.md). */
   social: {
-    status: "En construcción",
     title: SOCIAL_NETWORK_NAME,
-    lead: `${SOCIAL_NETWORK_NAME} será el sitio para enseñar tus espacios y descubrir cómo decoran los suyos otras personas.`,
-    ideasTitle: "Lo que podrás hacer",
-    ideas: [
-      { id: "share", title: "Compartir proyectos", text: "Publica una sala con su plano y sus muebles para que otros la vean." },
-      { id: "explore", title: "Explorar ideas", text: "Recorre salas de otras personas y busca por tamaño o por estilo." },
-      { id: "copy", title: "Copiar un proyecto", text: "Guarda en tus proyectos una copia de una sala que te guste y cámbiala a tu medida." },
-    ],
-    note: "Esta sección todavía no guarda ni muestra datos de nadie.",
     backToProjects: "Volver a mis proyectos",
-    /** Catálogo público (CONTRATO-FASE9.md). */
     catalogLead: `Proyectos que otras personas han publicado en ${SOCIAL_NETWORK_NAME}. Copia el que te guste a tus proyectos y cámbialo a tu medida.`,
     privacyNote: "Solo se muestran el título, la descripción, la planta y los objetos de cada proyecto; nunca el correo ni el nombre de quien lo publica.",
     howToPublish: `Para publicar uno de tus proyectos, ábrelo y pulsa «Publicar en ${SOCIAL_NETWORK_NAME}».`,

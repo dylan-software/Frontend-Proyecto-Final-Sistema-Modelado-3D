@@ -1,83 +1,147 @@
 import Link from "next/link";
-import type { ReactElement } from "react";
+import { useRouter } from "next/router";
+import { useCallback, useEffect, useState } from "react";
 
 import { AppShell } from "../components/AppShell";
+import { PublicationCard } from "../components/PublicationCard";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
+import { api, type PublicPublication } from "../lib/api";
 import { ROUTES } from "../lib/routes";
+import { appendCatalogPage, copyErrorMessage } from "../lib/social";
 
-type IdeaId = (typeof es.social.ideas)[number]["id"];
+type CatalogState =
+  | { status: "loading" }
+  | { status: "error"; message: string }
+  | { status: "ready"; items: PublicPublication[]; page: number; hasMore: boolean };
 
-/** Iconos de trazo fino de cada idea, en el mismo estilo que la barra lateral. */
-const IDEA_ICONS: Record<IdeaId, ReactElement> = {
-  share: (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <path d="M12 15V4M8 8l4-4 4 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 13v6h14v-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  ),
-  explore: (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="m15 9-2 4-4 2 2-4z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-    </svg>
-  ),
-  copy: (
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <rect x="8" y="8" width="11" height="11" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M5 15V6a1 1 0 0 1 1-1h9" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  ),
-};
-
-/** Plano a medio trazar: paredes terminadas y otras aún discontinuas, como una obra en curso. */
-function UnderConstructionPlan() {
-  return (
-    <svg className="social-plan" viewBox="0 0 160 120" aria-hidden="true">
-      <path className="social-plan-done" d="M20 100V20h70" />
-      <path className="social-plan-pending" d="M90 20h50v50M140 70v30H20" />
-      <path className="social-plan-done" d="M90 20v35h-25" />
-      <circle className="social-plan-cursor" cx="140" cy="70" r="4" />
-    </svg>
-  );
-}
-
-/** /red: la red social todavía no existe; se explica qué será, sin datos ni backend. */
+/**
+ * /red: catálogo público de la red social (CONTRATO-FASE9.md). Lista los proyectos publicados, de la
+ * publicación más nueva a la más vieja, y copia el elegido a los proyectos de la cuenta.
+ */
 export default function SocialPage() {
   const t = es.social;
+  const router = useRouter();
   const { session, logout } = useSessionGuard();
-  if (session.status !== "signedIn") return null;
+  const signedIn = session.status === "signedIn";
+  const [state, setState] = useState<CatalogState>({ status: "loading" });
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [moreError, setMoreError] = useState<string | null>(null);
+  const [copyingCode, setCopyingCode] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<{ code: string; message: string } | null>(null);
+
+  const loadFirstPage = useCallback(async () => {
+    setState({ status: "loading" });
+    setMoreError(null);
+    try {
+      const result = await api.listPublications(1);
+      setState({ status: "ready", items: result.items, page: result.page, hasMore: result.hasMore });
+    } catch (err) {
+      setState({ status: "error", message: (err as Error).message });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (signedIn) void loadFirstPage();
+  }, [signedIn, loadFirstPage]);
+
+  async function handleLoadMore() {
+    if (state.status !== "ready" || loadingMore) return;
+    setLoadingMore(true);
+    setMoreError(null);
+    try {
+      const result = await api.listPublications(state.page + 1);
+      setState((prev) =>
+        prev.status === "ready"
+          ? { status: "ready", items: appendCatalogPage(prev.items, result.items), page: result.page, hasMore: result.hasMore }
+          : prev
+      );
+    } catch (err) {
+      setMoreError(t.loadMoreFailed((err as Error).message));
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+
+  async function handleCopy(code: string) {
+    if (copyingCode) return;
+    setCopyingCode(code);
+    setCopyError(null);
+    try {
+      const copied = await api.copyPublication(code);
+      await router.push(ROUTES.project(copied.room.id));
+    } catch (err) {
+      setCopyError({ code, message: copyErrorMessage(err) });
+      setCopyingCode(null);
+    }
+  }
+
+  if (!signedIn) return null;
 
   return (
     <AppShell active="social" userName={session.userName} onLogout={logout}>
-      <div className="social-panel glass">
-        <div className="social-hero">
-          <UnderConstructionPlan />
-          <div>
-            <p className="social-status">{t.status}</p>
-            <h1 className="page-title">{t.title}</h1>
-            <p className="social-lead">{t.lead}</p>
-          </div>
+      <div className="page-header">
+        <h1 className="page-title">{t.title}</h1>
+        <p className="page-subtitle">{t.catalogLead}</p>
+      </div>
+      <p className="social-privacy">
+        {t.privacyNote} {t.howToPublish}
+      </p>
+
+      {state.status === "loading" && (
+        <p className="page-empty" role="status">
+          {t.loading}
+        </p>
+      )}
+
+      {state.status === "error" && (
+        <div className="page-state glass" role="alert">
+          <p className="page-state-title">{t.loadFailed}</p>
+          <p className="page-state-text">{state.message}</p>
+          <button type="button" className="page-state-action" onClick={() => void loadFirstPage()}>
+            {t.retry}
+          </button>
         </div>
+      )}
 
-        <h2 className="social-ideas-title">{t.ideasTitle}</h2>
-        <ul className="social-ideas">
-          {t.ideas.map((idea) => (
-            <li key={idea.id} className="social-idea">
-              <span className="social-idea-icon">{IDEA_ICONS[idea.id]}</span>
-              <span className="social-idea-title">{idea.title}</span>
-              <span className="social-idea-text">{idea.text}</span>
-            </li>
-          ))}
-        </ul>
-
-        <p className="social-note">
-          {t.note}{" "}
+      {state.status === "ready" && state.items.length === 0 && (
+        <p className="page-empty">
+          {t.empty}{" "}
           <Link href={ROUTES.projects} className="social-back">
             {t.backToProjects}
           </Link>
         </p>
-      </div>
+      )}
+
+      {state.status === "ready" && state.items.length > 0 && (
+        <>
+          <ul className="project-grid">
+            {state.items.map((publication, index) => (
+              <PublicationCard
+                key={publication.code}
+                publication={publication}
+                index={index}
+                copying={copyingCode === publication.code}
+                disabled={copyingCode !== null}
+                error={copyError?.code === publication.code ? copyError.message : null}
+                onCopy={(code) => void handleCopy(code)}
+              />
+            ))}
+          </ul>
+          {moreError && (
+            <p className="page-alert social-more-error" role="alert">
+              {moreError}
+            </p>
+          )}
+          {state.hasMore && (
+            <div className="social-more">
+              <button type="button" className="new-group-button" onClick={() => void handleLoadMore()} disabled={loadingMore}>
+                {loadingMore ? t.loadingMore : t.loadMore}
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </AppShell>
   );
 }
