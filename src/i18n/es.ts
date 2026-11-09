@@ -337,6 +337,10 @@ export const es = {
     panelLabel: (name: string) => `Mover ${name}`,
     title: "Mover",
     close: "Dejar de mover este objeto",
+    /** Botón "?" del panel: la ayuda solo se abre sola la primera vez. */
+    helpButton: "?",
+    showHelp: "Ver cómo mover el objeto",
+    hideHelp: "Ocultar la ayuda",
     selectHint: "Toca o haz clic en un objeto para moverlo.",
     /** Línea del panel para quien usa el teclado (FASE 8). */
     keyboardHint: "Con el teclado: las flechas lo mueven y Escape lo suelta.",

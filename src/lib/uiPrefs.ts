@@ -49,3 +49,24 @@ export function saveGroupOpen(groupId: number | null, open: boolean): void {
     // Almacenamiento bloqueado: la sección vuelve a desplegarse en la próxima visita.
   }
 }
+
+/** Clave de la ayuda del panel "Mover": solo "true" cuando ya se vio una vez. */
+export const MOVE_HELP_SEEN_KEY = "ui_move_help_seen";
+
+/** Si la ayuda del panel "Mover" ya se mostró en este navegador; sin almacenamiento, no (se vuelve a ver). */
+export function readMoveHelpSeen(): boolean {
+  try {
+    return localStorage.getItem(MOVE_HELP_SEEN_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+/** Recuerda que la ayuda del panel "Mover" ya se vio: a partir de ahora el panel abre compacto. */
+export function saveMoveHelpSeen(): void {
+  try {
+    localStorage.setItem(MOVE_HELP_SEEN_KEY, "true");
+  } catch {
+    // Almacenamiento bloqueado: la ayuda vuelve a mostrarse la próxima vez.
+  }
+}
