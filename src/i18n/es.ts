@@ -94,6 +94,9 @@ export const es = {
     loadingName: "Cargando el proyecto…",
     editName: (name: string) => `Editar el nombre del proyecto ${name}`,
     editDescription: (name: string) => `Editar la descripción del proyecto ${name}`,
+    /** Botón bajo la descripción recortada (móvil): la despliega o la vuelve a recortar. */
+    showMore: "Ver más",
+    showLess: "Ver menos",
     invalidId: "Esta dirección no corresponde a ningún proyecto.",
   },
   /** Edición en el sitio de nombres y descripciones (InlineEdit). */
