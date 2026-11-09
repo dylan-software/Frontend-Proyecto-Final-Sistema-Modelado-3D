@@ -83,12 +83,14 @@ export function PhotoToRoom({ roomId, savedItemCount, onAnalyzed, compact = fals
   return (
     <div className={compact ? "photo-to-room photo-to-room-compact" : "photo-to-room"}>
       {!compact && <p className="hint">{es.photo.ui.intro}</p>}
+      {/* Oculto (también para el teclado y los lectores de pantalla): lo abre el botón de abajo. */}
       <input
         ref={fileInputRef}
         type="file"
         accept={ACCEPTED_PHOTO_TYPES.join(",")}
         capture="environment"
         hidden
+        tabIndex={-1}
         onChange={handleFileChange}
       />
       <button
