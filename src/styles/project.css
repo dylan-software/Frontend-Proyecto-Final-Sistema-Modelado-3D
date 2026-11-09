@@ -613,7 +613,8 @@
   font-weight: var(--weight-semibold);
 }
 
-.object-move-close {
+.object-move-close,
+.object-move-help-toggle {
   flex-shrink: 0;
   display: grid;
   place-items: center;
@@ -627,9 +628,31 @@
   border: 1px solid var(--color-border-soft);
 }
 
-.object-move-close:hover:not(:disabled) {
+.object-move-close:hover:not(:disabled),
+.object-move-help-toggle:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-border-soft);
+}
+
+.object-move-help-toggle {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+/* Ayuda abierta: el "?" queda marcado como el botón "Nombres" pulsado. */
+.object-move-help-toggle[aria-expanded="true"] {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* La ayuda (dos líneas) solo ocupa sitio cuando está abierta. */
+.object-move-help {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.object-move-help:empty {
+  display: none;
 }
 
 .object-move-hint,
