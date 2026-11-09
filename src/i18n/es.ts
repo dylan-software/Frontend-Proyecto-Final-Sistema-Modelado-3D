@@ -254,6 +254,37 @@ export const es = {
     hideLabels: "Ocultar los nombres de los objetos",
     showLabels: "Mostrar los nombres de los objetos",
   },
+  /** Mover objetos a mano en el 3D (PLAN-COMPLETO.md, FASE 3). */
+  objectMove: {
+    panelLabel: (name: string) => `Mover ${name}`,
+    title: "Mover",
+    close: "Dejar de mover este objeto",
+    selectHint: "Toca o haz clic en un objeto para moverlo.",
+    hintFloor: "Arrástralo por el suelo o usa las flechas (10 cm por toque).",
+    hintRaised: "Arrástralo o usa las flechas (10 cm por toque); la altura, con la barra.",
+    hintWall: (wall: string) =>
+      `Deslízalo a lo largo de la pared ${wall} o usa las flechas; ↑ y ↓ cambian la altura (5 cm).`,
+    walls: { back: "del fondo", front: "de delante", left: "izquierda", right: "derecha" },
+    arrowsLabel: "Mover con flechas",
+    arrows: {
+      plane: {
+        up: "Hacia el fondo",
+        down: "Hacia delante",
+        left: "Hacia la izquierda",
+        right: "Hacia la derecha",
+      },
+      /** En una pared, ← y → la recorren (en las paredes izquierda y derecha, hacia el fondo o delante). */
+      raise: "Subir 5 cm",
+      lower: "Bajar 5 cm",
+    },
+    height: "Altura sobre el suelo",
+    heightValue: (cm: number) => `${cm} cm`,
+    saving: "Guardando la posición…",
+    saved: "Posición guardada. Puedes deshacerla con «Deshacer».",
+    adjusted: "Guardado en el hueco libre más cercano: la posición pedida chocaba con algo o se salía de la sala.",
+    failed: (reason: string) => `No se pudo mover el objeto: ${reason}`,
+    failedUnknown: "No se pudo mover el objeto. Inténtalo de nuevo.",
+  },
   objectForm: {
     title: "Añadir un objeto nuevo",
     name: "Nombre *",

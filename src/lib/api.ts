@@ -239,6 +239,29 @@ export interface RoomItem {
   elevationM: number;
 }
 
+/** Paredes de una sala rectangular: back = z mínima, front = z máxima, left = x mínima, right = x máxima. */
+export type WallSide = "back" | "front" | "left" | "right";
+
+/**
+ * Cambios de PATCH /rooms/{id}/items/{itemId} (CONTRATO-FASE0.md). position: x/y = esquina mínima en
+ * metros; con wall se pega a esa pared (solo en salas rectangulares).
+ */
+export interface RoomItemChanges {
+  name?: string;
+  widthCm?: number;
+  depthCm?: number;
+  heightCm?: number;
+  position?: { x: number; y: number; elevationM?: number; wall?: WallSide };
+}
+
+/** Respuesta de POST y PATCH de /items: el objeto guardado, su pared (o null) y si el servidor lo ajustó. */
+export interface PlacedItemResult {
+  item: RoomItem;
+  wall: WallSide | null;
+  /** La posición final difiere de la pedida (chocaba o se salía y pasó al hueco libre más cercano). */
+  adjusted: boolean;
+}
+
 /** Objeto que la IA propuso a partir de la foto y no se guardó, con el motivo (en español). */
 export interface DiscardedObject {
   name: string;
@@ -404,6 +427,16 @@ export const api = {
     v1Request<RoomDetail>(`${roomPath(roomId)}/vertices/${index}`, { method: "DELETE" }),
 
   listRoomItems: (roomId: number) => v1Request<{ items: RoomItem[] }>(`${roomPath(roomId)}/items`),
+
+  /**
+   * Mueve o cambia un objeto de la sala. El servidor revalida y devuelve la posición FINAL (adjusted si
+   * no es la pedida); 409 si no cabe. Se puede deshacer con undoRoom.
+   */
+  updateRoomItem: (roomId: number, itemId: number, changes: RoomItemChanges) =>
+    v1Request<PlacedItemResult>(`${roomPath(roomId)}/items/${encodeURIComponent(itemId)}`, {
+      method: "PATCH",
+      body: JSON.stringify(changes),
+    }),
 
   /**
    * Lays out the account's catalog (or only itemIds) inside the stored
