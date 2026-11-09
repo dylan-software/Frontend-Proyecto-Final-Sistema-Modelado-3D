@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { readKnownEmails, rememberEmail } from "../lib/knownEmails";
 import { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY, saveUserName } from "../lib/session";
 import { IconEye } from "./icons";
+import { BrandMark } from "./TopBar";
 
 // Se reexportan para que los imports existentes desde este componente sigan funcionando.
 export { AUTH_TOKEN_KEY, AUTH_USER_ID_KEY };
@@ -99,8 +100,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
     <div className="auth-screen">
       <div className="auth-card">
         <header className="auth-header">
-          <span className="auth-logo" aria-hidden="true">
-            ◆
+          <span className="auth-logo">
+            <BrandMark />
           </span>
           <h1 className="auth-title">{es.app.title}</h1>
           <p className="auth-subtitle">{isLoginView ? t.loginSubtitle : t.registerSubtitle}</p>

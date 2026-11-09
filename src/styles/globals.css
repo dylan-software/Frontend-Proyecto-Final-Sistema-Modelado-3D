@@ -680,24 +680,30 @@ select:disabled {
   background: var(--color-danger-soft);
 }
 
-/* Authentication lock screen: a centered card over the dark background. */
+/* Pantalla de inicio de sesión: una lámina sobre el papel técnico (la misma retícula que la app). */
 .auth-screen {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: 24px 16px;
-  background: radial-gradient(circle at 50% 0%, var(--color-accent-soft), transparent 60%), var(--color-bg);
+  min-height: 100dvh;
+  padding: var(--space-5) var(--space-4);
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
+/* La única lámina que flota en esta pantalla: lleva la sombra de lo que flota. */
 .auth-card {
   width: 100%;
   max-width: 400px;
-  padding: 32px 28px;
+  padding: var(--space-6) 28px 28px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
-  border-radius: 16px;
-  box-shadow: 0 16px 48px rgba(1, 4, 9, 0.55);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
 }
 
 .auth-form {
@@ -726,7 +732,7 @@ select:disabled {
 
 .auth-password-toggle {
   position: absolute;
-  top: 4px; /* el margin-top del input */
+  top: var(--space-1); /* el margin-top del input */
   right: 2px;
   bottom: 0;
   display: flex;
@@ -737,76 +743,87 @@ select:disabled {
   padding: 0;
   color: var(--color-text-muted);
   background: transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 
 .auth-password-toggle:hover:not(:disabled) {
-  color: var(--color-accent);
+  color: var(--color-text);
   background: transparent;
-  box-shadow: none;
 }
 
 .auth-password-toggle[aria-pressed="true"] {
   color: var(--color-accent);
 }
 
+.auth-password-toggle:focus-visible {
+  outline-offset: -2px;
+}
+
+/* Marca y nombre en una fila, alineados a la izquierda como el resto de la app; debajo, una cota
+   de lado a lado separa la cabecera del formulario. */
 .auth-header {
-  margin-bottom: 24px;
-  text-align: center;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
+  background:
+    linear-gradient(var(--color-measure), var(--color-measure)) left bottom / 100% 1px no-repeat,
+    linear-gradient(var(--color-measure), var(--color-measure)) left bottom / 1px 9px no-repeat,
+    linear-gradient(var(--color-measure), var(--color-measure)) right bottom / 1px 9px no-repeat;
 }
 
 .auth-logo {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 28px;
-  color: var(--color-accent);
-  text-shadow: 0 0 16px var(--color-accent-glow);
+  display: block;
+  grid-row: span 2;
+}
+
+.auth-logo .brand-mark {
+  display: block;
+  width: 40px;
+  height: 40px;
 }
 
 .auth-title {
   margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: var(--text-lg);
   color: var(--color-text);
 }
 
 .auth-subtitle {
-  margin: 6px 0 0;
-  font-size: 14px;
+  margin: 0;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
+.auth-form label {
+  font-weight: var(--weight-medium);
+}
+
 .auth-submit {
-  margin-top: 16px;
+  margin-top: var(--space-4);
   padding: 12px 18px;
-  font-size: 15px;
-  color: #fff;
-  background: linear-gradient(135deg, #0070f3, #00a3ff);
-  box-shadow: 0 4px 14px rgba(0, 112, 243, 0.35);
-  transition: background 200ms ease, box-shadow 200ms ease, transform 150ms ease;
-}
-
-.auth-submit:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1a82ff, #33c2ff);
-  box-shadow: 0 0 22px rgba(0, 112, 243, 0.65);
-  transform: translateY(-1px);
-}
-
-.auth-submit:active:not(:disabled) {
-  transform: translateY(1px);
+  font-size: var(--text-base);
 }
 
 .auth-switch {
-  margin: 20px 0 0;
-  text-align: center;
-  font-size: 14px;
+  margin: var(--space-5) 0 0;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
 .auth-switch .link-button {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--space-5) var(--space-4);
+  }
 }
 
 .sidebar-header {
