@@ -6,6 +6,8 @@ import type { ProjectGroup, RoomDetail, RoomSummary } from "../lib/api";
 import { formatAreaM2, polygonAreaM2, rectangleVertices } from "../lib/projects";
 import { roomDetailLoader } from "../lib/roomDetails";
 import { ROUTES } from "../lib/routes";
+import { IconMore } from "./icons";
+import { PublishProjectButton } from "./PublishProjectButton";
 import { RoomPlanThumbnail } from "./RoomPlanThumbnail";
 
 interface ProjectCardProps {
@@ -43,7 +45,10 @@ function useRoomDetail(roomId: number): RoomDetail | null {
 
 /**
  * Tarjeta de un proyecto: plano, nombre, área y una línea de descripción, todo como enlace al proyecto.
- * Debajo, fuera del enlace, "Mover a grupo" con un selector nativo (teclado y móvil sin código propio).
+ * Debajo, fuera del enlace, "Mover a grupo" con un selector nativo (teclado y móvil sin código propio)
+ * y "Más acciones" (tres puntos), que despliega "Publicar en Habita": el mismo PublishProjectButton de
+ * la pantalla del proyecto, con sus diálogos como modales. Solo se monta al desplegar el menú, así que
+ * el estado de publicación se pide al abrirlo y no por cada tarjeta al cargar la lista.
  */
 export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
   const t = es.projects;
@@ -51,7 +56,9 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
   const detail = useRoomDetail(room.id);
   const [moving, setMoving] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const selectId = useId();
+  const actionsId = useId();
   const vertices = detail?.vertices ?? rectangleVertices(room.ancho, room.profundidad);
   const area = detail ? formatAreaM2(detail.areaM2) : t.approxArea(formatAreaM2(polygonAreaM2(vertices)));
   // El nombre y la descripción de la lista son los más recientes (la caché de planos puede ser anterior).
@@ -110,6 +117,20 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
             ))}
           </select>
           {moving && <span className="project-card-moving">{g.moving}</span>}
+          <button
+            type="button"
+            className="project-card-more"
+            aria-expanded={actionsOpen}
+            aria-controls={actionsId}
+            aria-label={t.moreActions(name)}
+            title={t.moreActionsTitle}
+            onClick={() => setActionsOpen((open) => !open)}
+          >
+            <IconMore size={18} />
+          </button>
+        </div>
+        <div id={actionsId} className="project-card-actions" hidden={!actionsOpen}>
+          {actionsOpen && <PublishProjectButton room={{ id: room.id, name }} variant="card" />}
         </div>
         {moveError && (
           <p className="project-card-error" role="alert">

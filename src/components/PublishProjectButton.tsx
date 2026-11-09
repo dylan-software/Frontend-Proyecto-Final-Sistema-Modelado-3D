@@ -1,4 +1,5 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 import { es } from "../i18n/es";
 import { api, type OwnPublication, type RoomDetail } from "../lib/api";
@@ -25,6 +26,36 @@ interface PublishFormProps {
   onDescriptionChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
   onCancel: () => void;
+  /**
+   * Diálogo modal centrado sobre un fondo (tarjetas de /proyectos) en vez de flotar bajo el botón:
+   * la tarjeta es estrecha y recorta lo que se sale. El título recibe el foco al abrir.
+   */
+  modal?: boolean;
+}
+
+/**
+ * Fondo de los diálogos modales de publicar: un clic fuera del diálogo equivale a "Cancelar" (salvo
+ * mientras se guarda).
+ */
+export function PublishModalBackdrop({
+  busy,
+  onCancel,
+  children,
+}: {
+  busy: boolean;
+  onCancel: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className="publish-modal-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !busy) onCancel();
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
 /**
@@ -42,16 +73,18 @@ export function PublishForm({
   onDescriptionChange,
   onSubmit,
   onCancel,
+  modal = false,
 }: PublishFormProps) {
   const t = es.publish;
   const titleId = useId();
   const descriptionId = useId();
   const headingId = useId();
   const noticeId = useId();
-  return (
+  const form = (
     <form
-      className="publish-panel glass"
+      className={`publish-panel glass${modal ? " publish-panel-modal" : ""}`}
       role="dialog"
+      aria-modal={modal || undefined}
       aria-labelledby={headingId}
       aria-describedby={noticeId}
       onSubmit={onSubmit}
@@ -74,6 +107,7 @@ export function PublishForm({
         value={title}
         maxLength={MAX_PROJECT_NAME_LENGTH}
         autoComplete="off"
+        autoFocus={modal}
         disabled={busy}
         aria-invalid={invalidField === "title" ? true : undefined}
         onChange={(e) => onTitleChange(e.target.value)}
@@ -107,19 +141,81 @@ export function PublishForm({
       </div>
     </form>
   );
+  return modal ? (
+    <PublishModalBackdrop busy={busy} onCancel={onCancel}>
+      {form}
+    </PublishModalBackdrop>
+  ) : (
+    form
+  );
 }
 
+interface UnpublishConfirmProps {
+  busy: boolean;
+  error: string | null;
+  /** Como en PublishForm: diálogo modal sobre un fondo (tarjetas) o flotante bajo el botón. */
+  modal?: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+/** Confirmación de "Dejar de publicar". Sin estado (se prueba renderizándolo en el servidor). */
+export function UnpublishConfirm({ busy, error, modal = false, onCancel, onConfirm }: UnpublishConfirmProps) {
+  const t = es.publish;
+  const panel = (
+    <div
+      className={`publish-panel glass${modal ? " publish-panel-modal" : ""}`}
+      role="alertdialog"
+      aria-modal={modal || undefined}
+      aria-label={t.unpublish}
+      onKeyDown={modal ? (e) => e.key === "Escape" && !busy && onCancel() : undefined}
+    >
+      <p className="publish-confirm-text">{t.confirmUnpublish}</p>
+      {error && (
+        <p className="publish-error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="publish-actions">
+        <button type="button" className="publish-secondary" onClick={onCancel} disabled={busy} autoFocus={modal}>
+          {t.cancel}
+        </button>
+        <button type="button" className="publish-danger" onClick={onConfirm} disabled={busy}>
+          {busy ? t.removing : t.confirmUnpublishYes}
+        </button>
+      </div>
+    </div>
+  );
+  return modal ? (
+    <PublishModalBackdrop busy={busy} onCancel={onCancel}>
+      {panel}
+    </PublishModalBackdrop>
+  ) : (
+    panel
+  );
+}
+
+/** Lo único que necesita el botón de la sala: su id y su nombre (título propuesto al publicar). */
+export type PublishableRoom = Pick<RoomDetail, "id" | "name">;
+
 interface PublishProjectButtonProps {
-  /** La sala abierta, o null mientras carga o si falló: entonces el botón está deshabilitado. */
-  room: RoomDetail | null;
+  /** La sala, o null mientras carga o si falló: entonces el botón está deshabilitado. */
+  room: PublishableRoom | null;
+  /**
+   * "header" (cabecera del proyecto): formularios flotantes bajo el botón. "card" (tarjeta de
+   * /proyectos): los mismos formularios como diálogos modales, fuera de la tarjeta.
+   */
+  variant?: "header" | "card";
 }
 
 /**
- * "Publicar en Habita" en la cabecera del proyecto (CONTRATO-FASE9.md). Sin publicar, abre el
- * formulario; publicado, muestra "Publicado en Habita" con "Actualizar" y "Dejar de publicar" (con
- * confirmación). El proyecto es privado hasta que se pulsa "Publicar".
+ * "Publicar en Habita" (CONTRATO-FASE9.md), en la cabecera del proyecto y en el menú de cada tarjeta
+ * de /proyectos, con la misma lógica y los mismos diálogos. Sin publicar, abre el formulario; publicado,
+ * muestra "Publicado en Habita" con "Actualizar" y "Dejar de publicar" (con confirmación). El proyecto
+ * es privado hasta que se pulsa "Publicar".
  */
-export function PublishProjectButton({ room }: PublishProjectButtonProps) {
+export function PublishProjectButton({ room, variant = "header" }: PublishProjectButtonProps) {
+  const modal = variant === "card";
   const t = es.publish;
   const roomId = room?.id ?? null;
   const [state, setState] = useState<PublicationState>({ status: "loading" });
@@ -131,6 +227,7 @@ export function PublishProjectButton({ room }: PublishProjectButtonProps) {
   const [error, setError] = useState<string | null>(null);
   const [invalidField, setInvalidField] = useState<"title" | "description" | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const unpublishRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (roomId === null) return;
@@ -205,20 +302,34 @@ export function PublishProjectButton({ room }: PublishProjectButtonProps) {
     }
   }
 
-  const form = formOpen && (
-    <PublishForm
-      mode={publication ? "update" : "publish"}
-      title={title}
-      description={description}
-      busy={busy}
-      error={error}
-      invalidField={invalidField}
-      onTitleChange={setTitle}
-      onDescriptionChange={setDescription}
-      onSubmit={(e) => void handleSubmit(e)}
-      onCancel={closeForm}
-    />
-  );
+  /** En la tarjeta, los diálogos van al final de <body>: así no los recorta ni los tapa ninguna tarjeta. */
+  function layer(node: ReactNode): ReactNode {
+    return modal && typeof document !== "undefined" ? createPortal(node, document.body) : node;
+  }
+
+  const form =
+    formOpen &&
+    layer(
+      <PublishForm
+        mode={publication ? "update" : "publish"}
+        title={title}
+        description={description}
+        busy={busy}
+        error={error}
+        invalidField={invalidField}
+        onTitleChange={setTitle}
+        onDescriptionChange={setDescription}
+        onSubmit={(e) => void handleSubmit(e)}
+        onCancel={closeForm}
+        modal={modal}
+      />
+    );
+
+  function cancelUnpublish() {
+    setConfirming(false);
+    setError(null);
+    if (modal) requestAnimationFrame(() => unpublishRef.current?.focus());
+  }
 
   if (!publication) {
     const ready = room !== null && state.status === "ready";
@@ -267,6 +378,7 @@ export function PublishProjectButton({ room }: PublishProjectButtonProps) {
           {t.update}
         </button>
         <button
+          ref={unpublishRef}
           type="button"
           className="new-group-button"
           onClick={() => {
@@ -279,24 +391,7 @@ export function PublishProjectButton({ room }: PublishProjectButtonProps) {
           {t.unpublish}
         </button>
       </div>
-      {confirming && (
-        <div className="publish-panel glass" role="alertdialog" aria-label={t.unpublish}>
-          <p className="publish-confirm-text">{t.confirmUnpublish}</p>
-          {error && (
-            <p className="publish-error" role="alert">
-              {error}
-            </p>
-          )}
-          <div className="publish-actions">
-            <button type="button" className="publish-secondary" onClick={() => setConfirming(false)} disabled={busy}>
-              {t.cancel}
-            </button>
-            <button type="button" className="publish-danger" onClick={() => void handleUnpublish()} disabled={busy}>
-              {busy ? t.removing : t.confirmUnpublishYes}
-            </button>
-          </div>
-        </div>
-      )}
+      {confirming && layer(<UnpublishConfirm busy={busy} error={error} modal={modal} onCancel={cancelUnpublish} onConfirm={() => void handleUnpublish()} />)}
       {form}
     </div>
   );

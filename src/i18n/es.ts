@@ -50,6 +50,9 @@ export const es = {
     /** Área aproximada (rectángulo ancho × fondo) mientras no llega el plano real. */
     approxArea: (area: string) => `≈ ${area}`,
     planPending: "Plano provisional mientras carga la forma real",
+    /** Menú de la tarjeta (botón de tres puntos): de momento, "Publicar en Habita". */
+    moreActions: (name: string) => `Más acciones de ${name}`,
+    moreActionsTitle: "Más acciones",
   },
   /** Panel de IA de la pantalla del proyecto (chat, buscador de muebles y creación manual). */
   aiPanel: {

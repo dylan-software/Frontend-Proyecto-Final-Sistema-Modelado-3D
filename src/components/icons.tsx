@@ -39,6 +39,17 @@ export function IconClose(props: IconProps) {
   );
 }
 
+/** Tres puntos: "Más acciones" de una tarjeta. */
+export function IconMore(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <circle cx="4.5" cy="10" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="10" cy="10" r="1.25" fill="currentColor" stroke="none" />
+      <circle cx="15.5" cy="10" r="1.25" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}
+
 export function IconArrowUp(props: IconProps) {
   return (
     <Icon {...props}>
