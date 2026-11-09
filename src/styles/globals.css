@@ -195,6 +195,15 @@ select {
   transition: border-color var(--duration-fast) ease, background var(--duration-base) ease;
 }
 
+/*
+ * La regla de arriba (display: block) anula el atributo hidden: sin esto, el selector nativo
+ * ("Seleccionar archivo / Ningún archivo seleccionado") de "Foto a 3D" se veía. Lo abre su botón,
+ * que es el que recibe el foco del teclado.
+ */
+input[type="file"][hidden] {
+  display: none;
+}
+
 input::placeholder {
   color: var(--color-text-muted);
 }
