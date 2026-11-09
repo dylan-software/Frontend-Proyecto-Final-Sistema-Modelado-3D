@@ -297,6 +297,44 @@ export interface RoomImportResult {
   items: RoomItem[];
 }
 
+/** La publicación de un proyecto en la red social, vista por su dueño (CONTRATO-FASE9.md, 2.3). */
+export interface OwnPublication {
+  /** Id público aleatorio de 16 caracteres; el único id que muestra la red social. */
+  code: string;
+  title: string;
+  description: string | null;
+  publishedAt: string;
+  updatedAt: string;
+  copies: number;
+}
+
+/** GET /rooms/{id}/publication: si el proyecto está publicado y cómo. */
+export interface RoomPublicationStatus {
+  published: boolean;
+  publication: OwnPublication | null;
+}
+
+/** Una tarjeta del catálogo público. Sin correos, nombres de usuario ni ids de cuenta o de sala. */
+export interface PublicPublication extends OwnPublication {
+  /** true si la publicación es de quien mira. */
+  mine: boolean;
+  room: { vertices: Point2D[]; heightM: number; areaM2: number };
+  itemCount: number;
+}
+
+/** GET /social/publications?page=N: 24 por página, de la más nueva a la más vieja. */
+export interface PublicationCatalog {
+  items: PublicPublication[];
+  page: number;
+  hasMore: boolean;
+}
+
+/** Cuerpo de PUT /rooms/{id}/publication. */
+export interface PublicationWrite {
+  title: string;
+  description: string | null;
+}
+
 /** Un cambio guardado por el chat; `where` ya viene en palabras ("en la pared izquierda"). */
 export interface ChatChange {
   action: "added" | "removed" | "moved";
@@ -390,6 +428,29 @@ export const api = {
    */
   importRoom: (fileText: string) =>
     v1Request<RoomImportResult>("/spaces/rooms/import", { method: "POST", body: fileText }),
+
+  /** Si el proyecto está publicado en la red social (solo su dueño; 404 si es ajeno). */
+  getRoomPublication: (roomId: number) =>
+    v1Request<RoomPublicationStatus>(`${roomPath(roomId)}/publication`),
+
+  /**
+   * Publica el proyecto o actualiza su copia congelada en la red social. 409 al llegar al tope de
+   * publicaciones, 413 si el proyecto es demasiado grande y 422 si no se podría importar.
+   */
+  publishRoom: (roomId: number, body: PublicationWrite) =>
+    v1Request<OwnPublication>(`${roomPath(roomId)}/publication`, { method: "PUT", body: JSON.stringify(body) }),
+
+  /** Deja de publicar el proyecto (204, sin cuerpo): la red social deja de mostrarlo. */
+  unpublishRoom: (roomId: number) =>
+    v1Request<unknown>(`${roomPath(roomId)}/publication`, { method: "DELETE" }).then(() => undefined),
+
+  /** Catálogo público de la red social, por páginas (1 = la más nueva). */
+  listPublications: (page: number) =>
+    v1Request<PublicationCatalog>(`/social/publications?page=${encodeURIComponent(page)}`),
+
+  /** Copia una publicación como proyecto NUEVO de la cuenta (como importar); 404 si ya no es pública. */
+  copyPublication: (code: string) =>
+    v1Request<RoomImportResult>(`/social/publications/${encodeURIComponent(code)}/copy`, { method: "POST" }),
 
   /** Renombra, describe o mueve de grupo un proyecto; no toca su forma ni sus muebles. */
   updateRoom: (roomId: number, changes: RoomChanges) =>
