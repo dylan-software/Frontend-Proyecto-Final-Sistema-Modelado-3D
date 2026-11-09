@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import { AiPanel } from "./AiPanel";
+import { ExportProjectButton } from "./ExportProjectButton";
 import { InlineEdit } from "./InlineEdit";
 import { ChatDock } from "./ChatDock";
 import { PhotoToRoom } from "./PhotoToRoom";
@@ -383,6 +384,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
         ) : (
           <h1 className="project-name">{es.project.loadingName}</h1>
         )}
+        {/* La sala y sus objetos llegan juntos (openRoom): con currentRoom ya están los dos. */}
+        <ExportProjectButton room={currentRoom} items={roomItems} />
       </header>
 
       <div className={`project-layout${isMobile ? " project-layout-mobile" : ""}${panelOpen ? "" : " project-layout-collapsed"}`}>
