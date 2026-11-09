@@ -745,6 +745,94 @@
   gap: 8px;
 }
 
+/* ---------- Dictado (DictationButton, FASE 7) ---------- */
+
+/* El botón se integra en la fila de acciones; sus líneas de texto van debajo de todos los botones. */
+.dictation {
+  display: contents;
+}
+
+.dictation > p,
+.chat-dock-actions > .dictation-note {
+  order: 1;
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.dictation-note,
+.dictation-status {
+  color: var(--color-text-muted);
+}
+
+/* Vacía, la línea de estado no ocupa sitio pero sigue en el árbol de accesibilidad (aria-live). */
+.dictation-status:empty {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.dictation-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.dictation-button:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  box-shadow: none;
+}
+
+.dictation-button:disabled {
+  color: var(--color-text-muted);
+  background: transparent;
+}
+
+.dictation-button.dictation-listening {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+/* Punto que late mientras escucha. */
+.dictation-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: dictation-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes dictation-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.75);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dictation-pulse {
+    animation: none;
+  }
+}
+
 /* ---------- "Foto a 3D" compacto ---------- */
 
 .photo-to-room-compact {
