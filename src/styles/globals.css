@@ -434,8 +434,9 @@ select:disabled {
   right: 8px;
   z-index: 1;
   margin: 0;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  padding: 6px 10px;
+  font-size: var(--text-xs);
+  box-shadow: var(--shadow-float);
 }
 
 /* Botones sobre el 3D, arriba a la derecha: "Nombres" y "Restablecer vista". */
@@ -454,11 +455,12 @@ select:disabled {
 
 .labels-toggle-button {
   margin: 0;
-  padding: 4px 10px;
-  font-size: 0.8rem;
+  padding: 6px 10px;
+  font-size: var(--text-xs);
   color: var(--color-text);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-float);
 }
 
 .labels-toggle-button[aria-pressed="true"] {
@@ -469,33 +471,34 @@ select:disabled {
 
 .labels-toggle-button:hover:not(:disabled) {
   background: var(--color-surface);
-  box-shadow: 0 0 12px var(--color-accent-glow);
+  border-color: var(--color-accent);
 }
 
 .labels-toggle-button[aria-pressed="true"]:hover:not(:disabled) {
   background: var(--color-accent-hover);
 }
 
+/* "Estimado": una etiqueta de plano en roble, no un botón. */
 .estimated-badge {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 1;
-  padding: 2px 10px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-accent-contrast);
-  background: var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent-glow);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-measure);
 }
 
 /* Rótulo de cada caja en la escena 3D (drei Html). */
 .box-label {
   display: inline-block;
   padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
   white-space: nowrap;
   pointer-events: none;
   color: var(--color-text);
@@ -1083,27 +1086,26 @@ select:disabled {
   font-variant-numeric: tabular-nums;
 }
 
+/* Medidor de ocupación: una regla con relleno plano (acento ocupado, roble libre). */
 .meter-track {
   height: 8px;
   overflow: hidden;
   background: var(--color-input-bg);
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
 }
 
 .meter-fill {
   height: 100%;
-  border-radius: 999px;
-  transition: width 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 400ms var(--ease-out);
 }
 
 .meter-fill-occupied {
-  background: linear-gradient(90deg, var(--color-accent-hover), var(--color-accent));
-  box-shadow: 0 0 10px var(--color-accent-glow);
+  background: var(--color-accent);
 }
 
 .meter-fill-free {
-  background: linear-gradient(90deg, #238636, #3fb950);
+  background: var(--color-measure);
 }
 
 .analytics-stats {

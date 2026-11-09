@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
+import { IconArrowLeft } from "../../components/icons";
+import { PlanEmpty } from "../../components/PlanState";
 import { ProjectWorkspace } from "../../components/ProjectWorkspace";
 import { useSessionGuard } from "../../hooks/useSessionGuard";
 import { es } from "../../i18n/es";
@@ -34,10 +36,15 @@ export default function ProjectPage() {
   if (roomId === null) {
     return (
       <div className="project-invalid">
-        <p>{es.project.invalidId}</p>
-        <Link href={ROUTES.projects} className="project-exit">
-          {es.project.exit}
-        </Link>
+        <PlanEmpty
+          title={es.project.invalidId}
+          action={
+            <Link href={ROUTES.projects} className="project-exit">
+              <IconArrowLeft size={18} />
+              {es.project.exit}
+            </Link>
+          }
+        />
       </div>
     );
   }
