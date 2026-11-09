@@ -376,7 +376,8 @@
   height: auto;
 }
 
-.scene-area .reset-view-button {
+.scene-area .reset-view-button,
+.scene-area .scene-tools {
   top: 12px;
   right: 12px;
 }

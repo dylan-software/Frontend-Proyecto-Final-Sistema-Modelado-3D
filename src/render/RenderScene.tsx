@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, type ComponentRef } from "react";
-import { Canvas } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef, type MutableRefObject } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { es } from "../i18n/es";
 import type { Point2D, FurnitureInput, RoomItem } from "../lib/api";
+import { spreadLabels, type LabelRect } from "../lib/labelSpread";
 import { toSceneBoxes } from "../lib/roomBoxes";
 import {
   CAMERA_FOV_DEG,
@@ -50,6 +51,32 @@ const WALL_OPACITY = 0.18;
 type OrbitControlsRef = ComponentRef<typeof OrbitControls>;
 
 /**
+ * Separa en pantalla los rótulos que se pisan: en cada fotograma mide dónde quedó cada rótulo (sin su
+ * desplazamiento actual, guardado en el propio elemento como data-lift), calcula con spreadLabels
+ * cuánto subir cada uno y lo aplica con un translateY directo (sin volver a renderizar React). Va
+ * dentro del Canvas.
+ */
+function LabelSpreader({ labels }: { labels: MutableRefObject<(HTMLSpanElement | null)[]> }) {
+  useFrame(() => {
+    const spans = labels.current;
+    const lifts = spans.map((span) => Number(span?.dataset.lift ?? 0) || 0);
+    const rects: (LabelRect | null)[] = spans.map((span, i) => {
+      if (!span) return null;
+      const box = span.getBoundingClientRect();
+      return { left: box.left, top: box.top + lifts[i], width: box.width, height: box.height };
+    });
+    const next = spreadLabels(rects);
+    spans.forEach((span, i) => {
+      if (!span || next[i] === lifts[i]) return;
+      span.dataset.lift = String(next[i]);
+      span.style.transform = next[i] > 0 ? `translateY(${-next[i]}px)` : "";
+    });
+  });
+
+  return null;
+}
+
+/**
  * Sala en 3D con su polígono REAL (no un rectángulo): el suelo es un THREE.Shape hecho con los
  * vértices, y cada arista levanta una pared semitransparente; no hay techo. La cámara empieza en
  * diagonal y desde arriba, mirando al centro de la sala; OrbitControls permite girar y acercar o
@@ -60,6 +87,11 @@ export function RenderScene({ vertices, heightM, placedItems, lighting, boxes = 
   const view = useMemo(() => computeSceneView(vertices, heightM), [vertices, heightM]);
   const walls = useMemo(() => wallPlanes(vertices, heightM), [vertices, heightM]);
   const controlsRef = useRef<OrbitControlsRef | null>(null);
+  // Botón "Nombres": muestra u oculta los rótulos de las cajas.
+  const [showLabels, setShowLabels] = useState(true);
+  // Un elemento por caja, en el orden de sceneBoxes (los sobrantes se recortan en cada render).
+  const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  labelRefs.current.length = showLabels ? sceneBoxes.length : 0;
 
   const floorGeometry = useMemo(() => {
     const shape = new THREE.Shape(vertices.map((v) => new THREE.Vector2(v.x, v.y)));
@@ -89,9 +121,22 @@ export function RenderScene({ vertices, heightM, placedItems, lighting, boxes = 
           {es.photo.scene.estimated}
         </span>
       )}
-      <button type="button" className="reset-view-button" onClick={resetView}>
-        {es.scene.resetView}
-      </button>
+      <div className="scene-tools">
+        {sceneBoxes.length > 0 && (
+          <button
+            type="button"
+            className="labels-toggle-button"
+            aria-pressed={showLabels}
+            title={showLabels ? es.scene.hideLabels : es.scene.showLabels}
+            onClick={() => setShowLabels((shown) => !shown)}
+          >
+            {es.scene.labels}
+          </button>
+        )}
+        <button type="button" className="reset-view-button" onClick={resetView}>
+          {es.scene.resetView}
+        </button>
+      </div>
       <Canvas camera={{ position: view.position, fov: CAMERA_FOV_DEG }}>
         <ambientLight intensity={0.5} />
         <pointLight
@@ -152,7 +197,7 @@ export function RenderScene({ vertices, heightM, placedItems, lighting, boxes = 
         })}
 
         {/* Objetos guardados en la sala: cajas con su nombre, a su altura sobre el suelo. */}
-        {sceneBoxes.map((box) => (
+        {sceneBoxes.map((box, i) => (
           <group key={box.id}>
             <mesh position={box.center}>
               <boxGeometry args={box.size} />
@@ -162,11 +207,21 @@ export function RenderScene({ vertices, heightM, placedItems, lighting, boxes = 
                 opacity={0.85}
               />
             </mesh>
-            <Html position={box.labelAt} center>
-              <span className="box-label">{box.label}</span>
-            </Html>
+            {showLabels && (
+              <Html position={box.labelAt} center>
+                <span
+                  className="box-label"
+                  ref={(span) => {
+                    labelRefs.current[i] = span;
+                  }}
+                >
+                  {box.label}
+                </span>
+              </Html>
+            )}
           </group>
         ))}
+        {showLabels && sceneBoxes.length > 1 && <LabelSpreader labels={labelRefs} />}
       </Canvas>
     </div>
   );

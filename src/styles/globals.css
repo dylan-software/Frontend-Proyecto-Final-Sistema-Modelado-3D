@@ -430,6 +430,44 @@ select:disabled {
   font-size: 0.8rem;
 }
 
+/* Botones sobre el 3D, arriba a la derecha: "Nombres" y "Restablecer vista". */
+.scene-tools {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+}
+
+.scene-tools .reset-view-button {
+  position: static;
+}
+
+.labels-toggle-button {
+  margin: 0;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.labels-toggle-button[aria-pressed="true"] {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.labels-toggle-button:hover:not(:disabled) {
+  background: var(--color-surface);
+  box-shadow: 0 0 12px var(--color-accent-glow);
+}
+
+.labels-toggle-button[aria-pressed="true"]:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
 .estimated-badge {
   position: absolute;
   top: 10px;
