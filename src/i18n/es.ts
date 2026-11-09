@@ -392,4 +392,20 @@ export const es = {
     more: (remaining: number) => `Puedes deshacer ${remaining} más.`,
     nothing: "No queda ningún cambio que deshacer. El historial se borra si el servidor se reinicia.",
   },
+  /** Exportar e importar proyectos como archivo JSON (CONTRATO-FASE6.md). */
+  projectTransfer: {
+    exportButton: "Exportar JSON",
+    exportTitle: "Descarga este proyecto como archivo JSON (sin datos personales)",
+    exportUnavailable: "Espera a que cargue el proyecto para exportarlo.",
+    exportFailed: "No se pudo crear el archivo del proyecto.",
+    defaultFileName: "proyecto",
+    importButton: "Importar proyecto",
+    importing: "Importando…",
+    importTitle: "Crea un proyecto nuevo a partir de un archivo JSON exportado",
+    importEmpty: "El archivo está vacío.",
+    importTooLarge: "El archivo pesa más de 256 KB; no se puede importar.",
+    importType: "El archivo debe ser un JSON exportado desde esta aplicación.",
+    importReadFailed: "No se pudo leer el archivo.",
+    importFailed: (reason: string) => `No se pudo importar el proyecto: ${reason}`,
+  },
 } as const;
