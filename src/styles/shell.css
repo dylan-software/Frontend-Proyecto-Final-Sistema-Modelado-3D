@@ -211,23 +211,24 @@
 
 /* ---------- Estructura ---------- */
 
-/* Fondo: halo suave del acento y retícula de plano de 24 px; es lo que se ve a través del vidrio. */
+/* Fondo: el papel técnico, una retícula de 24 px muy tenue. */
 .app-shell {
   min-height: 100vh;
   background-color: var(--color-bg);
   background-image:
-    radial-gradient(56rem 36rem at 0% 0%, var(--color-accent-soft), transparent 70%),
     linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: auto, 24px 24px, 24px 24px;
+  background-size: 24px 24px;
   background-attachment: fixed;
 }
 
 .app-shell-body {
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
-  gap: 24px;
-  padding: 24px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: var(--space-6);
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--space-5);
 }
 
 .app-shell-main {
@@ -244,9 +245,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 440px) minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
   height: 64px;
-  padding: 0 20px;
+  padding: 0 var(--space-5);
   border-width: 0 0 1px;
   border-radius: 0;
 }
@@ -257,10 +258,11 @@
   gap: 10px;
   min-width: 0;
   justify-self: start;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  font-stretch: var(--title-stretch);
+  letter-spacing: var(--title-tracking);
   color: var(--color-text);
   text-decoration: none;
 }
@@ -294,9 +296,8 @@
   max-width: none;
   height: 40px;
   margin: 0;
-  padding: 0 38px;
-  border-color: var(--color-border-soft);
-  border-radius: 999px;
+  padding: 0 38px 0 40px;
+  border-radius: var(--radius-md);
   background: var(--color-input-bg);
 }
 
@@ -311,22 +312,19 @@
   right: 8px;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   margin: 0;
   padding: 0;
-  font-size: 11px;
-  line-height: 1;
   color: var(--color-text-muted);
   background: transparent;
-  border-radius: 50%;
+  border-radius: var(--radius-sm);
   transform: translateY(-50%);
 }
 
 .top-bar-search-clear:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
-  box-shadow: none;
 }
 
 .top-bar-search-clear:active:not(:disabled) {
@@ -356,30 +354,30 @@
   gap: 8px;
   height: 40px;
   margin: 0;
-  padding: 4px 12px 4px 4px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 4px 10px 4px 4px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--color-text);
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-md);
 }
 
 .user-chip:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
+/* Avatar: el único elemento circular de la app. */
 .user-chip-initial {
   display: grid;
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--color-accent-contrast);
   background: var(--color-accent);
 }
@@ -406,10 +404,11 @@
   right: 0;
   z-index: 1100;
   width: 240px;
-  padding: 8px;
-  border-radius: 14px;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
   transform-origin: top right;
-  animation: theme-menu-in 160ms ease-out;
+  animation: theme-menu-in var(--duration-fast) ease-out;
 }
 
 .user-menu-who {
@@ -444,14 +443,13 @@
   text-align: left;
   color: var(--color-danger);
   background: transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .user-menu-logout:hover:not(:disabled),
 .user-menu-logout:focus-visible {
   color: var(--color-danger);
   background: var(--color-danger-soft);
-  box-shadow: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -466,20 +464,20 @@
 
 /* ---------- Barra lateral ---------- */
 
-.side-nav {
+/* Sin lámina propia: los destinos quedan sobre el papel, como la leyenda al margen de un plano. */
+.side-nav.glass {
   position: sticky;
   top: 88px;
   align-self: start;
-  padding: 18px 12px;
-  border-radius: 16px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
+/* El título solo lo necesitaban los lectores de pantalla (la navegación ya tiene aria-label). */
 .side-nav-title {
-  margin: 0 12px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--color-text-muted);
+  display: none;
 }
 
 .side-nav-list {
@@ -494,14 +492,14 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
   color: var(--color-text-muted);
   text-decoration: none;
-  transition: background 150ms ease, color 150ms ease;
+  transition: background var(--duration-fast) ease, color var(--duration-fast) ease;
 }
 
 .side-nav-link:hover {
@@ -511,24 +509,25 @@
 
 .side-nav-link[aria-current="page"] {
   color: var(--color-text);
-  background: var(--color-accent-soft);
+  font-weight: var(--weight-semibold);
+  background: var(--color-surface);
+  box-shadow: inset 0 0 0 1px var(--color-border-soft);
 }
 
 .side-nav-link[aria-current="page"] svg {
   color: var(--color-accent);
 }
 
-/* Marca del elemento activo: una barra de 3 px del acento a la izquierda. */
+/* Marca del elemento activo: una barra de 2 px del acento a la izquierda. */
 .side-nav-link[aria-current="page"]::before {
   content: "";
   position: absolute;
-  top: 8px;
-  bottom: 8px;
+  top: 10px;
+  bottom: 10px;
   left: 0;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
+  width: 2px;
+  border-radius: 0 2px 2px 0;
   background: var(--color-accent);
-  box-shadow: 0 0 10px var(--color-accent-glow);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -575,7 +574,7 @@
     padding: 4px;
   }
 
-  .side-nav {
+  .side-nav.glass {
     position: fixed;
     top: auto;
     right: 0;
@@ -583,16 +582,15 @@
     left: 0;
     z-index: 100;
     padding: 6px 12px calc(6px + env(safe-area-inset-bottom));
-    border-width: 1px 0 0;
-    border-radius: 16px 16px 0 0;
+    background: var(--color-surface);
+    border: 0;
+    border-top: 1px solid var(--color-border-soft);
+    border-radius: 0;
   }
 
-  .side-nav-title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
+  .side-nav-link[aria-current="page"] {
+    box-shadow: none;
+    background: var(--color-accent-soft);
   }
 
   .side-nav-list {
@@ -623,29 +621,33 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 4px 14px;
-  margin: 4px 0 20px;
+  gap: var(--space-1) var(--space-4);
+  margin: var(--space-1) 0 var(--space-5);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .page-title {
   margin: 0;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  font-stretch: var(--title-stretch);
   letter-spacing: -0.02em;
 }
 
 .page-subtitle {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .page-alert {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   padding: 10px 14px;
   border: 1px solid var(--color-danger);
-  border-radius: 10px;
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
   color: var(--color-danger);
   background: var(--color-danger-soft);
 }
@@ -654,25 +656,27 @@
   max-width: 60ch;
   margin: 20px 0 0;
   color: var(--color-text-muted);
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
+/* Error al cargar: una lámina con el filo izquierdo en rojo, el motivo y "Reintentar". */
 .page-state {
   max-width: 520px;
-  padding: 24px;
-  border-radius: 16px;
+  padding: var(--space-5);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-lg);
 }
 
 .page-state-title {
   margin: 0 0 6px;
-  font-size: 17px;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
 }
 
 .page-state-text {
-  margin: 0 0 16px;
+  margin: 0 0 var(--space-4);
   color: var(--color-text-muted);
-  line-height: 1.5;
+  line-height: var(--leading-body);
 }
 
 .page-state .page-state-action {
@@ -684,7 +688,7 @@
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 20px;
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -713,21 +717,26 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   color: var(--color-text);
   text-decoration: none;
-  transition: border-color 150ms ease;
+  transition: border-color var(--duration-fast) ease;
 }
 
 .project-card:hover {
-  border-color: var(--color-accent-glow);
+  border-color: var(--color-border);
 }
 
+/* La planta va sobre su propio papel técnico. */
 .project-card-plan {
   display: block;
   aspect-ratio: 4 / 3;
   border-bottom: 1px solid var(--color-border-soft);
-  background: var(--color-surface-alt);
+  background-color: var(--color-surface-alt);
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 12px 12px;
 }
 
 .room-plan {
@@ -749,25 +758,22 @@
   stroke-linejoin: round;
 }
 
-.project-card:hover .room-plan-shape {
-  filter: drop-shadow(0 0 6px var(--color-accent-glow));
-}
-
 .room-plan-provisional .room-plan-shape {
   stroke-dasharray: 6 5;
   opacity: 0.6;
 }
 
+/* Cotas de la planta: líneas en roble y cifras en el gris de texto secundario (contraste AA). */
 .room-plan-dimension path {
   fill: none;
-  stroke: var(--color-text-muted);
+  stroke: var(--color-measure);
   stroke-width: 1;
 }
 
 .room-plan-dimension text {
   font-family: inherit;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   fill: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
@@ -776,54 +782,56 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px 16px;
+  gap: var(--space-3);
+  padding: 14px var(--space-4) var(--space-4);
 }
 
 .project-card-name {
   min-width: 0;
   overflow: hidden;
-  font-size: 15px;
-  font-weight: 700;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .project-card-area {
   flex-shrink: 0;
-  font-size: 13px;
+  font-size: var(--text-xs);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
+/* "Nuevo proyecto": el hueco a trazos de una lámina aún sin dibujar. */
 .new-project-card {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-1);
   width: 100%;
   height: 100%;
   min-height: 240px;
   margin: 0;
-  padding: 24px;
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  text-align: left;
   color: var(--color-text);
   background: transparent;
-  border: 1.5px dashed var(--color-accent-glow);
-  border-radius: 16px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .new-project-card:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
 }
 
 .new-project-card:disabled {
   color: var(--color-text-muted);
   background: transparent;
-  border-color: var(--color-border);
+  border-color: var(--color-border-soft);
+  box-shadow: none;
 }
 
 .new-project-card[aria-busy="true"] {
@@ -833,29 +841,33 @@
 .new-project-icon {
   display: grid;
   place-items: center;
-  width: 72px;
-  height: 72px;
-  margin-bottom: 8px;
-  border: 1px solid var(--color-accent-glow);
-  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  margin-bottom: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   color: var(--color-accent);
-  background: var(--color-accent-soft);
+  background: var(--color-surface);
+}
+
+.new-project-card:hover:not(:disabled) .new-project-icon {
+  border-color: var(--color-accent);
 }
 
 .new-project-card:disabled .new-project-icon {
   color: var(--color-text-muted);
-  border-color: var(--color-border);
+  border-color: var(--color-border-soft);
   background: transparent;
 }
 
 .new-project-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
 }
 
 .new-project-hint {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-regular);
   color: var(--color-text-muted);
 }
 
@@ -865,14 +877,14 @@
 
 .project-card-skeleton .project-card-body {
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .skeleton-line {
   display: block;
   width: 60%;
   height: 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--color-border-soft);
 }
 
@@ -1099,14 +1111,13 @@
   color: inherit;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .inline-edit-display:hover:not(:disabled) {
   color: inherit;
   background: var(--color-accent-soft);
   border-color: var(--color-border-soft);
-  box-shadow: none;
 }
 
 .inline-edit-text {
@@ -1122,8 +1133,9 @@
 
 .inline-edit-pencil {
   flex-shrink: 0;
+  align-self: center;
   color: var(--color-text-muted);
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .inline-edit-display:hover .inline-edit-pencil,
@@ -1158,12 +1170,11 @@
   max-width: none;
   margin: 0;
   font: inherit;
-  font-size: 15px;
+  font-size: var(--text-base);
   color: var(--color-text);
   background: var(--color-input-bg);
   border: 1px solid var(--color-accent);
-  border-radius: 8px;
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
+  border-radius: var(--radius-sm);
 }
 
 .inline-edit-description .inline-edit-field {
@@ -1196,9 +1207,9 @@
 
 .inline-edit-bar button {
   margin: 0;
-  padding: 5px 12px;
-  font-size: 13px;
-  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-md);
 }
 
 .inline-edit-bar .inline-edit-cancel {
@@ -1210,7 +1221,6 @@
 .inline-edit-bar .inline-edit-cancel:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-border-soft);
-  box-shadow: none;
 }
 
 .inline-edit-error {
@@ -1430,12 +1440,10 @@
   width: 2px;
   border-radius: 2px;
   background: var(--color-accent);
-  box-shadow: 0 0 8px var(--color-accent-glow);
 }
 
 .group-section-ungrouped .group-section-header::before {
   background: var(--color-border);
-  box-shadow: none;
 }
 
 /* Una sola fila: el título se encoge (puntos suspensivos) antes que la flecha, el lápiz o el recuento.
@@ -1455,9 +1463,10 @@
 .group-section-title {
   min-width: 0;
   margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  font-stretch: var(--title-stretch);
+  letter-spacing: var(--title-tracking);
 }
 
 /* Flecha para plegar y desplegar la sección; apunta a la derecha cuando está plegada. */
@@ -1467,26 +1476,24 @@
   justify-content: center;
   flex-shrink: 0;
   align-self: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   margin: 0 0 0 -4px;
   padding: 0;
   color: var(--color-text-muted);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
-  box-shadow: none;
+  border-radius: var(--radius-sm);
 }
 
 .group-section-toggle:hover:not(:disabled) {
   color: var(--color-accent);
   background: var(--color-accent-soft);
   border-color: var(--color-border-soft);
-  box-shadow: none;
 }
 
 .group-section-toggle svg {
-  transition: transform 0.15s ease;
+  transition: transform var(--duration-fast) ease;
 }
 
 .group-section-closed .group-section-toggle svg {
@@ -1527,39 +1534,45 @@
 
 /* ---------- "+ Nuevo grupo" ---------- */
 
+/* Botón secundario: borde de control, sin relleno; el icono y el texto en la misma línea. */
 .new-group-button {
   margin: 0;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 8px 14px;
+  font-size: var(--text-sm);
   color: var(--color-text);
-  background: transparent;
-  border: 1px solid var(--color-accent-glow);
-  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
 .new-group-button:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-accent-soft);
   border-color: var(--color-accent);
-  box-shadow: none;
+}
+
+.new-group-button .icon {
+  color: var(--color-accent);
+}
+
+.new-group-button:disabled .icon {
+  color: inherit;
 }
 
 .new-group-form {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .new-group-form input {
   width: min(280px, 70vw);
   margin: 0;
-  border-radius: 999px;
 }
 
 .new-group-form button {
   margin: 0;
-  border-radius: 999px;
 }
 
 .new-group-form .new-group-cancel {
@@ -1571,7 +1584,6 @@
 .new-group-form .new-group-cancel:hover:not(:disabled) {
   color: var(--color-text);
   background: var(--color-border-soft);
-  box-shadow: none;
 }
 
 .new-group-error {
@@ -1598,7 +1610,7 @@
 /* La tarjeta recorta su contenido (overflow: hidden): el foco se dibuja por dentro. */
 .app-shell .project-card-link:focus-visible {
   outline-offset: -3px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
 }
 
 .project-card-description {
@@ -1629,8 +1641,8 @@
   max-width: none;
   margin: 0;
   padding: 6px 10px;
-  font-size: 13px;
-  border-radius: 8px;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-sm);
   background: var(--color-input-bg);
 }
 
