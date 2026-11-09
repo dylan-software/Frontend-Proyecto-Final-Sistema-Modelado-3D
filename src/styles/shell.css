@@ -1,27 +1,12 @@
-/* Contenedor común (AppShell): dirección "plano técnico bajo vidrio". Todos los colores salen de los
-   tokens del tema activo (themes.ts); aquí solo se añaden el rojo de peligro y la intensidad del vidrio. */
+/* Contenedor común (AppShell), sistema «Plano de obra». Solo lee las variables de tokens.css y los
+   colores del tema activo (themes.ts). */
 
-:root {
-  --color-danger: #ff7b72;
-  --color-danger-soft: rgba(248, 81, 73, 0.14);
-  /* Opacidad de la superficie de vidrio y brillo de su borde superior. */
-  --glass-alpha: 62%;
-  --glass-highlight: rgba(255, 255, 255, 0.06);
-  --grid-line: rgba(240, 246, 252, 0.035);
-}
-
-:root[data-theme="light"],
-:root[data-theme="lightBlue"] {
-  --color-danger: #cf222e;
-  --color-danger-soft: rgba(207, 34, 46, 0.1);
-  --glass-alpha: 72%;
-  --glass-highlight: rgba(255, 255, 255, 0.75);
-  --grid-line: rgba(31, 35, 40, 0.05);
-}
-
-/* Manrope (next/font) con la pila del sistema como respaldo. */
+/* Instrument Sans (next/font) con la pila del sistema como respaldo. La variable --font-sans la
+   define la clase de next/font en este mismo elemento, por eso la familia se fija aquí. */
 .app-font {
   font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
 }
 
 .app-font button,
@@ -48,9 +33,9 @@
   top: 8px;
   left: 8px;
   z-index: 2000;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: var(--space-2) 14px;
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-semibold);
   color: var(--color-accent-contrast);
   background: var(--color-accent);
   transform: translateY(-200%);
@@ -60,26 +45,14 @@
   transform: none;
 }
 
-.app-shell a:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
+/* ---------- Superficie ---------- */
 
-/* ---------- Vidrio ---------- */
-
+/* El nombre .glass se conserva en el marcado: ahora es una lámina opaca con borde de 1 px. Lo que
+   flota (menús, paneles sobre el 3D, diálogos) añade --shadow-float en su propia regla. */
 .glass {
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
-  box-shadow: inset 0 1px 0 var(--glass-highlight), var(--color-shadow);
-}
-
-@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) and
-  (background: color-mix(in srgb, red 50%, transparent)) {
-  .glass {
-    background: color-mix(in srgb, var(--color-surface) var(--glass-alpha), transparent);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
-  }
+  box-shadow: none;
 }
 
 /* ---------- Estructura ---------- */
