@@ -2,33 +2,34 @@
   box-sizing: border-box;
 }
 
-/* Default (dark) palette for the first paint; ThemeContext overrides these
-   on <html> with the tokens of the selected theme (src/styles/themes.ts). */
-:root {
-  --color-bg: #0d1117;
-  --color-surface: #1c2128;
-  --color-surface-alt: #161b22;
-  --color-input-bg: #0d1117;
-  --color-border: #30363d;
-  --color-border-soft: rgba(240, 246, 252, 0.08);
-  --color-text: #e6edf3;
-  --color-text-muted: #8b949e;
-  --color-accent: #00e5ff;
-  --color-accent-hover: #5cf0ff;
-  --color-accent-contrast: #0d1117;
-  --color-accent-soft: rgba(0, 229, 255, 0.12);
-  --color-accent-glow: rgba(0, 229, 255, 0.45);
-  --color-shadow: 0 8px 24px rgba(1, 4, 9, 0.35);
-  color-scheme: dark;
-}
+/* Las variables (colores del primer pintado, tipografía, espaciados, radios, sombras y foco) están
+   en tokens.css; ThemeContext sustituye los colores en <html> con los del tema elegido (themes.ts). */
 
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
   background: var(--color-bg);
   color: var(--color-text);
-  transition: background 200ms ease, color 200ms ease;
+  transition: background var(--duration-base) ease, color var(--duration-base) ease;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-semibold);
+  font-stretch: var(--title-stretch);
+  letter-spacing: var(--title-tracking);
+}
+
+/* Foco visible y coherente en toda la app: anillo de 2 px del acento separado 2 px del control. */
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
 }
 
 .container {
@@ -101,13 +102,14 @@ body {
   }
 }
 
+/* Paneles: se separan con un borde de 1 px, sin sombra (no flotan). */
 section {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-5);
   padding: 20px;
   background: var(--color-surface);
   border: 1px solid var(--color-border-soft);
-  border-radius: 12px;
-  box-shadow: var(--color-shadow);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
 }
 
 section h2,
@@ -115,38 +117,38 @@ section h3 {
   margin-top: 0;
 }
 
-/* Action buttons: vibrant neon cyan call to action. */
+/* Botón principal: relleno del acento. Las variantes secundarias se dibujan con borde. */
 button {
   background: var(--color-accent);
   color: var(--color-accent-contrast);
   border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  margin: 4px 0;
-  box-shadow: 0 0 0 transparent;
-  transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  margin: var(--space-1) 0;
+  box-shadow: none;
+  transition:
+    background var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease,
+    transform var(--duration-fast) ease;
 }
 
 button:hover:not(:disabled) {
   background: var(--color-accent-hover);
-  box-shadow: 0 0 18px var(--color-accent-glow);
 }
 
 button:active:not(:disabled) {
   transform: translateY(1px);
 }
 
-button:focus-visible {
-  outline: 2px solid var(--color-accent-hover);
-  outline-offset: 2px;
-}
-
 button:disabled {
-  background: var(--color-border);
+  background: var(--color-surface-alt);
   color: var(--color-text-muted);
+  box-shadow: inset 0 0 0 1px var(--color-border-soft);
   cursor: not-allowed;
 }
 
@@ -155,24 +157,25 @@ button:disabled {
   background: none;
   color: var(--color-accent);
   text-decoration: underline;
-  padding: 4px 0;
+  text-underline-offset: 3px;
+  padding: var(--space-1) 0;
   box-shadow: none;
 }
 
 .warning {
-  color: #ff7b72;
-  font-size: 14px;
+  color: var(--color-danger);
+  font-size: var(--text-sm);
 }
 
 .hint {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: var(--text-xs);
 }
 
 label {
   display: block;
-  margin: 8px 0;
-  font-size: 14px;
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
   color: var(--color-text);
 }
 
@@ -182,25 +185,29 @@ select {
   width: 100%;
   max-width: 320px;
   padding: 9px 10px;
-  margin-top: 4px;
+  margin-top: var(--space-1);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-text);
   background: var(--color-input-bg);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  transition: border-color 150ms ease, box-shadow 150ms ease, background 200ms ease;
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-fast) ease, background var(--duration-base) ease;
 }
 
 input::placeholder {
   color: var(--color-text-muted);
 }
 
+/* Con el ratón el campo marca el borde; con el teclado, además, el anillo de foco común. */
 input:focus,
 select:focus {
-  outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
 }
 
 input:disabled,
@@ -376,10 +383,11 @@ select:disabled {
 
 .category-tag {
   padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-2xs);
   color: var(--color-text);
-  background: var(--color-border);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-soft);
 }
 
 /* Categories created through "Others" get the accent color. */
@@ -627,7 +635,8 @@ select:disabled {
 }
 
 .chat-bubble-user {
-  background: var(--color-border);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border-soft);
   align-self: flex-end;
 }
 
@@ -646,17 +655,16 @@ select:disabled {
 }
 
 .reset-button {
-  margin-top: 16px;
+  margin-top: var(--space-4);
   background: transparent;
-  color: #f2b8b5;
-  border: 1px solid #f2b8b5;
+  color: var(--color-danger);
+  border: 1px solid var(--color-danger);
 }
 
 .reset-button:hover:not(:disabled) {
-  background: #b3261e;
-  border-color: #b3261e;
-  color: #fff;
-  box-shadow: none;
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .reset-button:disabled {
@@ -667,9 +675,9 @@ select:disabled {
 
 .connection-alert {
   padding: 10px 12px;
-  border-left: 4px solid #f85149;
-  border-radius: 4px;
-  background: rgba(248, 81, 73, 0.12);
+  border-left: 3px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
 }
 
 /* Authentication lock screen: a centered card over the dark background. */
@@ -1270,25 +1278,6 @@ select:disabled {
   .theme-selector-menu {
     animation: none;
   }
-}
-
-/* The light themes need darker reds to keep warnings readable. */
-:root[data-theme="light"] .warning,
-:root[data-theme="lightBlue"] .warning {
-  color: #cf222e;
-}
-
-:root[data-theme="light"] .reset-button:not(:disabled),
-:root[data-theme="lightBlue"] .reset-button:not(:disabled) {
-  color: #cf222e;
-  border-color: #cf222e;
-}
-
-:root[data-theme="light"] .reset-button:hover:not(:disabled),
-:root[data-theme="lightBlue"] .reset-button:hover:not(:disabled) {
-  color: #fff;
-  background: #b3261e;
-  border-color: #b3261e;
 }
 
 /* Catalog accordion: one collapsible block per furniture category. */

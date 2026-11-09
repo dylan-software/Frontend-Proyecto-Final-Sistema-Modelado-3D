@@ -1,0 +1,125 @@
+/* Sistema de diseño «Plano de obra»: todas las variables de la interfaz en un solo archivo.
+   - Colores de cada tema: vienen de themes.ts (ThemeContext los escribe en <html>); aquí solo están
+     los del primer pintado (tema Oscuro) y los de estado y cota, que cambian con el esquema claro u oscuro.
+   - Tipografía, espaciados, radios, sombras, movimiento y foco: iguales en los seis temas.
+   Se importa antes que globals.css, shell.css y project.css, que solo leen estas variables. */
+
+:root {
+  /* ---------- Color: primer pintado (tema Oscuro, el de por defecto) ---------- */
+  --color-bg: #16191c;
+  --color-surface: #1f2327;
+  --color-surface-alt: #1a1d21;
+  --color-input-bg: #16191c;
+  --color-border: #687079;
+  --color-border-soft: rgba(231, 233, 230, 0.09);
+  --color-text: #e7e9e6;
+  --color-text-muted: #a1a8ae;
+  --color-accent: #7fc2a8;
+  --color-accent-hover: #9ad3bc;
+  --color-accent-contrast: #10231c;
+  --color-accent-soft: rgba(127, 194, 168, 0.14);
+  --color-accent-glow: rgba(127, 194, 168, 0.4);
+  --color-shadow: 0 1px 2px rgba(8, 10, 12, 0.4), 0 12px 32px rgba(8, 10, 12, 0.38);
+  color-scheme: dark;
+
+  /* ---------- Color: estado y cota (esquema oscuro) ---------- */
+  /* Peligro y error: texto sobre superficie con contraste AA (≥ 4,5:1). */
+  --color-danger: #ff8a80;
+  --color-danger-soft: rgba(255, 138, 128, 0.12);
+  /* Aviso (reemplazar la sala, cambios sin guardar). */
+  --color-warning: #e3b341;
+  /* Roble: medidas, cotas y lo que cuelga de la pared. */
+  --color-measure: #d7a86a;
+  /* Velo bajo diálogos y capas. */
+  --color-scrim: rgba(8, 10, 12, 0.6);
+  /* Retícula del papel técnico (fondo de la app y del 3D). */
+  --grid-line: rgba(231, 233, 230, 0.04);
+
+  /* ---------- Tipografía ---------- */
+  /* Escala (px): 12 letra pequeña · 13 meta · 14 controles · 15 cuerpo · 17 · 21 · 28 · 36. */
+  --text-2xs: 0.75rem;
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.3125rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --leading-tight: 1.2;
+  --leading-body: 1.5;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  /* Títulos: un poco estrechos (eje de anchura de Instrument Sans) y con el interletrado cerrado. */
+  --title-stretch: 94%;
+  --title-tracking: -0.015em;
+  /* Largo de línea máximo del texto corrido. */
+  --measure: 72ch;
+
+  /* ---------- Espaciado (base 4 px) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* ---------- Radios por jerarquía ---------- */
+  /* Campos y etiquetas. */
+  --radius-sm: 4px;
+  /* Botones y tarjetas. */
+  --radius-md: 8px;
+  /* Paneles y diálogos. */
+  --radius-lg: 14px;
+  /* Solo avatares y puntos. */
+  --radius-full: 999px;
+
+  /* ---------- Sombras ---------- */
+  /* Lo que no flota se separa con bordes de 1 px. Solo menús, diálogos y paneles flotantes
+     llevan sombra: dos capas con tinte grafito (la del tema activo). */
+  --shadow-float: var(--color-shadow);
+
+  /* ---------- Movimiento ---------- */
+  /* Solo como respuesta a una acción; prefers-reduced-motion lo apaga más abajo. */
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ---------- Foco ---------- */
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --focus-color: var(--color-accent);
+
+  /* ---------- Iconos ---------- */
+  --icon-size: 20px;
+  --icon-stroke: 1.5;
+}
+
+/* Esquema claro: Claro y Azul Claro. */
+:root[data-theme="light"],
+:root[data-theme="lightBlue"] {
+  --color-danger: #b42318;
+  --color-danger-soft: rgba(180, 35, 24, 0.08);
+  --color-warning: #8a5a00;
+  --color-measure: #96652f;
+  --color-scrim: rgba(30, 34, 38, 0.45);
+  --grid-line: rgba(30, 34, 38, 0.05);
+}
+
+/* Respeta "reducir movimiento" en toda la app: sin animaciones ni transiciones. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
