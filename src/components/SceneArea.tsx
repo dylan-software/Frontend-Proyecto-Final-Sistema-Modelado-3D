@@ -10,6 +10,7 @@ import {
   moveResultMessage,
   nudge,
   samePlace,
+  statusHideDelay,
   withElevation,
   withPreview,
   type ArrowDirection,
@@ -93,6 +94,14 @@ export function SceneArea({
   // Otro objeto (también si se eligió desde la lista): el mensaje del movimiento anterior no le corresponde.
   useEffect(() => setStatus(null), [selectedId]);
 
+  // "Posición guardada…" se ve unos segundos y se oculta solo; los errores se quedan.
+  useEffect(() => {
+    const delay = status ? statusHideDelay(status.kind) : null;
+    if (delay === null) return;
+    const timer = window.setTimeout(() => setStatus(null), delay);
+    return () => window.clearTimeout(timer);
+  }, [status]);
+
   // Otra sala: nada seleccionado ni a medias.
   useEffect(() => {
     setSelectedId(null);
@@ -143,9 +152,11 @@ export function SceneArea({
 
   const movable = Boolean(onMoveItem);
   const shownSelected = selected ? (shownItems.find((item) => item.id === selected.id) ?? selected) : null;
+  const moving = Boolean(room && movable && shownSelected && mode);
 
   return (
-    <section className="scene-area" aria-label={t.label}>
+    // Con el panel de mover abierto, en el móvil la tarjeta de ocupación se aparta (CSS: .scene-area-moving).
+    <section className={`scene-area${moving ? " scene-area-moving" : ""}`} aria-label={t.label}>
       {room ? (
         <RenderScene
           vertices={room.vertices}
@@ -170,7 +181,7 @@ export function SceneArea({
         </div>
       )}
 
-      {room && movable && shownSelected && mode ? (
+      {moving && room && shownSelected && mode ? (
         <ObjectMovePanel
           item={shownSelected}
           mode={mode}

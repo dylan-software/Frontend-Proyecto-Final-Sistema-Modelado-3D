@@ -590,6 +590,27 @@
   box-shadow: var(--shadow-float);
 }
 
+/*
+ * Compacto (la ayuda ya se vio): más estrecho y pegado al borde derecho, alineado con "Nombres" y
+ * "Restablecer vista", para tapar lo menos posible del 3D. "Mover" ya va en el aria-label del panel.
+ */
+.object-move-panel[data-help="closed"] {
+  top: 48px;
+  right: 8px;
+  width: min(184px, calc(100% - 16px));
+  gap: 6px;
+  padding: var(--space-2) 10px;
+}
+
+.object-move-panel[data-help="closed"] .object-move-title {
+  display: none;
+}
+
+.object-move-panel[data-help="closed"] .object-move-arrows {
+  grid-template-columns: repeat(3, 32px);
+  grid-template-rows: repeat(3, 32px);
+}
+
 .object-move-header {
   display: flex;
   align-items: center;
@@ -739,16 +760,63 @@
   accent-color: var(--color-accent);
 }
 
-/* En el móvil, a lo ancho por arriba: abajo están la ocupación y el botón flotante del panel de IA. */
-.project-layout-mobile .object-move-panel,
+/* En el móvil, la indicación "Toca o haz clic…" sigue a lo ancho por arriba. */
 .project-layout-mobile .object-move-tip {
   left: 12px;
   right: 12px;
   width: auto;
+  text-align: center;
 }
 
-.project-layout-mobile .object-move-tip {
-  text-align: center;
+/*
+ * En el móvil, el panel es una franja baja pegada abajo: deja libre el botón flotante del asistente
+ * (56 px a 16 px del borde derecho) y las flechas van en una sola fila (← ↑ ↓ →) en vez de la cruceta.
+ * Mientras está abierto, la tarjeta de ocupación se aparta para no apilarse con él.
+ */
+.project-layout-mobile .object-move-panel,
+.project-layout-mobile .object-move-panel[data-help="closed"] {
+  top: auto;
+  right: 80px;
+  bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+  left: 12px;
+  width: auto;
+  gap: 6px;
+  padding: var(--space-2) 10px;
+}
+
+.project-layout-mobile .object-move-title {
+  display: none;
+}
+
+.project-layout-mobile .object-move-panel .object-move-arrows {
+  grid-template-columns: repeat(4, 36px);
+  grid-template-rows: 36px;
+  justify-content: start;
+}
+
+.project-layout-mobile .object-move-arrow {
+  grid-area: auto;
+}
+
+.project-layout-mobile .object-move-arrow-left {
+  order: 1;
+}
+
+.project-layout-mobile .object-move-arrow-up {
+  order: 2;
+}
+
+.project-layout-mobile .object-move-arrow-down {
+  order: 3;
+}
+
+.project-layout-mobile .object-move-arrow-right {
+  order: 4;
+}
+
+.project-layout-mobile .scene-area-moving .occupancy-card,
+.project-layout-mobile .scene-area-moving .occupancy-show {
+  display: none;
 }
 
 /* ---------- Crear objeto manualmente (ManualObjectDrawer) ---------- */
