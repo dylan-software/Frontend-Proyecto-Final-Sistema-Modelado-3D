@@ -163,9 +163,9 @@ describe("checkPublicationForm", () => {
     expect(checkPublicationForm("<b>Sala</b>", "")).toMatchObject({ ok: false, field: "title" });
   });
 
-  it("rechaza descripciones de más de 1000 caracteres", () => {
-    expect(checkPublicationForm("Sala", "x".repeat(1001))).toMatchObject({ ok: false, field: "description" });
-    expect(checkPublicationForm("Sala", "x".repeat(1000))).toMatchObject({ ok: true });
+  it("rechaza descripciones de más de 500 caracteres (el límite del proyecto)", () => {
+    expect(checkPublicationForm("Sala", "x".repeat(501))).toMatchObject({ ok: false, field: "description" });
+    expect(checkPublicationForm("Sala", "x".repeat(500))).toMatchObject({ ok: true });
   });
 });
 

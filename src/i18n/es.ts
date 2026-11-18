@@ -109,7 +109,15 @@ export const es = {
     cancel: "Cancelar",
     hintName: "Enter para guardar, Escape para cancelar",
     hintDescription: "Ctrl+Enter para guardar, Escape para cancelar",
-    count: (used: number, max: number) => `${used}/${max}`,
+    /** Contador visible al editar una descripción: "120 / 500". */
+    count: (used: number, max: number) => `${used} / ${max}`,
+    /** Lo mismo para lectores de pantalla. */
+    countLabel: (used: number, max: number) => `${used} de ${max} caracteres`,
+    /** Descripción antigua más larga que el límite: hay que recortarla para guardarla. */
+    overLimit: (extra: number) =>
+      extra === 1
+        ? "Sobra 1 carácter: recorta la descripción para guardarla."
+        : `Sobran ${extra} caracteres: recorta la descripción para guardarla.`,
   },
   /** Grupos de proyectos (carpetas) en /proyectos. */
   groups: {

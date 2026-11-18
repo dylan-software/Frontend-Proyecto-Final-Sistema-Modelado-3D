@@ -8,7 +8,13 @@ import { normalizeName } from "./projects";
 
 export const MAX_GROUP_NAME_LENGTH = 80;
 export const MAX_PROJECT_NAME_LENGTH = 120;
+/** Descripción de un grupo (y máximo que admite la base de datos). */
 export const MAX_DESCRIPTION_LENGTH = 1000;
+/**
+ * Descripción de un proyecto y de su publicación, al escribirla (backend: MAX_PROJECT_DESCRIPTION_LENGTH).
+ * Las descripciones antiguas más largas se siguen mostrando; solo hay que recortarlas al editarlas.
+ */
+export const MAX_PROJECT_DESCRIPTION_LENGTH = 500;
 
 /** Caracteres de control (Unicode Cc y Cf). */
 const CONTROL = /[\p{Cc}\p{Cf}]/u;
@@ -70,15 +76,33 @@ export function checkPlainName(text: string, max: number): TextCheck<string> {
   return { ok: true, value };
 }
 
-/** Descripción libre: vacía es null; hasta 1000 caracteres; solo saltos de línea y tabuladores como controles. */
-export function checkDescription(text: string): TextCheck<string | null> {
+/**
+ * Descripción libre: vacía es null; hasta `max` caracteres (1000 por defecto, la de un grupo) contados sin
+ * los espacios de los extremos; solo saltos de línea y tabuladores como controles.
+ */
+export function checkDescription(text: string, max: number = MAX_DESCRIPTION_LENGTH): TextCheck<string | null> {
   const value = text.trim();
   if (!value) return { ok: true, value: null };
-  if (charCount(value) > MAX_DESCRIPTION_LENGTH) {
-    return { ok: false, error: es.groups.validation.descriptionTooLong(MAX_DESCRIPTION_LENGTH) };
+  if (charCount(value) > max) {
+    return { ok: false, error: es.groups.validation.descriptionTooLong(max) };
   }
   if (Array.from(value).some((char) => CONTROL.test(char) && !ALLOWED_IN_DESCRIPTION.has(char))) {
     return { ok: false, error: es.groups.validation.descriptionChars };
   }
   return { ok: true, value };
+}
+
+/** checkDescription con el límite de la descripción de un proyecto o de su publicación (500). */
+export function checkProjectDescription(text: string): TextCheck<string | null> {
+  return checkDescription(text, MAX_PROJECT_DESCRIPTION_LENGTH);
+}
+
+/**
+ * Lo que muestra el contador de una descripción: caracteres usados (como los cuenta el backend: puntos de
+ * código, sin los espacios de los extremos), el máximo y cuántos sobran (0 si cabe). Sobran en una
+ * descripción antigua, guardada antes del límite, que hay que recortar para volver a guardarla.
+ */
+export function descriptionCount(text: string, max: number): { used: number; max: number; over: number } {
+  const used = charCount(text.trim());
+  return { used, max, over: Math.max(0, used - max) };
 }

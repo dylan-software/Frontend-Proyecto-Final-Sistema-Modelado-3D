@@ -4,7 +4,7 @@
  */
 import { es } from "../i18n/es";
 import { ApiError, type PublicPublication } from "./api";
-import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH, type TextCheck } from "./groups";
+import { checkPlainName, checkProjectDescription, MAX_PROJECT_NAME_LENGTH, type TextCheck } from "./groups";
 
 /**
  * Fecha corta en español ("8 nov 2026") de una fecha ISO del backend, en UTC para que no dependa de la
@@ -24,7 +24,8 @@ export function checkPublicationForm(
   // "error" in: con "strict": false, TypeScript no estrecha la unión con !check.ok.
   const checkedTitle: TextCheck<string> = checkPlainName(title, MAX_PROJECT_NAME_LENGTH);
   if ("error" in checkedTitle) return { ok: false, field: "title", error: checkedTitle.error };
-  const checkedDescription = checkDescription(description);
+  // Mismo límite que la descripción del proyecto (500).
+  const checkedDescription = checkProjectDescription(description);
   if ("error" in checkedDescription) return { ok: false, field: "description", error: checkedDescription.error };
   return { ok: true, value: { title: checkedTitle.value, description: checkedDescription.value } };
 }

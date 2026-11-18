@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import { es } from "../i18n/es";
-import { charCount, MAX_DESCRIPTION_LENGTH, type TextCheck } from "../lib/groups";
+import { MAX_DESCRIPTION_LENGTH, type TextCheck } from "../lib/groups";
+import { DescriptionCounter } from "./DescriptionCounter";
 import { IconPencil } from "./icons";
 
 interface InlineEditProps {
@@ -25,6 +26,12 @@ interface InlineEditProps {
    * su `title`. Para títulos largos en filas estrechas (nombre de un grupo).
    */
   truncate?: boolean;
+  /**
+   * Solo descripciones: máximo de caracteres (maxLength del campo y contador "120 / 500"). 1000 por
+   * defecto (grupos); los proyectos usan 500. Un valor guardado más largo se muestra entero al editar,
+   * con el contador marcado, y solo se puede borrar texto hasta que quepa.
+   */
+  maxLength?: number;
 }
 
 /**
@@ -42,6 +49,7 @@ export function InlineEdit({
   as: Tag = "span",
   className = "",
   truncate = false,
+  maxLength = MAX_DESCRIPTION_LENGTH,
 }: InlineEditProps) {
   const t = es.inlineEdit;
   const [editing, setEditing] = useState(false);
@@ -51,6 +59,7 @@ export function InlineEdit({
   const fieldRef = useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const errorId = useId();
+  const countId = useId();
 
   useEffect(() => {
     if (!editing) return;
@@ -125,12 +134,13 @@ export function InlineEdit({
     );
   }
 
+  const describedBy = [kind === "description" ? countId : null, error ? errorId : null].filter(Boolean).join(" ");
   const fieldProps = {
     value: draft,
     disabled: saving,
     "aria-label": editLabel,
     "aria-invalid": error ? true : undefined,
-    "aria-describedby": error ? errorId : undefined,
+    "aria-describedby": describedBy || undefined,
     onChange: (e: { target: { value: string } }) => setDraft(e.target.value),
     onKeyDown: handleKeyDown,
   };
@@ -140,13 +150,11 @@ export function InlineEdit({
       {kind === "name" ? (
         <input ref={fieldRef} type="text" className="inline-edit-field" autoComplete="off" {...fieldProps} />
       ) : (
-        <textarea ref={fieldRef} className="inline-edit-field" rows={3} {...fieldProps} />
+        <textarea ref={fieldRef} className="inline-edit-field" rows={3} maxLength={maxLength} {...fieldProps} />
       )}
       <div className="inline-edit-bar">
         {kind === "description" && (
-          <span className="inline-edit-count" aria-live="polite">
-            {t.count(charCount(draft.trim()), MAX_DESCRIPTION_LENGTH)}
-          </span>
+          <DescriptionCounter id={countId} text={draft} max={maxLength} className="inline-edit-count" />
         )}
         <span className="inline-edit-hint">{kind === "name" ? t.hintName : t.hintDescription}</span>
         <button type="button" className="inline-edit-cancel" onClick={cancel} disabled={saving}>

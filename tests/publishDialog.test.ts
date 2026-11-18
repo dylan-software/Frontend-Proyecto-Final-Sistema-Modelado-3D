@@ -45,8 +45,8 @@ describe("PublishForm", () => {
     expect(html).toContain('role="dialog"');
     expect(html).toContain('value="Mi dormitorio"');
     expect(html).toContain('maxLength="120"');
-    expect(html).toContain('maxLength="1000"');
-    expect(html).toContain(">0/1000<");
+    expect(html).toContain('maxLength="500"');
+    expect(html).toContain(">0 / 500<");
     expect(html).toContain(escaped(es.publish.submit));
   });
 

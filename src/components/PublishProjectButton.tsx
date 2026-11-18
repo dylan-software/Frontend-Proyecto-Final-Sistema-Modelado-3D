@@ -3,8 +3,9 @@ import { createPortal } from "react-dom";
 
 import { es } from "../i18n/es";
 import { api, type OwnPublication, type RoomDetail } from "../lib/api";
-import { charCount, MAX_DESCRIPTION_LENGTH, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
+import { MAX_PROJECT_DESCRIPTION_LENGTH, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
 import { checkPublicationForm, formatPublishedDate, publishErrorMessage, unpublishErrorMessage } from "../lib/social";
+import { DescriptionCounter } from "./DescriptionCounter";
 import { IconShare } from "./icons";
 
 /** Estado de publicación del proyecto abierto. */
@@ -78,6 +79,7 @@ export function PublishForm({
   const t = es.publish;
   const titleId = useId();
   const descriptionId = useId();
+  const countId = useId();
   const headingId = useId();
   const noticeId = useId();
   const form = (
@@ -119,13 +121,16 @@ export function PublishForm({
         id={descriptionId}
         value={description}
         rows={3}
-        maxLength={MAX_DESCRIPTION_LENGTH}
+        maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
         placeholder={t.descriptionPlaceholder}
         disabled={busy}
         aria-invalid={invalidField === "description" ? true : undefined}
+        aria-describedby={countId}
         onChange={(e) => onDescriptionChange(e.target.value)}
       />
-      <p className="publish-count">{es.inlineEdit.count(charCount(description), MAX_DESCRIPTION_LENGTH)}</p>
+      <p className="publish-count">
+        <DescriptionCounter id={countId} text={description} max={MAX_PROJECT_DESCRIPTION_LENGTH} />
+      </p>
       {error && (
         <p className="publish-error" role="alert">
           {error}

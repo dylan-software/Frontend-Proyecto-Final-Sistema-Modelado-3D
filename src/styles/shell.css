@@ -1264,6 +1264,16 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Contador de una descripción (DescriptionCounter): en rojo si una descripción antigua pasa del límite. */
+.description-count.is-over {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.description-count-over {
+  margin-left: 8px;
+}
+
 .inline-edit-hint {
   margin-right: auto;
 }

@@ -26,7 +26,12 @@ import {
   type RoomItem,
   type RoomUndoResult,
 } from "../lib/api";
-import { checkDescription, checkPlainName, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
+import {
+  checkPlainName,
+  checkProjectDescription,
+  MAX_PROJECT_DESCRIPTION_LENGTH,
+  MAX_PROJECT_NAME_LENGTH,
+} from "../lib/groups";
 import type { ItemMoveBody } from "../lib/objectMove";
 import { nextUndoDepth } from "../lib/roomUndo";
 import { ROUTES } from "../lib/routes";
@@ -426,7 +431,8 @@ export function ProjectWorkspace({ roomId, userId }: ProjectWorkspaceProps) {
                 value={currentRoom.description ?? null}
                 placeholder={es.groups.noDescription}
                 editLabel={es.project.editDescription(currentRoom.name)}
-                check={checkDescription}
+                check={checkProjectDescription}
+                maxLength={MAX_PROJECT_DESCRIPTION_LENGTH}
                 onSave={(description) => saveRoomText({ description })}
               />
             </ClampedDescription>
