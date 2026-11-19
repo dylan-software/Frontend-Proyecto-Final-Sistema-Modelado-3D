@@ -1,42 +1,41 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useCallback, useEffect, useState } from "react";
 
 import { AppShell } from "../components/AppShell";
 import { PlanEmpty, PlanLoading } from "../components/PlanState";
 import { PublicationCard } from "../components/PublicationCard";
 import { SessionLoading } from "../components/SessionLoading";
+import { usePublicationCopy } from "../hooks/usePublicationCopy";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
-import { api, type PublicPublication } from "../lib/api";
+import { api, type AuthorCard } from "../lib/api";
 import { ROUTES } from "../lib/routes";
-import { appendCatalogPage, copyErrorMessage } from "../lib/social";
+import { appendCatalogPage } from "../lib/social";
 
 type CatalogState =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; items: PublicPublication[]; page: number; hasMore: boolean };
+  | { status: "ready"; items: AuthorCard[]; page: number; hasMore: boolean };
 
 /**
- * /red: catálogo público de la red social (CONTRATO-FASE9.md). Lista los proyectos publicados, de la
- * publicación más nueva a la más vieja, y copia el elegido a los proyectos de la cuenta.
+ * /red: catálogo público de la red social por autor (CONTRATO-HABITA-PERFILES.md, parte A). Una tarjeta
+ * por autor con su publicación más reciente, su nombre visible y "Ver perfil"; copia el proyecto elegido
+ * a los proyectos de la cuenta.
  */
 export default function SocialPage() {
   const t = es.social;
-  const router = useRouter();
   const { session, logout } = useSessionGuard();
   const signedIn = session.status === "signedIn";
   const [state, setState] = useState<CatalogState>({ status: "loading" });
   const [loadingMore, setLoadingMore] = useState(false);
   const [moreError, setMoreError] = useState<string | null>(null);
-  const [copyingCode, setCopyingCode] = useState<string | null>(null);
-  const [copyError, setCopyError] = useState<{ code: string; message: string } | null>(null);
+  const { copyingCode, copyError, copy } = usePublicationCopy();
 
   const loadFirstPage = useCallback(async () => {
     setState({ status: "loading" });
     setMoreError(null);
     try {
-      const result = await api.listPublications(1);
+      const result = await api.listAuthors(1);
       setState({ status: "ready", items: result.items, page: result.page, hasMore: result.hasMore });
     } catch (err) {
       setState({ status: "error", message: (err as Error).message });
@@ -52,7 +51,7 @@ export default function SocialPage() {
     setLoadingMore(true);
     setMoreError(null);
     try {
-      const result = await api.listPublications(state.page + 1);
+      const result = await api.listAuthors(state.page + 1);
       setState((prev) =>
         prev.status === "ready"
           ? { status: "ready", items: appendCatalogPage(prev.items, result.items), page: result.page, hasMore: result.hasMore }
@@ -62,19 +61,6 @@ export default function SocialPage() {
       setMoreError(t.loadMoreFailed((err as Error).message));
     } finally {
       setLoadingMore(false);
-    }
-  }
-
-  async function handleCopy(code: string) {
-    if (copyingCode) return;
-    setCopyingCode(code);
-    setCopyError(null);
-    try {
-      const copied = await api.copyPublication(code);
-      await router.push(ROUTES.project(copied.room.id));
-    } catch (err) {
-      setCopyError({ code, message: copyErrorMessage(err) });
-      setCopyingCode(null);
     }
   }
 
@@ -119,15 +105,16 @@ export default function SocialPage() {
       {state.status === "ready" && state.items.length > 0 && (
         <>
           <ul className="project-grid">
-            {state.items.map((publication, index) => (
+            {state.items.map((card, index) => (
               <PublicationCard
-                key={publication.code}
-                publication={publication}
+                key={card.code}
+                publication={card}
+                byline={{ author: card.author, count: card.authorPublicationCount }}
                 index={index}
-                copying={copyingCode === publication.code}
+                copying={copyingCode === card.code}
                 disabled={copyingCode !== null}
-                error={copyError?.code === publication.code ? copyError.message : null}
-                onCopy={(code) => void handleCopy(code)}
+                error={copyError?.code === card.code ? copyError.message : null}
+                onCopy={(code) => void copy(code)}
               />
             ))}
           </ul>

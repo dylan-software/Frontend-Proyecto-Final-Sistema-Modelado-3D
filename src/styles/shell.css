@@ -1181,6 +1181,45 @@
 }
 
 /* "Tuyo": etiqueta de plano (radio de campo), no una píldora. */
+/* Autor de la tarjeta en el catálogo por autor (CONTRATO-HABITA-PERFILES.md); solo tokens existentes. */
+.publication-author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px var(--space-2);
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.publication-author-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+}
+
+.publication-author-count {
+  font-size: var(--text-2xs);
+}
+
+.publication-author-link {
+  margin-left: auto;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
+.profile-header-count {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
 .publication-mine {
   padding: 1px 6px;
   font-weight: var(--weight-semibold);

@@ -6,6 +6,8 @@ export const ROUTES = {
   projects: "/proyectos",
   social: "/red",
   project: (id: number) => `/proyecto/${encodeURIComponent(id)}`,
+  /** Perfil público de la red social; protegido por la misma regla de sesión que el resto. */
+  profile: (code: string) => `/red/perfil/${encodeURIComponent(code)}`,
 } as const;
 
 /**

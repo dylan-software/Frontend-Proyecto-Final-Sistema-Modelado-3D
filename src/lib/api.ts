@@ -394,6 +394,46 @@ export interface PublicationCatalog {
   hasMore: boolean;
 }
 
+/**
+ * Autor de una tarjeta del catálogo por autor (CONTRATO-HABITA-PERFILES.md, parte A). `displayName` null
+ * = "Autor anónimo". Nunca lleva el correo, el nombre de la cuenta ni ids internos.
+ */
+export interface PublicationAuthor {
+  /** Código público del perfil (16 caracteres); el único id del autor. */
+  code: string;
+  displayName: string | null;
+  /** true si el autor es quien mira. */
+  mine: boolean;
+}
+
+/** Perfil público de una cuenta en la red social. */
+export interface PublicProfile extends PublicationAuthor {
+  /** Publicaciones públicas del perfil. */
+  publicationCount: number;
+}
+
+/** Tarjeta de GET /social/authors: la publicación más reciente del autor, con el autor. */
+export interface AuthorCard extends PublicPublication {
+  /** null solo si la cuenta no tiene perfil (la tarjeta sale como "Autor anónimo", sin enlace). */
+  author: PublicationAuthor | null;
+  authorPublicationCount: number;
+}
+
+/** GET /social/authors?page=N: una tarjeta por autor, 24 por página, del autor que publicó más reciente. */
+export interface AuthorCatalog {
+  items: AuthorCard[];
+  page: number;
+  hasMore: boolean;
+}
+
+/** GET /social/profiles/{code}?page=N: el perfil y una página de sus publicaciones públicas. */
+export interface ProfilePage {
+  profile: PublicProfile;
+  items: PublicPublication[];
+  page: number;
+  hasMore: boolean;
+}
+
 /** Cuerpo de PUT /rooms/{id}/publication. */
 export interface PublicationWrite {
   title: string;
@@ -516,6 +556,21 @@ export const api = {
   /** Copia una publicación como proyecto NUEVO de la cuenta (como importar); 404 si ya no es pública. */
   copyPublication: (code: string) =>
     v1Request<RoomImportResult>(`/social/publications/${encodeURIComponent(code)}/copy`, { method: "POST" }),
+
+  /** Catálogo por autor: una tarjeta por cuenta con su publicación más reciente, por páginas. */
+  listAuthors: (page: number) => v1Request<AuthorCatalog>(`/social/authors?page=${encodeURIComponent(page)}`),
+
+  /** Perfil público y una página de sus publicaciones; 404 si el código no existe. */
+  getProfile: (code: string, page: number) =>
+    v1Request<ProfilePage>(`/social/profiles/${encodeURIComponent(code)}?page=${encodeURIComponent(page)}`),
+
+  /** Perfil de la cuenta, o null si aún no tiene (no crea nada). */
+  getMyProfile: () =>
+    v1Request<{ profile: PublicProfile | null }>("/social/me/profile").then((body) => body.profile),
+
+  /** Cambia el nombre visible (null = anónimo); crea el perfil si falta. 422 inválido, 429 cupo. */
+  updateMyProfile: (displayName: string | null) =>
+    v1Request<PublicProfile>("/social/me/profile", { method: "PATCH", body: JSON.stringify({ displayName }) }),
 
   /** Renombra, describe o mueve de grupo un proyecto; no toca su forma ni sus muebles. */
   updateRoom: (roomId: number, changes: RoomChanges) =>

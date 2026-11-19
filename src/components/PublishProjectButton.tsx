@@ -2,9 +2,20 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { createPortal } from "react-dom";
 
 import { es } from "../i18n/es";
-import { api, type OwnPublication, type RoomDetail } from "../lib/api";
+import { api, type OwnPublication, type PublicProfile, type RoomDetail } from "../lib/api";
 import { MAX_PROJECT_DESCRIPTION_LENGTH, MAX_PROJECT_NAME_LENGTH } from "../lib/groups";
-import { checkPublicationForm, formatPublishedDate, publishErrorMessage, unpublishErrorMessage } from "../lib/social";
+import { readUserName } from "../lib/session";
+import {
+  checkDisplayName,
+  checkPublicationForm,
+  displayNameErrorMessage,
+  displayNameNeedsSaving,
+  formatPublishedDate,
+  initialDisplayName,
+  MAX_DISPLAY_NAME_LENGTH,
+  publishErrorMessage,
+  unpublishErrorMessage,
+} from "../lib/social";
 import { DescriptionCounter } from "./DescriptionCounter";
 import { IconShare } from "./icons";
 
@@ -14,6 +25,23 @@ type PublicationState =
   | { status: "error" }
   | { status: "ready"; publication: OwnPublication | null };
 
+/** Perfil público de la cuenta, leído al abrir el formulario (null = aún no tiene). */
+type ProfileState =
+  | { status: "loading" }
+  | { status: "error" }
+  | { status: "ready"; profile: PublicProfile | null };
+
+/** Campo con error en el formulario de publicar. */
+export type PublishField = "title" | "description" | "displayName";
+
+/** Campo "Nombre visible en Habita" del formulario (CONTRATO-HABITA-PERFILES.md, recorte). */
+export interface DisplayNameField {
+  value: string;
+  /** true mientras se lee el perfil: el campo y "Publicar" quedan deshabilitados. */
+  loading: boolean;
+  onChange: (value: string) => void;
+}
+
 interface PublishFormProps {
   /** "update" si el proyecto ya está publicado: el formulario actualiza su copia congelada. */
   mode: "publish" | "update";
@@ -22,7 +50,9 @@ interface PublishFormProps {
   busy: boolean;
   error: string | null;
   /** Campo con el error, para marcarlo con aria-invalid. */
-  invalidField: "title" | "description" | null;
+  invalidField: PublishField | null;
+  /** Nombre visible del perfil; PublishProjectButton lo pasa siempre. */
+  displayName?: DisplayNameField;
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
   onSubmit: (e: FormEvent) => void;
@@ -60,8 +90,8 @@ export function PublishModalBackdrop({
 }
 
 /**
- * Formulario de publicar o actualizar: título, descripción opcional y el aviso de qué se publica.
- * Sin estado propio (se prueba renderizándolo en el servidor).
+ * Formulario de publicar o actualizar: título, descripción opcional, nombre visible en la red y el aviso
+ * de qué se publica. Sin estado propio (se prueba renderizándolo en el servidor).
  */
 export function PublishForm({
   mode,
@@ -70,6 +100,7 @@ export function PublishForm({
   busy,
   error,
   invalidField,
+  displayName,
   onTitleChange,
   onDescriptionChange,
   onSubmit,
@@ -82,6 +113,9 @@ export function PublishForm({
   const countId = useId();
   const headingId = useId();
   const noticeId = useId();
+  const displayNameId = useId();
+  const displayNameHintId = useId();
+  const loadingName = displayName?.loading ?? false;
   const form = (
     <form
       className={`publish-panel glass${modal ? " publish-panel-modal" : ""}`}
@@ -131,6 +165,27 @@ export function PublishForm({
       <p className="publish-count">
         <DescriptionCounter id={countId} text={description} max={MAX_PROJECT_DESCRIPTION_LENGTH} />
       </p>
+      {displayName && (
+        <>
+          <label className="publish-label" htmlFor={displayNameId}>
+            {t.displayNameLabel}
+          </label>
+          <input
+            id={displayNameId}
+            type="text"
+            value={displayName.value}
+            maxLength={MAX_DISPLAY_NAME_LENGTH}
+            autoComplete="off"
+            disabled={busy || loadingName}
+            aria-invalid={invalidField === "displayName" ? true : undefined}
+            aria-describedby={displayNameHintId}
+            onChange={(e) => displayName.onChange(e.target.value)}
+          />
+          <p id={displayNameHintId} className="publish-count">
+            {loadingName ? t.displayNameLoading : t.displayNameHint}
+          </p>
+        </>
+      )}
       {error && (
         <p className="publish-error" role="alert">
           {error}
@@ -140,7 +195,7 @@ export function PublishForm({
         <button type="button" className="publish-secondary" onClick={onCancel} disabled={busy}>
           {t.cancel}
         </button>
-        <button type="submit" disabled={busy}>
+        <button type="submit" disabled={busy || loadingName}>
           {busy ? t.saving : mode === "update" ? t.submitUpdate : t.submit}
         </button>
       </div>
@@ -230,9 +285,13 @@ export function PublishProjectButton({ room, variant = "header" }: PublishProjec
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [invalidField, setInvalidField] = useState<"title" | "description" | null>(null);
+  const [invalidField, setInvalidField] = useState<PublishField | null>(null);
+  const [profileState, setProfileState] = useState<ProfileState>({ status: "loading" });
+  const [displayName, setDisplayName] = useState("");
   const toggleRef = useRef<HTMLButtonElement>(null);
   const unpublishRef = useRef<HTMLButtonElement>(null);
+  /** Lectura del perfil en curso: al reabrir el formulario, la respuesta de una lectura vieja se ignora. */
+  const profileRequest = useRef(0);
 
   useEffect(() => {
     if (roomId === null) return;
@@ -260,9 +319,33 @@ export function PublishProjectButton({ room, variant = "header" }: PublishProjec
     setInvalidField(null);
     setConfirming(false);
     setFormOpen(true);
+    loadProfile();
+  }
+
+  /**
+   * Lee el perfil cada vez que se abre el formulario (puede haber cambiado en otra pestaña) y propone su
+   * nombre visible; sin perfil, el nombre de la cuenta; con perfil anónimo, vacío.
+   */
+  function loadProfile() {
+    const request = ++profileRequest.current;
+    setProfileState({ status: "loading" });
+    setDisplayName("");
+    api.getMyProfile().then(
+      (profile) => {
+        if (request !== profileRequest.current) return;
+        setProfileState({ status: "ready", profile });
+        setDisplayName(initialDisplayName(profile, readUserName()));
+      },
+      () => {
+        if (request !== profileRequest.current) return;
+        setProfileState({ status: "error" });
+        setError(t.displayNameLoadFailed);
+      }
+    );
   }
 
   function closeForm() {
+    profileRequest.current++;
     setFormOpen(false);
     setError(null);
     setInvalidField(null);
@@ -272,15 +355,39 @@ export function PublishProjectButton({ room, variant = "header" }: PublishProjec
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (busy || roomId === null) return;
+    // Sin el perfil leído no se sabe si el nombre cambió: no se publica (podría mostrar un nombre que
+    // la cuenta eligió ocultar).
+    if (profileState.status !== "ready") {
+      if (profileState.status === "error") setError(t.displayNameLoadFailed);
+      return;
+    }
     const check = checkPublicationForm(title, description);
     if ("error" in check) {
       setError(check.error);
       setInvalidField(check.field);
       return;
     }
+    const checkedName = checkDisplayName(displayName);
+    if ("error" in checkedName) {
+      setError(checkedName.error);
+      setInvalidField("displayName");
+      return;
+    }
     setBusy(true);
     setError(null);
     setInvalidField(null);
+    // Primero el nombre visible (solo si cambió o si aún no hay perfil); si falla, no se publica.
+    if (displayNameNeedsSaving(profileState.profile, checkedName.value)) {
+      try {
+        const profile = await api.updateMyProfile(checkedName.value);
+        setProfileState({ status: "ready", profile });
+      } catch (err) {
+        setError(displayNameErrorMessage(err));
+        setInvalidField("displayName");
+        setBusy(false);
+        return;
+      }
+    }
     try {
       const saved = await api.publishRoom(roomId, check.value);
       setState({ status: "ready", publication: saved });
@@ -322,6 +429,11 @@ export function PublishProjectButton({ room, variant = "header" }: PublishProjec
         busy={busy}
         error={error}
         invalidField={invalidField}
+        displayName={{
+          value: displayName,
+          loading: profileState.status === "loading",
+          onChange: setDisplayName,
+        }}
         onTitleChange={setTitle}
         onDescriptionChange={setDescription}
         onSubmit={(e) => void handleSubmit(e)}
