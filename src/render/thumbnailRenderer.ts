@@ -9,9 +9,10 @@
  */
 import * as THREE from "three";
 
-/** Tamaño de la imagen: el doble del plano 2D de la tarjeta (240 x 180), para pantallas densas. */
-export const THUMBNAIL_WIDTH = 480;
-export const THUMBNAIL_HEIGHT = 360;
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from "./thumbnailSize";
+
+// El tamaño vive en thumbnailSize.ts (sin three.js); se reexporta aquí.
+export { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH };
 
 /** Este navegador no puede crear un contexto WebGL: las tarjetas usan el plano 2D. */
 export class WebGLUnavailableError extends Error {

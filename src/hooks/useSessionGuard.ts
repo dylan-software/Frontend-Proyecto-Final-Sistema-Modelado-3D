@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import { roomDetailLoader } from "../lib/roomDetails";
+import { roomThumbnailCache } from "../lib/roomThumbnails";
 import { followSessionRedirect, sessionGate } from "../lib/routes";
 import {
   clearStoredSession,
@@ -17,11 +18,20 @@ export type SessionState =
   | { status: "signedIn"; userId: string; userName: string | null };
 
 /**
+ * Olvida lo que se guardó en memoria de la cuenta: las salas y las miniaturas 3D de las tarjetas (al
+ * cerrar sesión, con un 401 o con el token caducado).
+ */
+export function forgetAccountData(): void {
+  roomDetailLoader.clear();
+  roomThumbnailCache.clear();
+}
+
+/**
  * Lee la sesión guardada; fuera del navegador (prerenderizado) no hay sesión. Un token ya caducado
  * se olvida aquí mismo, como tras un 401, para no pintar la página con él y luego echar al usuario.
  */
 function readSession(): SessionState {
-  if (forgetExpiredSession()) roomDetailLoader.clear();
+  if (forgetExpiredSession()) forgetAccountData();
   const userId = readSessionUserId();
   return userId === null ? { status: "signedOut" } : { status: "signedIn", userId, userName: readUserName() };
 }
@@ -42,7 +52,7 @@ export function useSessionGuard(): { session: SessionState; refresh: () => void;
   useEffect(() => {
     refresh();
     return onSessionExpired(() => {
-      roomDetailLoader.clear();
+      forgetAccountData();
       refresh();
     });
   }, [refresh]);
@@ -59,7 +69,7 @@ export function useSessionGuard(): { session: SessionState; refresh: () => void;
 
   const logout = useCallback(() => {
     clearStoredSession();
-    roomDetailLoader.clear();
+    forgetAccountData();
     refresh();
   }, [refresh]);
 

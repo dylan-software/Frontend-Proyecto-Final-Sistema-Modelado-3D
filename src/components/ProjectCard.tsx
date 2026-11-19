@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 
+import { useRoomThumbnail } from "../hooks/useRoomThumbnail";
 import { es } from "../i18n/es";
 import { summaryFootprints, type ProjectGroup, type RoomDetail, type RoomSummary } from "../lib/api";
 import { formatAreaM2, polygonAreaM2, rectangleVertices } from "../lib/projects";
 import { roomDetailLoader } from "../lib/roomDetails";
+import { thumbnailRoomOf } from "../lib/roomThumbnails";
 import { ROUTES } from "../lib/routes";
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from "../render/thumbnailSize";
 import { IconMore } from "./icons";
 import { PublishProjectButton } from "./PublishProjectButton";
 import { RoomPlanThumbnail } from "./RoomPlanThumbnail";
@@ -72,6 +75,12 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
     : footprints.length > 0
       ? `${name}. ${t.planObjects(footprints.length)}`
       : name;
+  // Miniatura 3D: solo con la forma real y al hacerse visible; hasta entonces (o si falla), el plano 2D.
+  const thumbnailRoom = useMemo(() => thumbnailRoomOf(detail, room), [detail, room]);
+  const thumbnail = useRoomThumbnail(room.id, thumbnailRoom);
+  // Una imagen que el navegador no pudo mostrar no se vuelve a intentar: se queda el 2D.
+  const [brokenUrl, setBrokenUrl] = useState<string | null>(null);
+  const render3d = thumbnail.url !== null && thumbnail.url !== brokenUrl ? thumbnail.url : null;
 
   async function handleMove(value: string) {
     const groupId = value === "" ? null : Number(value);
@@ -90,13 +99,20 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
     <li className="project-card-item" style={{ "--i": Math.min(index, 12) } as CSSProperties}>
       <div className="project-card glass">
         <Link href={ROUTES.project(room.id)} className="project-card-link" aria-label={t.open(name, area)}>
-          <span className="project-card-plan">
-            <RoomPlanThumbnail
-              vertices={vertices}
-              provisional={!detail}
-              footprints={footprints}
-              label={planLabel}
-            />
+          <span className="project-card-plan" ref={thumbnail.ref}>
+            {render3d ? (
+              <img
+                className="project-card-render"
+                src={render3d}
+                alt={planLabel}
+                width={THUMBNAIL_WIDTH}
+                height={THUMBNAIL_HEIGHT}
+                decoding="async"
+                onError={() => setBrokenUrl(render3d)}
+              />
+            ) : (
+              <RoomPlanThumbnail vertices={vertices} provisional={!detail} footprints={footprints} label={planLabel} />
+            )}
           </span>
           <span className="project-card-body">
             <span className="project-card-name">{name}</span>

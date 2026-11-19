@@ -9,6 +9,7 @@ import { SessionLoading } from "../../components/SessionLoading";
 import { useSessionGuard } from "../../hooks/useSessionGuard";
 import { es } from "../../i18n/es";
 import { roomDetailLoader } from "../../lib/roomDetails";
+import { roomThumbnailCache } from "../../lib/roomThumbnails";
 import { ROUTES } from "../../lib/routes";
 
 /** Id de sala válido de la URL (entero positivo), o null. */
@@ -20,7 +21,7 @@ function parseRoomId(value: string | string[] | undefined): number | null {
 
 /**
  * /proyecto/[id]: la pantalla del proyecto, sin barra superior ni barra lateral. Al salir se olvida
- * la sala en la caché de planos, para que su tarjeta muestre la forma editada.
+ * la sala en la caché de planos y su miniatura 3D, para que su tarjeta muestre la forma editada.
  */
 export default function ProjectPage() {
   const router = useRouter();
@@ -29,7 +30,10 @@ export default function ProjectPage() {
 
   useEffect(() => {
     if (roomId === null) return;
-    return () => roomDetailLoader.forget(roomId);
+    return () => {
+      roomDetailLoader.forget(roomId);
+      roomThumbnailCache.forget(roomId);
+    };
   }, [roomId]);
 
   // Hasta saber si hay sesión (o mientras se redirige al login), nada de la página: solo la carga neutra.

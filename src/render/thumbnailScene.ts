@@ -6,10 +6,10 @@
  */
 import * as THREE from "three";
 
-import type { Point2D, RoomItem } from "../lib/api";
 import { toSceneBoxes } from "../lib/roomBoxes";
+import { roomThumbnailKey, type ThumbnailRoom } from "../lib/roomThumbnails";
 import { CAMERA_FOV_DEG, computeSceneView, wallPlanes } from "../lib/sceneView";
-import { thumbnailKey, type ThumbnailCache } from "../lib/thumbnailCache";
+import type { ThumbnailCache } from "../lib/thumbnailCache";
 import {
   AMBIENT_LIGHT_INTENSITY,
   BOX_OPACITY,
@@ -24,42 +24,18 @@ import {
 } from "./sceneColors";
 import { sharedThumbnailRenderer, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH, type ThumbnailRenderer } from "./thumbnailRenderer";
 
-/** Sube este número si cambia el dibujo: las miniaturas guardadas dejan de valer. */
-export const THUMBNAIL_STYLE_VERSION = 1;
+// La sala, su aspecto y su clave viven en lib/roomThumbnails.ts (sin three.js); se reexportan aquí.
+export { roomThumbnailKey, THUMBNAIL_STYLE_VERSION, thumbnailLook, type ThumbnailRoom } from "../lib/roomThumbnails";
+
 /** Planos de recorte de la cámara (como el Canvas de la vista del proyecto). */
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 1000;
-
-/** Lo que se dibuja de una sala: su forma, su altura y sus objetos (esquina mínima, metros). */
-export interface ThumbnailRoom {
-  vertices: Point2D[];
-  heightM: number;
-  items: RoomItem[];
-}
 
 /** Escena lista para pintar; `dispose` libera geometrías y materiales (llamarlo siempre al terminar). */
 export interface BuiltThumbnailScene {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   dispose(): void;
-}
-
-/**
- * Lo que cambia el aspecto de la miniatura (y nada más): forma, altura y cajas (tamaño, centro y si
- * están levantadas). Los nombres no se dibujan, así que renombrar un objeto no la invalida.
- */
-export function thumbnailLook(room: ThumbnailRoom): unknown {
-  return {
-    version: THUMBNAIL_STYLE_VERSION,
-    vertices: room.vertices.map(({ x, y }) => [x, y]),
-    heightM: room.heightM,
-    boxes: toSceneBoxes(room.items).map((box) => [box.size, box.center, box.raised]),
-  };
-}
-
-/** Clave de la miniatura de la sala en la caché. */
-export function roomThumbnailKey(roomId: number, room: ThumbnailRoom): string {
-  return thumbnailKey(roomId, thumbnailLook(room));
 }
 
 function translucent(color: string, opacity: number, extra: THREE.MeshStandardMaterialParameters = {}) {
