@@ -15,6 +15,19 @@ import {
   wallPlanes,
 } from "../lib/sceneView";
 import { cmToM } from "../lib/units";
+import {
+  AMBIENT_LIGHT_INTENSITY,
+  BOX_OPACITY,
+  DIRECTIONAL_LIGHT_INTENSITY,
+  FLOOR_BOX_COLOR,
+  FLOOR_COLOR,
+  FLOOR_OPACITY,
+  RAISED_BOX_COLOR,
+  SELECTED_BOX_COLOR,
+  SELECTED_BOX_OPACITY,
+  WALL_COLOR,
+  WALL_OPACITY,
+} from "./sceneColors";
 
 interface PlacedItem {
   x: number;
@@ -50,17 +63,8 @@ interface RenderSceneProps {
   onDragEnd?: (original: RoomItem, target: RoomItem) => void;
 }
 
-// Colores de las cajas: las del suelo, las que están por encima (cuadros, repisas…) y la seleccionada.
-const FLOOR_BOX_COLOR = "#8a6f5c";
-const RAISED_BOX_COLOR = "#5c7a8a";
-const SELECTED_BOX_COLOR = "#d39a3f";
 // Píxeles que hay que mover el puntero para que un toque se convierta en arrastre.
 const DRAG_THRESHOLD_PX = 4;
-// Suelo y paredes semitransparentes y sin techo, para que no tapen los objetos.
-const FLOOR_COLOR = "#d9d2c5";
-const FLOOR_OPACITY = 0.6;
-const WALL_COLOR = "#b8c4d0";
-const WALL_OPACITY = 0.18;
 
 type OrbitControlsRef = ComponentRef<typeof OrbitControls>;
 
@@ -243,7 +247,7 @@ function SceneBoxes({
               <meshStandardMaterial
                 color={selected ? SELECTED_BOX_COLOR : box.raised ? RAISED_BOX_COLOR : FLOOR_BOX_COLOR}
                 transparent
-                opacity={selected ? 0.95 : 0.85}
+                opacity={selected ? SELECTED_BOX_OPACITY : BOX_OPACITY}
               />
             </mesh>
             {showLabels && (
@@ -346,13 +350,16 @@ export function RenderScene({
         // Un toque (sin arrastrar) fuera de las cajas quita la selección.
         onPointerMissed={onSelect ? () => onSelect(null) : undefined}
       >
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={AMBIENT_LIGHT_INTENSITY} />
         <pointLight
           position={[lighting.position.x, lighting.position.y, lighting.position.z]}
           intensity={lighting.intensity}
           color={lighting.color}
         />
-        <directionalLight position={[view.position[0], view.position[1] * 2, view.position[2]]} intensity={0.6} />
+        <directionalLight
+          position={[view.position[0], view.position[1] * 2, view.position[2]]}
+          intensity={DIRECTIONAL_LIGHT_INTENSITY}
+        />
 
         <OrbitControls
           ref={controlsRef}

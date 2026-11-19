@@ -48,7 +48,11 @@ function defaultCanvas(): ThumbnailCanvas {
 
 function defaultRenderer(canvas: ThumbnailCanvas) {
   // preserveDrawingBuffer: la imagen sigue en el lienzo cuando toBlob la lee.
-  return new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, preserveDrawingBuffer: true });
+  // El mismo mapeo de tonos que el Canvas de React Three Fiber de la vista del proyecto (su valor por
+  // defecto), para que los colores de la miniatura coincidan con los de la vista.
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  return renderer;
 }
 
 /** Lee el lienzo como PNG; algunos navegadores devuelven null si el lienzo no se puede leer. */

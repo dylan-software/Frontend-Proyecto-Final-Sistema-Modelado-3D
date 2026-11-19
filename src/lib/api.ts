@@ -240,6 +240,25 @@ export function summaryFootprints(room: { muebles?: SpaceFurniture[] | null }): 
   return footprints;
 }
 
+/**
+ * Los muebles de GET /spaces como RoomItem (la forma de GET /items), para dibujarlos en 3D con
+ * toSceneBoxes: esquina mínima, rotación 0 (como GET /items) y medidas en metros. No filtra:
+ * toSceneBoxes ya omite los que tienen medidas no válidas.
+ */
+export function summaryRoomItems(room: { muebles?: SpaceFurniture[] | null }): RoomItem[] {
+  return (room.muebles ?? []).map((piece) => ({
+    id: piece.id,
+    name: piece.nombre,
+    x: piece.posicion_x - piece.ancho / 2,
+    y: piece.posicion_z - piece.profundidad / 2,
+    rotation: 0,
+    widthM: piece.ancho,
+    depthM: piece.profundidad,
+    heightM: piece.alto,
+    elevationM: piece.posicion_y,
+  }));
+}
+
 /** A polygonal room, in meters; a vertex's y is the 3D z axis. */
 export interface RoomDetail {
   id: number;
