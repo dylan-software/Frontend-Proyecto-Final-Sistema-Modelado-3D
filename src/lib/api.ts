@@ -187,11 +187,57 @@ export interface RoomSummary {
   ancho: number;
   alto: number;
   profundidad: number;
-  muebles: unknown[];
+  muebles: SpaceFurniture[];
   /** Grupo del proyecto (null = sin grupo); el backend siempre lo manda desde la migración 005. */
   group_id?: number | null;
   /** Descripción del proyecto, o null. */
   description?: string | null;
+}
+
+/**
+ * Mueble de una sala tal como llega en GET /spaces (FurnitureOut del backend): CENTRO de la huella
+ * (posicion_x, posicion_z), altura de la base (posicion_y) y medidas, todo en metros.
+ */
+export interface SpaceFurniture {
+  id: number;
+  nombre: string;
+  ancho: number;
+  alto: number;
+  profundidad: number;
+  posicion_x: number;
+  posicion_y: number;
+  posicion_z: number;
+}
+
+/** Huella de un objeto en la planta, en metros: ESQUINA mínima (como GET /items), medidas y altura de la base. */
+export interface PlanFootprint {
+  x: number;
+  y: number;
+  widthM: number;
+  depthM: number;
+  elevationM: number;
+}
+
+/**
+ * Adaptador único de los muebles de GET /spaces a huellas en planta: del centro a la esquina mínima
+ * (decisión 4); posicion_z es el eje y del plano (el mismo marco que los vértices). Descarta los que
+ * traen medidas o posiciones no válidas; sin `muebles` devuelve [].
+ */
+export function summaryFootprints(room: { muebles?: SpaceFurniture[] | null }): PlanFootprint[] {
+  const footprints: PlanFootprint[] = [];
+  for (const piece of room.muebles ?? []) {
+    const { ancho, profundidad, posicion_x, posicion_y, posicion_z } = piece;
+    const values = [ancho, profundidad, posicion_x, posicion_y, posicion_z];
+    if (!values.every((n) => typeof n === "number" && Number.isFinite(n)) || ancho <= 0 || profundidad <= 0) continue;
+    footprints.push({
+      x: posicion_x - ancho / 2,
+      y: posicion_z - profundidad / 2,
+      widthM: ancho,
+      depthM: profundidad,
+      elevationM: posicion_y,
+    });
+  }
+  return footprints;
 }
 
 /** A polygonal room, in meters; a vertex's y is the 3D z axis. */

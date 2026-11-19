@@ -1,7 +1,7 @@
 import { useId } from "react";
 
-import type { Point2D } from "../lib/api";
-import { fitPlanToBox, formatMeters, planBounds } from "../lib/projects";
+import type { PlanFootprint, Point2D } from "../lib/api";
+import { fitFootprintsToPlan, fitPlanToBox, formatMeters, planBounds } from "../lib/projects";
 
 // Lienzo 4:3 en unidades SVG; el margen deja sitio a las cotas.
 const VIEW_W = 240;
@@ -16,17 +16,22 @@ interface RoomPlanThumbnailProps {
   label: string;
   /** true mientras se muestra el rectángulo provisional (trazo discontinuo y más tenue). */
   provisional?: boolean;
+  /** Objetos de la sala en el mismo marco que `vertices` (esquina mínima, metros); por defecto ninguno. */
+  footprints?: PlanFootprint[];
 }
 
 /**
  * Plano de la sala visto desde arriba, como en un plano técnico: retícula de fondo, contorno en el
- * color de acento y las cotas de ancho (arriba) y fondo (a la derecha) en metros.
+ * color de acento, los objetos como rectángulos (los levantados del suelo, con trazo discontinuo) y
+ * las cotas de ancho (arriba) y fondo (a la derecha) en metros.
  */
-export function RoomPlanThumbnail({ vertices, label, provisional = false }: RoomPlanThumbnailProps) {
+export function RoomPlanThumbnail({ vertices, label, provisional = false, footprints = [] }: RoomPlanThumbnailProps) {
   // useId trae caracteres (":" o "«»") que rompen la referencia url(#…): se dejan solo los seguros.
   const patternId = `plan-grid-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const bounds = planBounds(vertices);
-  const { points, box } = fitPlanToBox(vertices, VIEW_W, VIEW_H, PADDING);
+  const fitted = fitPlanToBox(vertices, VIEW_W, VIEW_H, PADDING);
+  const { points, box } = fitted;
+  const objects = fitFootprintsToPlan(footprints, vertices, fitted);
   const top = box.y - DIM_GAP;
   const right = box.x + box.width + DIM_GAP;
 
@@ -46,6 +51,21 @@ export function RoomPlanThumbnail({ vertices, label, provisional = false }: Room
       <rect width={VIEW_W} height={VIEW_H} fill={`url(#${patternId})`} />
 
       {points && <polygon points={points} className="room-plan-shape" />}
+
+      {objects.length > 0 && (
+        <g className="room-plan-objects" aria-hidden="true">
+          {objects.map((rect, i) => (
+            <rect
+              key={i}
+              x={rect.x}
+              y={rect.y}
+              width={rect.width}
+              height={rect.height}
+              className={rect.raised ? "room-plan-object room-plan-object-raised" : "room-plan-object"}
+            />
+          ))}
+        </g>
+      )}
 
       {box.width > 0 && (
         <g className="room-plan-dimension" aria-hidden="true">

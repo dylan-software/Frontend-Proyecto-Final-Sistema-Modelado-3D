@@ -788,6 +788,21 @@
   opacity: 0.6;
 }
 
+/* Objetos en planta: bloques en el color de superficie con borde gris; los levantados del suelo
+   (estantes, cuadros, ventanas), con trazo discontinuo y sin relleno, como lo que queda por encima
+   en un plano. Colores de cada tema (themes.ts). */
+.room-plan-object {
+  fill: var(--color-surface);
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.room-plan-object-raised {
+  fill: none;
+  stroke-dasharray: 3 2;
+}
+
 /* Cotas de la planta: líneas en roble y cifras en el gris de texto secundario (contraste AA). */
 .room-plan-dimension path {
   fill: none;

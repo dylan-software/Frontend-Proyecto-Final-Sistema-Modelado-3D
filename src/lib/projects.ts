@@ -3,7 +3,7 @@
  * nombre del proyecto nuevo e inicial del usuario. Sin React ni red, para poder probarlas solas.
  * Un "proyecto" es una sala del backend; todo va en metros.
  */
-import type { Point2D } from "./api";
+import type { PlanFootprint, Point2D } from "./api";
 
 /** Medidas del proyecto nuevo: 4 x 3 m de planta y 2,5 m de alto (decisión 41). */
 export const NEW_PROJECT_WIDTH_M = 4;
@@ -83,6 +83,46 @@ export function fitPlanToBox(vertices: Point2D[], width: number, height: number,
     height: round(bounds.depth * scale),
   };
   return { points, scale, box };
+}
+
+/** Lado mínimo (unidades SVG) de un objeto en la miniatura: una ventana de 5 cm no desaparece. */
+export const MIN_FOOTPRINT_SVG = 2;
+/** Por encima de esta base (m) un objeto está levantado, como en la lista de objetos (0,5 cm). */
+const RAISED_TOLERANCE_M = 0.005;
+
+/** Un objeto dibujado en la miniatura, en unidades SVG; `raised` = levantado del suelo. */
+export interface PlanRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  raised: boolean;
+}
+
+/**
+ * Coloca las huellas de los objetos sobre el plano ya encajado por fitPlanToBox (mismo origen y misma
+ * escala que el polígono `vertices`). Un lado menor que MIN_FOOTPRINT_SVG se agranda alrededor de su
+ * centro. Primero los de suelo y después los levantados, para que estos queden encima. Coordenadas con
+ * 2 decimales; sin escala (sala vacía o degenerada) no dibuja nada.
+ */
+export function fitFootprintsToPlan(footprints: PlanFootprint[], vertices: Point2D[], fitted: FittedPlan): PlanRect[] {
+  if (fitted.scale <= 0 || vertices.length === 0) return [];
+  const bounds = planBounds(vertices);
+  const round = (n: number) => Math.round(n * 100) / 100;
+  const rects = footprints.map(({ x, y, widthM, depthM, elevationM }) => {
+    const width = Math.max(widthM * fitted.scale, MIN_FOOTPRINT_SVG);
+    const height = Math.max(depthM * fitted.scale, MIN_FOOTPRINT_SVG);
+    const centerX = fitted.box.x + (x + widthM / 2 - bounds.minX) * fitted.scale;
+    const centerY = fitted.box.y + (y + depthM / 2 - bounds.minY) * fitted.scale;
+    return {
+      x: round(centerX - width / 2),
+      y: round(centerY - height / 2),
+      width: round(width),
+      height: round(height),
+      raised: elevationM > RAISED_TOLERANCE_M,
+    };
+  });
+  return [...rects.filter((r) => !r.raised), ...rects.filter((r) => r.raised)];
 }
 
 /** Área del polígono en m² (fórmula del cordón de zapato); el sentido de los vértices no importa. */

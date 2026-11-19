@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { useEffect, useId, useState, type CSSProperties } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 
 import { es } from "../i18n/es";
-import type { ProjectGroup, RoomDetail, RoomSummary } from "../lib/api";
+import { summaryFootprints, type ProjectGroup, type RoomDetail, type RoomSummary } from "../lib/api";
 import { formatAreaM2, polygonAreaM2, rectangleVertices } from "../lib/projects";
 import { roomDetailLoader } from "../lib/roomDetails";
 import { ROUTES } from "../lib/routes";
@@ -61,9 +61,17 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
   const actionsId = useId();
   const vertices = detail?.vertices ?? rectangleVertices(room.ancho, room.profundidad);
   const area = detail ? formatAreaM2(detail.areaM2) : t.approxArea(formatAreaM2(polygonAreaM2(vertices)));
+  // Los objetos vienen en la lista (sin peticiones nuevas), en el marco de los vértices reales: solo se
+  // dibujan con la forma real; sobre el rectángulo provisional podrían quedar desplazados.
+  const footprints = useMemo(() => (detail ? summaryFootprints(room) : []), [detail, room]);
   // El nombre y la descripción de la lista son los más recientes (la caché de planos puede ser anterior).
   const name = room.nombre;
   const description = room.description ?? null;
+  const planLabel = !detail
+    ? `${name}. ${t.planPending}`
+    : footprints.length > 0
+      ? `${name}. ${t.planObjects(footprints.length)}`
+      : name;
 
   async function handleMove(value: string) {
     const groupId = value === "" ? null : Number(value);
@@ -86,7 +94,8 @@ export function ProjectCard({ room, index, groups, onMove }: ProjectCardProps) {
             <RoomPlanThumbnail
               vertices={vertices}
               provisional={!detail}
-              label={detail ? name : `${name}. ${t.planPending}`}
+              footprints={footprints}
+              label={planLabel}
             />
           </span>
           <span className="project-card-body">

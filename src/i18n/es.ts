@@ -54,6 +54,8 @@ export const es = {
     /** Área aproximada (rectángulo ancho × fondo) mientras no llega el plano real. */
     approxArea: (area: string) => `≈ ${area}`,
     planPending: "Plano provisional mientras carga la forma real",
+    /** Texto accesible del plano de la tarjeta cuando dibuja objetos. */
+    planObjects: (count: number) => (count === 1 ? "Plano con 1 objeto" : `Plano con ${count} objetos`),
     /** Menú de la tarjeta (botón de tres puntos): de momento, "Publicar en Habita". */
     moreActions: (name: string) => `Más acciones de ${name}`,
     moreActionsTitle: "Más acciones",
