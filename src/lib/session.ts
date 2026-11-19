@@ -53,16 +53,57 @@ export function readUserName(): string | null {
 }
 
 /**
- * Id de la cuenta con sesión completa (token e id guardados), o null. Todas las páginas deciden con
- * esta misma función si hay sesión, así que nunca discrepan entre sí (no hay bucles de redirección).
+ * Caducidad del token (segundos Unix), leída del campo "exp" de su parte central, o null si no se
+ * puede leer. No comprueba la firma (eso lo hace el backend): solo sirve para no pintar una página
+ * protegida con un token que ya caducó.
  */
-export function readSessionUserId(): string | null {
+export function readTokenExpiry(token: string): number | null {
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
   try {
-    if (localStorage.getItem(AUTH_TOKEN_KEY) === null) return null;
+    const base64 = parts[1]!.replace(/-/g, "+").replace(/_/g, "/");
+    const payload: unknown = JSON.parse(atob(base64 + "=".repeat((4 - (base64.length % 4)) % 4)));
+    if (typeof payload !== "object" || payload === null) return null;
+    const exp = (payload as { exp?: unknown }).exp;
+    return typeof exp === "number" && Number.isFinite(exp) ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * true si el token ya caducó según su "exp", con la misma regla que el backend (exp <= ahora). Sin un
+ * "exp" legible devuelve false: entonces decide el backend (un 401 cierra la sesión).
+ */
+export function isTokenExpired(token: string, nowMs: number = Date.now()): boolean {
+  const exp = readTokenExpiry(token);
+  return exp !== null && exp * 1000 <= nowMs;
+}
+
+/**
+ * Id de la cuenta con sesión completa (token e id guardados, y el token sin caducar), o null. Todas
+ * las páginas deciden con esta misma función si hay sesión, así que nunca discrepan entre sí (no hay
+ * bucles de redirección).
+ */
+export function readSessionUserId(nowMs: number = Date.now()): string | null {
+  try {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token === null || isTokenExpired(token, nowMs)) return null;
     return localStorage.getItem(AUTH_USER_ID_KEY);
   } catch {
     return null;
   }
+}
+
+/**
+ * Si el token guardado ya caducó, borra la sesión como lo haría un 401 (token, cuenta, nombre y sala
+ * actual) sin esperar a que el backend lo rechace. Devuelve true si la borró.
+ */
+export function forgetExpiredSession(nowMs: number = Date.now()): boolean {
+  const token = readAuthToken();
+  if (token === null || !isTokenExpired(token, nowMs)) return false;
+  clearStoredSession();
+  return true;
 }
 
 /** The stored current room id, or null when there is none (or storage is blocked). */

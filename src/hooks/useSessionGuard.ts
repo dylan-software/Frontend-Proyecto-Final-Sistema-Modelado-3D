@@ -2,25 +2,35 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 
 import { roomDetailLoader } from "../lib/roomDetails";
-import { sessionRedirect } from "../lib/routes";
-import { clearStoredSession, onSessionExpired, readSessionUserId, readUserName } from "../lib/session";
+import { followSessionRedirect, sessionGate } from "../lib/routes";
+import {
+  clearStoredSession,
+  forgetExpiredSession,
+  onSessionExpired,
+  readSessionUserId,
+  readUserName,
+} from "../lib/session";
 
 export type SessionState =
   | { status: "checking" }
   | { status: "signedOut" }
   | { status: "signedIn"; userId: string; userName: string | null };
 
-/** Lee la sesión guardada; fuera del navegador (prerenderizado) no hay sesión. */
+/**
+ * Lee la sesión guardada; fuera del navegador (prerenderizado) no hay sesión. Un token ya caducado
+ * se olvida aquí mismo, como tras un 401, para no pintar la página con él y luego echar al usuario.
+ */
 function readSession(): SessionState {
+  if (forgetExpiredSession()) roomDetailLoader.clear();
   const userId = readSessionUserId();
   return userId === null ? { status: "signedOut" } : { status: "signedIn", userId, userName: readUserName() };
 }
 
 /**
  * Sesión de la página actual y la redirección que le toca (regla única de lib/routes.ts): "/" con
- * sesión va a Proyectos y las demás rutas sin sesión van a "/". Mientras se comprueba o se redirige,
- * `status` es "checking" y la página no debe pintar nada. Un 401 del backend o `logout()` borran la
- * sesión y la caché de salas, y llevan a "/".
+ * sesión va a Proyectos y las demás rutas sin sesión van a "/", siempre con replace. Mientras se
+ * comprueba o se redirige, `status` es "checking" y la página solo debe pintar la carga neutra
+ * (SessionLoading). Un 401 del backend o `logout()` borran la sesión y la caché de salas, y llevan a "/".
  */
 export function useSessionGuard(): { session: SessionState; refresh: () => void; logout: () => void } {
   const router = useRouter();
@@ -37,14 +47,15 @@ export function useSessionGuard(): { session: SessionState; refresh: () => void;
     });
   }, [refresh]);
 
-  const target =
-    session.status === "checking" || !router.isReady
-      ? null
-      : sessionRedirect(router.pathname, session.status === "signedIn");
+  const { redirect, view } = sessionGate(
+    router.pathname,
+    session.status === "checking" ? null : session.status === "signedIn",
+    router.isReady
+  );
 
   useEffect(() => {
-    if (target !== null) void router.replace(target);
-  }, [target, router]);
+    followSessionRedirect(router, redirect);
+  }, [redirect, router]);
 
   const logout = useCallback(() => {
     clearStoredSession();
@@ -52,5 +63,5 @@ export function useSessionGuard(): { session: SessionState; refresh: () => void;
     refresh();
   }, [refresh]);
 
-  return { session: target !== null ? { status: "checking" } : session, refresh, logout };
+  return { session: view === "loading" ? { status: "checking" } : session, refresh, logout };
 }

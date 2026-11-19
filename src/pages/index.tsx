@@ -1,4 +1,5 @@
 import { AuthScreen } from "../components/AuthScreen";
+import { SessionLoading } from "../components/SessionLoading";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 
 /**
@@ -7,7 +8,7 @@ import { useSessionGuard } from "../hooks/useSessionGuard";
  */
 export default function Home() {
   const { session, refresh } = useSessionGuard();
-  // Mientras se comprueba la sesión o se redirige no se pinta nada (evita el parpadeo del login).
-  if (session.status !== "signedOut") return null;
+  // Mientras se comprueba la sesión o se redirige, solo la carga neutra (el login no parpadea).
+  if (session.status !== "signedOut") return <SessionLoading />;
   return <AuthScreen onAuthenticated={refresh} />;
 }

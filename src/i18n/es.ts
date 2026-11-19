@@ -9,6 +9,10 @@ export const es = {
   app: {
     title: "Sistema de decoración de espacios en 3D",
   },
+  /** Carga neutra mientras se comprueba la sesión (components/SessionLoading.tsx). */
+  session: {
+    checking: "Comprobando la sesión…",
+  },
   /** Contenedor común de Proyectos y Red Social: barra superior, barra lateral y menú de usuario. */
   shell: {
     homeLink: "Ir a Proyectos",

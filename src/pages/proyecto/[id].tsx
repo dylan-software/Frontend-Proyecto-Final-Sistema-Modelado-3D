@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { IconArrowLeft } from "../../components/icons";
 import { PlanEmpty } from "../../components/PlanState";
 import { ProjectWorkspace } from "../../components/ProjectWorkspace";
+import { SessionLoading } from "../../components/SessionLoading";
 import { useSessionGuard } from "../../hooks/useSessionGuard";
 import { es } from "../../i18n/es";
 import { roomDetailLoader } from "../../lib/roomDetails";
@@ -31,7 +32,8 @@ export default function ProjectPage() {
     return () => roomDetailLoader.forget(roomId);
   }, [roomId]);
 
-  if (session.status !== "signedIn" || !router.isReady) return null;
+  // Hasta saber si hay sesión (o mientras se redirige al login), nada de la página: solo la carga neutra.
+  if (session.status !== "signedIn" || !router.isReady) return <SessionLoading />;
 
   if (roomId === null) {
     return (

@@ -201,6 +201,31 @@
   color: var(--color-text-muted);
 }
 
+/* Carga neutra mientras se comprueba la sesión: centrada, sin barras ni contenido. Aparece tras 300 ms
+   para que una comprobación instantánea no parpadee; con movimiento reducido el retraso se mantiene. */
+.session-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 0 var(--space-4);
+  animation: session-loading-in var(--duration-base) var(--ease-out) 300ms both;
+}
+
+.session-loading .plan-loading {
+  align-items: center;
+}
+
+@keyframes session-loading-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Botones secundarios con icono y texto: el icono a la izquierda, alineado al texto. */
 .new-group-button {
   display: inline-flex;

@@ -6,6 +6,7 @@ import { GroupSection } from "../components/GroupSection";
 import { ImportProjectButton } from "../components/ImportProjectButton";
 import { NewGroupButton } from "../components/NewGroupButton";
 import { PlanEmpty } from "../components/PlanState";
+import { SessionLoading } from "../components/SessionLoading";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
 import { api, type ProjectGroup, type RoomImportResult, type RoomSummary } from "../lib/api";
@@ -124,7 +125,8 @@ export default function ProjectsPage() {
     );
   }
 
-  if (session.status !== "signedIn") return null;
+  // Hasta saber si hay sesión (o mientras se redirige al login), nada de la página: solo la carga neutra.
+  if (session.status !== "signedIn") return <SessionLoading />;
 
   const ready = state.status === "ready" ? state : null;
   const all = ready ? groupProjects(ready.rooms, ready.groups) : null;

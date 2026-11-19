@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "../components/AppShell";
 import { PlanEmpty, PlanLoading } from "../components/PlanState";
 import { PublicationCard } from "../components/PublicationCard";
+import { SessionLoading } from "../components/SessionLoading";
 import { useSessionGuard } from "../hooks/useSessionGuard";
 import { es } from "../i18n/es";
 import { api, type PublicPublication } from "../lib/api";
@@ -77,7 +78,8 @@ export default function SocialPage() {
     }
   }
 
-  if (!signedIn) return null;
+  // Hasta saber si hay sesión (o mientras se redirige al login), nada de la página: solo la carga neutra.
+  if (!signedIn) return <SessionLoading />;
 
   return (
     <AppShell active="social" userName={session.userName} onLogout={logout}>
